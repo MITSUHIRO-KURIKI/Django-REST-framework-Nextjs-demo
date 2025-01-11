@@ -1,0 +1,28 @@
+{% load i18n %}
+
+{# --- SUBJECT ▽ --- #}
+{% block subject %}
+no-reply: {{ site_name }}{% blocktranslate %}へようこそ{% endblocktranslate %}
+{% endblock subject %}
+{# --- SUBJECT △ --- #}
+
+{# --- TEXT ▽ --- #}
+{% block text_body %}
+{% blocktranslate %}本登録が完了しました{% endblocktranslate %}
+
+{# --- FOOTER --- #}
+{% include 'accounts/cert_email/include/text_footer.html' %}
+{% endblock text_body %}
+{# --- TEXT △ --- #}
+
+{# --- HTML ▽ --- #}
+{% block html_body %}
+<h3>
+    {% blocktranslate %}本登録が完了しました{% endblocktranslate %}
+</h3>
+
+
+{# --- FOOTER --- #}
+{% include 'accounts/cert_email/include/html_footer.html' %}
+{% endblock html_body %}
+{# --- HTML △ --- #}

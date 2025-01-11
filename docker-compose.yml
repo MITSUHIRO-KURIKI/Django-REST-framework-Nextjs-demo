@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+
+  frontend:
+    container_name: frontend              # コンテナ名を指定
+    build:
+      context: frontend
+    tty: true                             # 本番環境では不要
+    volumes:
+      - ./frontend:/frontend
+      - /frontend/node_modules            # ホストの `node_modules` をコンテナと分離
+    ports:
+      - 3000:3000                         # frontapps
+      - 6006:6006                         # Storybook
+    environment:
+      - WATCHPACK_POLLING=true            # ホットリロード
+    extra_hosts:
+      - host.docker.internal:host-gateway # コンテナからホストマシンにアクセスするためのホスト名
+
+  backend:
+    container_name: backend               # コンテナ名を指定
+    build:
+      context: backend
+    tty: true                             # 本番環境では不要
+    volumes:
+      - ./backend:/backend
+      - /backend/__pycache__              # `__pycache__` の分離
+    ports:
+      - 8000:8000
+    environment:
+      - PYTHONPATH=/backend
+      - WATCHPACK_POLLING=true            # ホットリロード
+    extra_hosts:
+      - host.docker.internal:host-gateway # コンテナからホストマシンにアクセスするためのホスト名
+
+  redis:
+    container_name: redis
+    image: redis:7.2
+    ports:
+      - 6379:6379
