@@ -114,16 +114,16 @@ class ThirdPartyGcloudSttTtsConsumer(AsyncWebsocketConsumer):
         if current_session_id is None:
             # セッションが一つもない場合
             session_id = await self._create_stt_session()
-            await self.stt_sessions[session_id]["queue"].put(chunk)
+            await self.stt_sessions[session_id]['queue'].put(chunk)
         else:
             # セッションがまだ動作中かチェック
-            if self.stt_sessions[current_session_id]["sttend_flag"]:
+            if self.stt_sessions[current_session_id]['sttend_flag']:
                 # セッションが終了待ち状態なので、新しくセッションを立ち上げる
                 session_id = await self._create_stt_session()
-                await self.stt_sessions[session_id]["queue"].put(chunk)
+                await self.stt_sessions[session_id]['queue'].put(chunk)
             else:
                 # 継続中のセッション
-                await self.stt_sessions[current_session_id]["queue"].put(chunk)
+                await self.stt_sessions[current_session_id]['queue'].put(chunk)
 
     async def _create_stt_session(self) -> int:
         """
