@@ -1,8 +1,8 @@
 import { z } from 'zod';
-
+import { emailSchema } from '../utils/schema';
 
 export const passwordResetFormSchema = z.object({
-  email:     z.string().email({ message: 'メールアドレスを入力してください' }),
+  email:     emailSchema,
   csrfToken: z.string().min(1, { message: 'フォームエラー' }),
 });
 

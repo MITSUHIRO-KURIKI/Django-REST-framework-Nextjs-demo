@@ -4,9 +4,12 @@
 import { useRouter, usePathname } from 'next/navigation';
 // react
 import {
+  useState,
+  useEffect,
   type ReactElement,
   type Dispatch,
   type SetStateAction,
+  ChangeEvent,
 } from 'react';
 // shadcn
 import {
@@ -17,6 +20,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/app/components/ui/shadcn/dialog';
+import { Input } from '@/app/components/ui/shadcn/input';
 import { Button } from '@/app/components/ui/shadcn/button';
 // icons
 import {
@@ -48,11 +52,28 @@ export function DeleteCheckDialog({
     deleteRoomModalOpen,
     setDeleteRoomModalOpen, }: DeleteCheckDialogDialogProps): ReactElement {
 
-  const router   = useRouter();
-  const pathname = usePathname(); 
+  const router                                      = useRouter();
+  const pathname                                    = usePathname();
+
+  const [safetyCheckInput, setSafetyCheckInput] = useState<string>('');
+  const [errorMsg, setErrorMsg]                     = useState<string>('');
+  useEffect(() => {
+    if (deleteRoomModalOpen) {
+      setSafetyCheckInput('')
+      setErrorMsg('')
+    };
+  }, [deleteRoomModalOpen])
 
   const handleDeleteVrmChatRoom = async (): Promise<void> => {
     if (!deleteRoomTargetRoomId) return;
+
+    // SafetyCheck
+    if (safetyCheckInput !== 'delete') {
+      showToast('error', 'error');
+      setErrorMsg('削除を実行するには「delete」と入力してください');
+      return;
+    };
+
     // 多重送信防止
     if (isVrmChatRoomSending) return;
 
@@ -88,17 +109,38 @@ export function DeleteCheckDialog({
             <DialogTitle>
               ルームを削除しますか？
             </DialogTitle>
-            <DialogDescription className='sr-only'>
-              ルーム名を削除します
+            <DialogDescription>
+              この操作は元に戻せません
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant='outline' onClick={() => setDeleteRoomModalOpen(false)}>
-              キャンセル
+
+        <div className = 'my-2'>
+          { errorMsg ? (
+            <p className = 'mb-2 text-sm text-destructive'>
+              {errorMsg}
+            </p>
+          ) : (
+            <p className = 'mb-2 text-sm'>
+            「delete」と入力してください
+            </p>
+          )}
+          <Input type        = 'text'
+                 value       = {safetyCheckInput}
+                 onChange    = {(e: ChangeEvent<HTMLInputElement>) => {setSafetyCheckInput(e.target.value);}}
+                 placeholder = 'delete' />
+        </div>
+
+          <DialogFooter className = 'flex !justify-between'>
+            <Button variant   = 'destructive'
+                    className = 'order-2 mt-2 sm:order-1'
+                    onClick   = {handleDeleteVrmChatRoom}
+                    disabled  = {isVrmChatRoomSending} >
+              {isVrmChatRoomSending ? (<Loader2 className='size-4 animate-spin' />) : ('削除する')}
             </Button>
-            <Button onClick  = {handleDeleteVrmChatRoom}
-                    disabled = {isVrmChatRoomSending} >
-              {isVrmChatRoomSending ? (<Loader2 className='mr-2 size-4 animate-spin' />) : ('削除する')}
+            <Button variant   = 'outline'
+                    className = 'order-1 mt-2 sm:order-2'
+                    onClick   = {() => setDeleteRoomModalOpen(false)}>
+              キャンセル
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,10 +1,11 @@
 import { z } from 'zod';
-import { passwordSchema } from '@/features/api/accounts';
+import { passwordSchema } from '../utils/schema';
+
 
 export const resetPasswordConfilmFormSchema = z
   .object({
     newPassword:   passwordSchema,
-    reNewPassword: z.string().min(1,{ message: '確認のため再度パスワードを入力してください' }),
+    reNewPassword: z.string().min(1, { message: '確認のため再度パスワードを入力してください' }),
     csrfToken:     z.string().min(1, { message: 'フォームエラー' }),
   })
   .refine(

@@ -9,19 +9,15 @@ import { vrmChatPath } from '@/features/paths/backend';
 // features
 import { getAuthSession } from '@/features/nextauth';
 import { BackendApiClient } from '@/features/apiClients';
-
+// type
+import { DefaultResponse } from '@/features/api';
 
 // type
 type CreateRoomResponseData = {
   roomId: string;
 };
-type CreateRoomResponse = {
-  ok:            boolean;
-  status:        number;
-  data?:         string;
-  message?:      string;
-  toastType?:    string;
-  toastMessage?: string;
+type CreateRoomResponse = DefaultResponse & {
+  data?: string;
 };
 
 // createRoom

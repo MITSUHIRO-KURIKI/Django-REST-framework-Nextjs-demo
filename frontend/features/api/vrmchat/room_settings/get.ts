@@ -13,31 +13,18 @@ import { parseResponseData } from '@/features/utils';
 // import
 import type { RoomSettingsResponseData, RoomSettingsRoomNameListResponseItem } from './type.d';
 import type { SubItem } from '@/app/components/ui/Navigation/data';
+// type
+import { DefaultResponse } from '@/features/api';
 
 // type
-type GetRoomSettingsResponse = {
-  ok:            boolean;
-  status:        number;
-  data?:         RoomSettingsResponseData;
-  message?:      string;
-  toastType?:    string;
-  toastMessage?: string;
+type GetRoomSettingsResponse = DefaultResponse & {
+  data?: RoomSettingsResponseData;
 };
-type GetRoomSettingsRoomNameResponse = {
-  ok:            boolean;
-  status:        number;
-  data?:         string;
-  message?:      string;
-  toastType?:    string;
-  toastMessage?: string;
+type GetRoomSettingsRoomNameResponse = DefaultResponse & {
+  data?: string;
 };
-type GetRoomSettingsRoomNameListResponse = {
-  ok:            boolean;
-  status:        number;
-  data?:         SubItem[];
-  message?:      string;
-  toastType?:    string;
-  toastMessage?: string;
+type GetRoomSettingsRoomNameListResponse = DefaultResponse & {
+  data?: SubItem[];
 };
 
 // getRoomSettings

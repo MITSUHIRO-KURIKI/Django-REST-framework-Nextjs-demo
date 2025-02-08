@@ -9,7 +9,9 @@ export {
   patchRoomSettings,
   patchRoomSettingsRoomNameChange,
   roomSettingsFormSchema,
+  roomSettingsRoomNameChangeSchema,
   type ModelNameChoices,
   type RoomSettingsRoomNameListResponseData,
   type RoomSettingsFormInputType,
+  type RoomSettingsRoomNameChangeInputType,
 } from './room_settings';

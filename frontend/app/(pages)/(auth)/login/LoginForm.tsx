@@ -141,7 +141,7 @@ export function LoginForm({
           <Button type      = 'submit'
                   className = 'w-full'
                   disabled  = {isSending}>
-            {isSending ? <Loader2 className='mr-2 size-4 animate-spin' /> : 'ログイン'}
+            {isSending ? <Loader2 className='size-4 animate-spin' /> : 'ログイン'}
           </Button>
         </div>
       </form>

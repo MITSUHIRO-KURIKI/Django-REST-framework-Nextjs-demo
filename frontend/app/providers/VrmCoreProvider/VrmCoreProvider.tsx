@@ -55,31 +55,12 @@ import {
   startSwaying,
   startRandomEyeMovementWithDice,
 } from './animationFunctions';
+// type
+import type { VrmCoreProviderOptions } from './types.d'
 
 // type
 type VrmExpressionManagerLike = {
   _expressionMap?: Record<string, unknown>;
-};
-type VrmCoreProviderOptions = {
-  // display
-  width?:  number;
-  height?: number;
-  fps?:    number;
-  // camera
-  cameraFov?:  number;
-  cameraNear?: number;
-  cameraFar?:  number;
-  cameraX?:    number;
-  cameraY?:    number;
-  cameraZ?:    number;
-  // renderer
-  rendererAlpha?:      boolean;
-  rendererAntialias?:  boolean;
-  rendererPixelRatio?: number;
-  // light
-  lightColor?:      number;
-  lightIntensity?:  number;
-  lightCastShadow?: boolean;
 };
 type VrmCoreProviderProps = {
   url:      string;
@@ -90,6 +71,7 @@ export type VrmCoreContextValue = {
   currentVrm:   VRM | null;
   width:        number;
   height:       number;
+  maxRatio:     number;
   containerRef: MutableRefObject<HTMLDivElement | null>;
 };
 
@@ -97,20 +79,21 @@ export type VrmCoreContextValue = {
 export function VrmCoreProvider({url, children, options,}: VrmCoreProviderProps): ReactElement {
   const {
     // display
-    width  = 500,
-    height = 600,
-    fps    = 10,
+    width    = 500,
+    height   = 600,
+    maxRatio = 0.7,
+    fps      = 15,
     // camera
-    cameraFov  = 7.0,
+    cameraFov  = 9.0,
     cameraNear = 0.1,
     cameraFar  = 10.0,
     cameraX    = 0,
-    cameraY    = 1.2,
+    cameraY    = 1.15,
     cameraZ    = 3.0,
     // renderer
     rendererAlpha      = true,
     rendererAntialias  = false,
-    rendererPixelRatio = 2.5 / 4,
+    rendererPixelRatio = 4 / 4,
     // light
     lightColor      = 0xffffff,
     lightIntensity  = 2.8,
@@ -145,6 +128,7 @@ export function VrmCoreProvider({url, children, options,}: VrmCoreProviderProps)
         cameraRef.current = null;
       };
       setCurrentVrm(null);
+      // DOMコンテナに残っている要素を除去
       while (containerRef.current.firstChild) {
         containerRef.current.removeChild(containerRef.current.firstChild);
       };
@@ -156,7 +140,7 @@ export function VrmCoreProvider({url, children, options,}: VrmCoreProviderProps)
     sceneRef.current = scene;
 
     // Camera
-    const camera = new PerspectiveCamera(cameraFov, width/height, cameraNear, cameraFar); // （画角, アスペクト比, ニアークリップ, ファークリップ）
+    const camera = new PerspectiveCamera(cameraFov, width/height, cameraNear, cameraFar); //（画角, アスペクト比, ニアークリップ, ファークリップ）
     camera.position.set(cameraX, cameraY, cameraZ);                                       // (x,y,z)
     cameraRef.current = camera;
 
@@ -173,7 +157,23 @@ export function VrmCoreProvider({url, children, options,}: VrmCoreProviderProps)
     const light = new AmbientLight(lightColor, lightIntensity); // 環境光, 全体的な負荷を減らす
     light.castShadow = lightCastShadow;                         // 影の計算を無効化
     scene.add(light);
-  }, []);
+  }, [
+    currentVrm,
+    width,
+    height,
+    cameraFov,
+    cameraNear,
+    cameraFar,
+    cameraX,
+    cameraY,
+    cameraZ,
+    rendererAlpha,
+    rendererAntialias,
+    rendererPixelRatio,
+    lightCastShadow,
+    lightColor,
+    lightIntensity,
+  ]);
 
   // VRMを読み込み、シーンに追加
   const loadVRMModel = useCallback(async () => {
@@ -193,7 +193,7 @@ export function VrmCoreProvider({url, children, options,}: VrmCoreProviderProps)
       vrm.humanoid?.getNormalizedBoneNode('leftUpperArm')?.rotation.set(0, 0, 1.5);
       vrm.humanoid?.getNormalizedBoneNode('rightUpperArm')?.rotation.set(0, 0, -1.5);
       vrm.humanoid?.update();
-      // 表情を少し変更
+      // デフォルト表情
       vrm.expressionManager?.setValue('relaxed', 0.2);
       vrm.expressionManager?.update();
 
@@ -254,8 +254,9 @@ export function VrmCoreProvider({url, children, options,}: VrmCoreProviderProps)
   // マウント時の初期処理
   useEffect(() => {
     initScene();
-    loadVRMModel();
-    animate();
+    loadVRMModel().then(() => {
+      animate(); // VRMのロード後にアニメーション開始
+    });
     // Cleanup(アンマウント時)
     return () => {
       if (currentVrm) {
@@ -272,14 +273,52 @@ export function VrmCoreProvider({url, children, options,}: VrmCoreProviderProps)
       cameraRef.current = null;
       setCurrentVrm(null);
     };
-  }, []);
+  }, [url, loadVRMModel]);
 
-  const contextValue: VrmCoreContextValue = {
+  // 画面リサイズ時の拡大縮小
+  useEffect(() => {
+    function onResize() {
+      if (!rendererRef.current || !cameraRef.current || !containerRef.current) return;
+
+      let newWidth    = width;
+      let newHeight   = height;
+      const maxWidth  = window.innerWidth  * maxRatio;
+      const maxHeight = window.innerHeight * maxRatio;
+
+      // 縦横のどちらかが指定率を超えたら比率を維持して縮小
+      if (newWidth > maxWidth || newHeight > maxHeight) {
+        const scaleW      = maxWidth  / newWidth;
+        const scaleH      = maxHeight / newHeight;
+        const scaleFactor = Math.min(scaleW, scaleH);
+
+        newWidth  = newWidth  * scaleFactor;
+        newHeight = newHeight * scaleFactor;
+
+        // コンテナのスタイルを更新
+        containerRef.current.style.width  = `${newWidth}px`;
+        containerRef.current.style.height = `${newHeight}px`;
+        // Three.js 側のサイズ & カメラ更新
+        rendererRef.current.setSize(newWidth, newHeight);
+        cameraRef.current.aspect = newWidth / newHeight;
+        cameraRef.current.updateProjectionMatrix();
+      };
+    };
+    // リスナー登録
+    window.addEventListener('resize', onResize);
+    // 初期化
+    onResize();
+    return () => {
+      window.removeEventListener('resize', onResize);
+    };
+  }, [url, width, height, maxRatio]);
+
+  const contextValue: VrmCoreContextValue = useMemo(() => ({
     currentVrm,
     width,
     height,
+    maxRatio,
     containerRef,
-  };
+  }), [currentVrm, width, height]);
 
   return (
     <VrmCoreContext.Provider value={contextValue}>

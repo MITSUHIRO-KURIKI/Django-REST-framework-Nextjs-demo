@@ -1,7 +1,7 @@
 'use client';
 
 // react
-import React, { type ReactElement } from 'react';
+import { useState, type ReactElement } from 'react';
 // shadcn
 import {
   Sheet,
@@ -22,25 +22,31 @@ export function SheetRoomSettings({ roomId }: { roomId: string }): ReactElement 
   if (!roomId) {
     throw new Error('roomId is required in SheetRoomSettings component');
   };
+
+  const [sheetOpen, setSheetOpen] = useState<boolean>(false);
+
   return (
-    <Sheet>
+    <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
       <SheetTrigger asChild>
-        <Button variant='ghost' className='absolute right-0 [&_svg]:size-6'>
+        <Button variant   = 'ghost'
+                className = 'absolute right-0 [&_svg]:size-6'
+                onClick   = {() => setSheetOpen(true)}>
           <SlidersHorizontal />
         </Button>
       </SheetTrigger>
 
       <SheetContent side='right' className='max-h-screen min-w-[100vw] overflow-y-auto bg-sidebar md:min-w-[40vw]'>
-        <SheetHeader>
+        <SheetHeader className='bg-sidebar'>
           <SheetTitle>ルーム設定</SheetTitle>
           <SheetDescription className='text-xs'>
-            各種パラメータを設定し、更新を行います。
+            各種パラメータを変更できます。
           </SheetDescription>
         </SheetHeader>
         <div className='py-4'>
-          <RoomSettingsForm roomId={roomId} />
+          <RoomSettingsForm roomId       = {roomId}
+                            setSheetOpen = {setSheetOpen} />
         </div>
       </SheetContent>
     </Sheet>
   );
-}
+};

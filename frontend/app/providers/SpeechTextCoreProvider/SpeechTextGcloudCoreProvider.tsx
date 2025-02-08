@@ -12,8 +12,6 @@
  */
 'use client';
 
-import RecordRTC from "recordrtc";
-
 // react
 import {
   createContext,
@@ -24,11 +22,13 @@ import {
   type ReactNode,
   type ReactElement,
 } from 'react';
+// lib
+import RecordRTC from 'recordrtc';
 // features
 import { thirdPartyPath } from '@/features/paths/backend';
 import { sanitizeDOMPurify } from '@/features/utils';
 // components
-import { showToast } from '@/app/components/utils';
+import { showToast, isDialogOpenInDOM } from '@/app/components/utils';
 // import
 import type { ClientMessage } from '@/app/providers/WebSocketCoreProvider/types.d';
 import type { SpeechTextCoreContextValue } from './type.d';
@@ -49,119 +49,164 @@ export function SpeechTextGcloudCoreProvider({
   const socketRef        = useRef<WebSocket | null>(null);
   const pingIntervalRef  = useRef<NodeJS.Timeout | null>(null);
   const pingIntervalTime = 5000;
-  // UI表示用
+  // STT
   const [recognizingText, setRecognizingText] = useState<string>('');
   const [recognizedText, setRecognizedText]   = useState<string[]>([]);
   const allrecognizedTextRef                  = useRef<string[]>([]);
-  // 状態管理
-  const recognizingTextRef        = useRef<string>('');
+  const recognizingTextRef                    = useRef<string>('');
+  // TTS
+  const [isSpeechStreaming, setIsSpeechStreaming] = useState<boolean>(false);
+  const [speechDataArray, setSpeechDataArray]     = useState<Uint8Array | null>(null);
+  const [speechAnalyser, setSpeechAnalyser]       = useState<AnalyserNode | null>(null);
+  // ステータス管理
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isRecognizing, setIsRecognizing]         = useState<boolean>(false);
+  const [isStopRecognition, setIsStopRecognition] = useState<boolean>(false);
   const isSpacePressedRef         = useRef<boolean>(false);
   const mediaRecorderRef          = useRef<RecordRTC | null>(null);
   const audioContextRef           = useRef<AudioContext | null>(null);
   const sourceRef                 = useRef<AudioBufferSourceNode | null>(null);
-  const [isSpeechStreaming, setIsSpeechStreaming] = useState<boolean>(false);
-  const [speechDataArray, setSpeechDataArray]     = useState<Uint8Array | null>(null);
-  const [speechAnalyser, setSpeechAnalyser]       = useState<AnalyserNode | null>(null);
-  const [isStopRecognition, setIsStopRecognition] = useState<boolean>(false);
 
   /**
    * ==========
    * Socket ▽
    * ==========
    */
-  // connectWebSocket: WebSocket 接続
+  // --------------------
+  // WebSocket 接続 / 再接続
+  // --------------------
+  // setUpWebSocketListeners: WebSocket イベントリスナー
+  const setUpWebSocketListeners = useCallback((ws: WebSocket) => {
+    // open
+    ws.addEventListener('open', () => {
+      //
+    });
+    // message
+    ws.addEventListener('message', (event: MessageEvent) => {
+      handleReceiveMessage(event).catch(() => {
+        showToast('error', 'gclodud socket error', {position: 'bottom-right', duration: 3000,});
+      });
+    });
+    // close
+    ws.addEventListener('close', () => {
+      //
+    });
+    // error
+    ws.addEventListener('error', () => {
+      showToast('error', 'Connection error', {position: 'bottom-right', duration: 3000,});
+      if (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      };
+    });
+  }, []);
+
+  // connectWebSocket: 新規接続
   const connectWebSocket = useCallback(async (): Promise<void> => {
     try {
-      // 既存ソケットがCONNECTING or OPENなら一旦閉じる
+      // 既存ソケットが CONNECTING or OPEN なら一旦閉じる
       if (socketRef.current) {
         const { readyState } = socketRef.current;
         if (readyState === WebSocket.CONNECTING || readyState === WebSocket.OPEN) {
           socketRef.current.close();
         };
       };
-      const wsProtocol    = window.location.protocol === 'https:' ? 'wss' : 'ws';
-      const backendDomain = process.env.NEXT_PUBLIC_BACKEND_DOMAIN;
-      const wsUrl         = `${wsProtocol}://${backendDomain}/${thirdPartyPath.gcloud.ws_stt_tts}`;
-      const newSocket     = new WebSocket(wsUrl);
+      // 新規ソケット生成
+      const wsProtocol     = window.location.protocol === 'https:' ? 'wss' : 'ws';
+      const backendDomain  = process.env.NEXT_PUBLIC_BACKEND_DOMAIN;
+      const wsUrl          = `${wsProtocol}://${backendDomain}/${thirdPartyPath.gcloud.ws_stt_tts}`;
+      const newSocket      = new WebSocket(wsUrl);
       newSocket.binaryType = 'arraybuffer'; // バイナリを扱う宣言
-      newSocket.addEventListener('open', () => {
-        //
-      });
-      newSocket.addEventListener('message', (e: MessageEvent) => {
-        handleReceiveMessage(e);
-      });
-      newSocket.addEventListener('close', () => {
-        //
-      });
-      newSocket.addEventListener('error', () => {
-        if (newSocket.readyState === WebSocket.CONNECTING || newSocket.readyState === WebSocket.OPEN) {
-          newSocket.close();
-        };
-      });
+      setUpWebSocketListeners(newSocket);
       socketRef.current = newSocket;
       console.log('gcloud connectWebSocket OK');    // Debug
     } catch {
       console.log('gcloud connectWebSocket error'); // Debug
     };
-  }, []);
-  // reConnectWebSocket: WebSocket 再接続
+  }, [setUpWebSocketListeners]);
+
+  // reConnectWebSocket: 再接続
   const reConnectWebSocket = useCallback( async (options: { isForced?: boolean } = {}): Promise<void> => {
     const { isForced = false } = options;
-    const currentSocket        = socketRef.current;
+    const ws                   = socketRef.current;
     // ソケットが無ければ単純に接続
-    if (!currentSocket) {
+    if (!ws) {
       await connectWebSocket();
       return;
     };
     // 既に CONNECTING or OPEN で、強制フラグfalseなら何もしない
-    if (!isForced && (currentSocket.readyState === WebSocket.CONNECTING || currentSocket.readyState === WebSocket.OPEN)) {
+    if (!isForced && (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN)) {
       return;
     };
-    // CONNECTING or OPEN なら一度閉じる(強制フラグTrue)
-    if (currentSocket.readyState === WebSocket.CONNECTING || currentSocket.readyState === WebSocket.OPEN) {
-      currentSocket.close();
-    };
+    // 一度クローズして再接続
+    ws.close();
     // 再接続
     await connectWebSocket();
     // Debug
     console.log('gcloud reConnectWebSocket');
   }, [connectWebSocket]);
 
-  // wsSendMessage: メッセージ受けは connectWebSocket
-  const wsSendMessage = useCallback((cmd: string, text: string): void => {
-    const currentSocket = socketRef.current;
-    if (!currentSocket) {
-      // ソケットがまだなら再接続
+  // --------------------
+  // 送信メソッド
+  // --------------------
+  // sendMessage: 送信共通処理
+  const sendMessage = useCallback((cmd: string, text?: string): void => {
+    const ws = socketRef.current;
+    if (!ws) {
+      // ソケットが無ければ再接続
       void reConnectWebSocket();
       return;
-    };
-    const message: ClientMessage = {
-      cmd:  sanitizeDOMPurify(cmd),
-      data: {
-        text: sanitizeDOMPurify(text),
-      },
     };
     // 送信
-    currentSocket.send(JSON.stringify(message));
-  }, [reConnectWebSocket]);
-  // wsSendBlob: メッセージ受けは connectWebSocket
-  const wsSendBlob = useCallback((blobData: ArrayBuffer | Uint8Array): void => {
-    const currentSocket = socketRef.current;
-    if (!currentSocket) {
-      // ソケットがまだなら再接続
+    if (ws.readyState === WebSocket.OPEN) {
+      try {
+        const message: ClientMessage = {
+          cmd:  sanitizeDOMPurify(cmd),
+          data: {
+            text: sanitizeDOMPurify(text),
+          },
+        };
+        ws.send(JSON.stringify(message));
+      } catch {
+        showToast('error', 'error', {position: 'bottom-right', duration: 3000,});
+      };
+    } else if (ws.readyState === WebSocket.CONNECTING) {
+      // 接続中なら特に何もせずに待つ
+    } else {
+      // CLOSE or エラー状態
+      void reConnectWebSocket();
+    };
+  }, []);
+  const sendBlob = useCallback((blobData: ArrayBuffer | Uint8Array): void => {
+    const ws = socketRef.current;
+    if (!ws) {
+      // ソケットが無ければ再接続
       void reConnectWebSocket();
       return;
     };
-    currentSocket.send(blobData);
-  }, [reConnectWebSocket]);
+    // 送信
+    if (ws.readyState === WebSocket.OPEN) {
+      try {
+        ws.send(blobData);
+      } catch {
+        showToast('error', 'error', {position: 'bottom-right', duration: 3000,});
+      };
+    } else if (ws.readyState === WebSocket.CONNECTING) {
+      // 接続中なら特に何もせずに待つ
+    } else {
+      // CLOSE or エラー状態
+      void reConnectWebSocket();
+    };
+  }, []);
 
-  // handleReceiveMessage (受)
-  async function handleReceiveMessage(event) {
+  // --------------------
+  // 受信メソッド
+  // --------------------
+  // handleReceiveMessage
+  async function handleReceiveMessage(event: MessageEvent): Promise<void> {
     try {
       if (typeof event.data === 'string') {
         const dataStr = event.data;
-        const data = JSON.parse(dataStr);
+        const data    = JSON.parse(dataStr);
         if (data.cmd) {
           // --------------------
           // Text-to-Speech
@@ -269,36 +314,36 @@ export function SpeechTextGcloudCoreProvider({
     };
   };
 
-  // ping ▽
-  //  - socket接続 が生きてるか確認
+  // --------------------
+  // ping
+  // - socket 死活監視
+  // - 切断状態なら sendMessage を通して再接続を試みる
+  // --------------------
   //  - sendPing
   const sendPing = useCallback(() => {
-    if(socketRef.current) {
-      const pingMessage: ClientMessage = { cmd: 'ping' };
-      socketRef.current.send(JSON.stringify(pingMessage));
-      console.log('ping'); // Debug
-    };
-  }, []);
-  // startPing
+    sendMessage('ping');
+    console.log('gcloud ping'); // Debug
+  }, [sendMessage]);
+  //  - startPing
   const startPing = useCallback(() => {
     // Ping が未設定の場合のみ設定
     if (!pingIntervalRef.current) {
       pingIntervalRef.current = setInterval(() => {
-        if(socketRef.current){
-          sendPing();
-        };
+        sendPing();
       }, pingIntervalTime);
     };
   }, [sendPing]);
-  // stopPing
+  //  - stopPing
   const stopPing = useCallback(() => {
     if (pingIntervalRef.current) {
       clearInterval(pingIntervalRef.current);
       pingIntervalRef.current = null;
     };
   }, []);
-  // ping △
 
+  // --------------------
+  // 画面終了・タブ閉じなど
+  // --------------------
   // closeSocketAll: 主に画面が閉じられる時などの共通処理
   const closeSocketAll = useCallback((): void => {
     if (socketRef.current) {
@@ -306,7 +351,10 @@ export function SpeechTextGcloudCoreProvider({
     };
     stopPing();
   }, [stopPing]);
+
+  // --------------------
   // マウント時の初期処理
+  // --------------------
   useEffect(() => {
     let isMounted = true;
     (async () => {
@@ -315,15 +363,14 @@ export function SpeechTextGcloudCoreProvider({
         await connectWebSocket();
       };
     })();
+
     // Ping開始
     startPing();
+    
     // タブを閉じる・リロード前
     const handleBeforeUnload = () => {
-      if (socketRef.current) {
-        const rs = socketRef.current.readyState;
-        if (rs === WebSocket.CONNECTING || rs === WebSocket.OPEN) {
-          closeSocketAll();
-        };
+      if (socketRef.current?.readyState === WebSocket.CONNECTING || socketRef.current?.readyState === WebSocket.OPEN) {
+        closeSocketAll();
       };
     };
     // タブ可視状態変化
@@ -332,14 +379,17 @@ export function SpeechTextGcloudCoreProvider({
         // 非アクティブになったら閉じる
         closeSocketAll();
       } else {
-        // アクティブに戻ったら再接続
+        // アクティブになったら再接続 & Ping
         void reConnectWebSocket({ isForced: true });
         sendPing();
-        if (!pingIntervalRef.current) startPing();
+        startPing();
       };
     };
+
+    // イベント登録
     window.addEventListener('beforeunload',       handleBeforeUnload);
     document.addEventListener('visibilitychange', handleVisibilityChange);
+
     // Cleanup(アンマウント時)
     return () => {
       isMounted = false;
@@ -347,7 +397,7 @@ export function SpeechTextGcloudCoreProvider({
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       closeSocketAll();
     };
-  }, [connectWebSocket, closeSocketAll, reConnectWebSocket, startPing,]);
+  }, []);
   /**
    * ==========
    * Socket △
@@ -359,29 +409,39 @@ export function SpeechTextGcloudCoreProvider({
    * STT/TTS ▽
    * ==========
    */
-  // --------------------
-  // Text-to-Speech
-  // --------------------
-  const textToSpeech = useCallback(async (SpeechText: string): Promise<void> => {
-    setIsLoading(false);
-    wsSendMessage('tts', SpeechText);
+  // stopAudioPlayback
+  // 現在のTTS再生を停止、AudioContextをリセット
+  const stopAudioPlayback = useCallback(() => {
+    if (sourceRef.current) {
+      sourceRef.current.stop();
+      sourceRef.current = null;
+    };
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    };
+    setIsSpeechStreaming(false);
   }, []);
-
   // --------------------
   // Speech-To-Text
   // --------------------
   // startRecognition: 音声認識の開始
   const startRecognition = useCallback( async (): Promise<void> => {
-    // isStopRecognition
+    // 認識中なら何もしない
+    if (isRecognizing) return;
+    setIsRecognizing(true)
     setIsStopRecognition(false);
+
     // 再生中の音声があればストップ
     stopAudioPlayback();
+
     // 蓄積をクリア ▽
     setRecognizingText('');
     recognizingTextRef.current = '';
     setRecognizedText([]);
     allrecognizedTextRef.current = [];
     // 蓄積をクリア △
+
     // ブラウザマイク取得
     if (mediaRecorderRef.current) {
        mediaRecorderRef.current.stopRecording(() => {
@@ -400,8 +460,7 @@ export function SpeechTextGcloudCoreProvider({
         // dataavailable のコールバック。ここで blob を WebSocket 送信
         if (blob.size > 0 && socketRef.current?.readyState === WebSocket.OPEN) {
           blob.arrayBuffer().then((buf) => {
-            wsSendBlob(buf);
-            console.log('send')
+            sendBlob(buf);
           });
         };
       },
@@ -410,41 +469,74 @@ export function SpeechTextGcloudCoreProvider({
     setIsLoading(false);
     mediaRecorderRef.current = mediaRecorder;
     mediaRecorder.startRecording();
-  }, []);
+  }, [isRecognizing]);
+
   // stopRecognition: 音声認識の停止
   const stopRecognition = useCallback((): void => {
+    // 認識終了後なら何もしない
+    if (!isRecognizing) return;
+    setIsRecognizing(false);
+
     // MediaRecorder 停止
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stopRecording(() => {
         mediaRecorderRef.current = null;
       });
     };
+    
     // STT socket に終了のバイナリを注入する -> これをsocketが受け取ってレシーブしたらSTT終了とする
     const encoder = new TextEncoder();
     const data    = encoder.encode('sttend');
-    wsSendBlob(data);
-  }, []);
+    sendBlob(data);
+  }, [isRecognizing]);
 
-  // stopAudioPlayback
-  // 現在のTTS再生を停止、AudioContextをリセット
-  const stopAudioPlayback = useCallback(() => {
-    if (sourceRef.current) {
-      sourceRef.current.stop();
-      sourceRef.current = null;
-    };
-    if (audioContextRef.current) {
-      audioContextRef.current.close();
-      audioContextRef.current = null;
-    };
-    setIsSpeechStreaming(false);
+  // --------------------
+  // Text-to-Speech
+  // --------------------
+  // textToSpeech
+  const textToSpeech = useCallback(async (SpeechText: string): Promise<void> => {
+    setIsLoading(false);
+    sendMessage('tts', SpeechText);
   }, []);
+  /**
+   * ==========
+   * STT/TTS △
+   * ==========
+   */
 
+  // --------------------
+  // 操作イベント登録
+  // --------------------
+  // Speech2Text
+  // ボタン操作
+  const toggleRecognition = useCallback(() => {
+    if (!isRecognizing) {
+      setIsLoading(true);
+      startRecognition();
+    } else {
+      setIsLoading(true); // setIsLoading(false); は textToSpeech() が呼ばれたら
+      stopRecognition();
+    };
+  }, [isRecognizing, startRecognition, stopRecognition]);
   // キーイベント登録: スペースキー押下/離し
   useEffect(() => {
     // スペースキーを押している間だけ音声認識を開始する
     const handleKeyDown = async (e: KeyboardEvent): Promise<void> => {
-      // スペースキー以外,キーリピート,押下中なら無視
-      if (e.code !== 'Space' || e.repeat || isSpacePressedRef.current) return;
+      if (
+        // 入力中なら無視
+        e.target instanceof HTMLElement &&
+        ( e.target.tagName === 'INPUT' ||
+          e.target.tagName === 'TEXTAREA' ||
+          e.target.isContentEditable
+        ) ||
+        // モーダルが開いているなら無視
+        isDialogOpenInDOM() ||
+        // スペースキー以外やリピートは無視
+        e.code !== 'Space' || e.repeat ||
+        // 既にスペース押下中なら無視
+        isSpacePressedRef.current
+      ) return;
+
       e.preventDefault();
       e.stopPropagation();
       
@@ -471,19 +563,23 @@ export function SpeechTextGcloudCoreProvider({
     };
   }, [startRecognition, stopRecognition]);
 
+  // --------------------
+  // contextValue
+  // --------------------
   const contextValue: SpeechTextCoreContextValue = {
     recognizingText,
     recognizedText,
     setRecognizedText,
     allrecognizedTextRef,
-    isLoading,
-    isSpacePressedRef,
-    isStopRecognition,
     isSpeechStreaming,
     speechDataArray,
     speechAnalyser,
-    textToSpeech,
-  };
+    isLoading,
+    isRecognizing,
+    isStopRecognition,
+    isSpacePressedRef,
+    toggleRecognition,
+    textToSpeech,};
 
   return (
     <SpeechTextGcloudCoreContext.Provider value={contextValue}>

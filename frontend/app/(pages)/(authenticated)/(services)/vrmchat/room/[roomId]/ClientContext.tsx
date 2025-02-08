@@ -9,7 +9,7 @@ import {
   WebSocketCoreContext,
   type WebSocketCoreContextValue,
   type ServerMessage,
-  SpeechTextGcloudCoreContext,
+  SpeechTextAzureCoreContext as SpeechTextCoreContext, // or SpeechTextGcloudCoreContext
   type SpeechTextCoreContextValue,
   VrmCoreContext,
   startLipSync,
@@ -27,11 +27,9 @@ import { ClientUI } from './ui/ClientUI';
 // type
 export type ClientUIProps = {
   receivedMessages: string;
-  isSpacePressed:   boolean;
-  isFirstRender:    boolean;
-} & Pick<VrmChatRoomParams,  'roomId'>
+} & Pick<VrmChatRoomParams,          'roomId'>
   & Pick<WebSocketCoreContextValue,  'isWebSocketWaiting'>
-  & Pick<SpeechTextCoreContextValue, 'recognizedText' | 'recognizingText' | 'isStopRecognition' | 'isLoading'>
+  & Pick<SpeechTextCoreContextValue, 'recognizingText' | 'recognizedText' | 'isLoading' | 'isStopRecognition' | 'isRecognizing' | 'toggleRecognition'>
   & Pick<VrmCoreContextValue,        'width' | 'height' | 'containerRef'>;
 
 // ClientContext ▽
@@ -42,17 +40,19 @@ export function ClientContext({ roomId, roomTitle }: VrmChatRoomParams): ReactEl
   const { cmd, status, ok, message, data } = (serverMessage ?? {}) as ServerMessage;
   // WebSocketCoreContext first △
   // SpeechTextCoreContext first ▽
-  const stContext = useContext(SpeechTextGcloudCoreContext);
+  const stContext = useContext(SpeechTextCoreContext);
   const {
     recognizingText,
     recognizedText,
     setRecognizedText,
     allrecognizedTextRef,
-    isLoading,
-    isStopRecognition,
     isSpeechStreaming,
     speechDataArray,
     speechAnalyser,
+    isLoading,
+    isRecognizing,
+    isStopRecognition,
+    toggleRecognition,
     textToSpeech,
   } = stContext as SpeechTextCoreContextValue;
   // SpeechTextCoreContext first △
@@ -71,16 +71,18 @@ export function ClientContext({ roomId, roomTitle }: VrmChatRoomParams): ReactEl
     setSidebarInsetTitle,
   } = sbarContext as SidebarContextValue;
   // SidebarContext first △
+  
   // Local State
   const [receivedMessages, setReceivedMessages] = useState<string>('');
-  const [isSpacePressed, setIsSpacePressed]     = useState<boolean>(false);
-  const [isFirstRender, setIsFirstRender]       = useState<boolean>(true); // 初期案内文用
 
   // 送信 (isStopRecognition 変化で発火)
   useEffect(() => {
     if (!stContext) return;
     // isStopRecognition=true で送信
     if (isStopRecognition) {
+      // 受信メッセージの初期化
+      setReceivedMessages('');
+      // 送信
       handleSendCore(
         'VRMMessage',
         {
@@ -111,29 +113,6 @@ export function ClientContext({ roomId, roomTitle }: VrmChatRoomParams): ReactEl
       stopLipSyncRef.current(); // 停止
     };
   }, [isSpeechStreaming, currentVrm, startLipSync]);
-  // スペースキー状態管理
-  // SpeechTextCoreContext で実装するか迷うが
-  // 常に状態管理が必要あるか不明なので子で管理する
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === 'Space') {
-        setIsSpacePressed(true);
-        // 初期案内文用
-        setIsFirstRender(false);
-      };
-    };
-    const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.code === 'Space') {
-        setIsSpacePressed(false);
-      };
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup',   handleKeyUp);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup',   handleKeyUp);
-    };
-  }, []);
 
   // Sidebar タイトルセット ▽
   useEffect(() => {
@@ -147,20 +126,21 @@ export function ClientContext({ roomId, roomTitle }: VrmChatRoomParams): ReactEl
     return <p>not available</p>;
   };
   // WebSocketCoreContext last △
+
   return (
     <ClientUI
       roomId             = {roomId}
+      isWebSocketWaiting = {isWebSocketWaiting}
       recognizedText     = {recognizedText}
       recognizingText    = {recognizingText}
       receivedMessages   = {receivedMessages}
+      isLoading          = {isLoading}
+      isRecognizing      = {isRecognizing}
       isStopRecognition  = {isStopRecognition}
+      toggleRecognition  = {toggleRecognition}
       width              = {width}
       height             = {height}
-      containerRef       = {containerRef}
-      isWebSocketWaiting = {isWebSocketWaiting}
-      isLoading          = {isLoading}
-      isSpacePressed     = {isSpacePressed}
-      isFirstRender      = {isFirstRender} />
+      containerRef       = {containerRef} />
   );
-}
+};
 // ClientContext △

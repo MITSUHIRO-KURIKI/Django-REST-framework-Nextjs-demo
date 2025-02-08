@@ -10,11 +10,11 @@ import { type ThemeProviderProps } from 'next-themes';
 
 // NextThemesProvider
 const NextThemesProvider = dynamic(
-	() => import('next-themes').then((e) => e.ThemeProvider),
-	{ ssr: false, }
+  () => import('next-themes').then((e) => e.ThemeProvider),
+  { ssr: false, }
 );
 
 // ThemeProvider
 export function ThemeProvider({ children, ...props }: ThemeProviderProps): ReactElement {
-	return <NextThemesProvider {...props}>{children}</NextThemesProvider>
+  return <NextThemesProvider {...props}>{children}</NextThemesProvider>
 };

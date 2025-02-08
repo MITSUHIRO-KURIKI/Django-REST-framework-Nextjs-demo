@@ -1,8 +1,9 @@
 import { z } from 'zod';
+import { emailSchema } from '@/features/api/accounts';
 
 
 export const loginFormSchema = z.object({
-  email:    z.string().email({ message: 'メールアドレスを入力してください' }),
+  email:    emailSchema,
   password: z.string().min(1,{ message: 'パスワードを入力してください' }),
 });
 

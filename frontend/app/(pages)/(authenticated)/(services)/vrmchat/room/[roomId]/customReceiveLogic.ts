@@ -27,8 +27,7 @@ export async function customReceiveLogic(
   setRecognizedText,
   allrecognizedTextRef,
   textToSpeech,
-  setSidebarInsetTitle,
-  ): Promise<void> {
+  setSidebarInsetTitle,): Promise<void> {
 
   const { setIsWebSocketWaiting } = contextValue;
   const { cmd, ok, data }         = payload;

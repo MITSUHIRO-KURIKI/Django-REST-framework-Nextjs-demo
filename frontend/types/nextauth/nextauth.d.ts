@@ -1,6 +1,6 @@
 // next-auth
 import { Session, DefaultSession } from 'next-auth';
-import {JWT} from 'next-auth/jwt';
+import { JWT } from 'next-auth/jwt';
 
 export interface User {
   id:            string; // uniqueAccountId

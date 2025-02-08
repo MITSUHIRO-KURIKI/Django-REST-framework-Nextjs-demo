@@ -24,7 +24,6 @@ type PageProps = {
     params: Promise<VrmChatRoomParams>;
 };
 
-
 // VrmChatRoomPage
 export default async function VrmChatRoomPage(props: PageProps): Promise<ReactElement>{
 

@@ -8,15 +8,14 @@ import { thirdPartyPath } from '@/features/paths/backend';
 import { getAuthSession } from '@/features/nextauth';
 import { BackendWithCredentialsApiClient } from '@/features/apiClients';
 import { getCookie } from '@/features/utils';
+// type
+import { AzureTokenResponse } from './type.d';
 
 // type
 type getTokenOrRefreshProps = {
   setCookiePrefix?: string;
 };
-export type AzureTokenResponse = {
-  accessToken: string;
-  region:      string;
-};
+
 // getTokenOrRefresh
 export async function getTokenOrRefresh({setCookiePrefix=''}: getTokenOrRefreshProps={},): Promise<AzureTokenResponse> {
   const speechToken = getCookie(`${setCookiePrefix}speech-token`);

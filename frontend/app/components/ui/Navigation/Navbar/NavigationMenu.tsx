@@ -22,6 +22,12 @@ import {
 // include
 import { NavigationItems } from '../data';
 
+// type
+type MenuLinkItemProps = ComponentPropsWithoutRef<typeof Link> & {
+  title?:          string;
+  children?:       ReactNode;
+  classNameTitle?: string;
+};
 
 // NavigationMenu ▽
 export function NavigationMenu(): ReactElement {
@@ -55,7 +61,7 @@ export function NavigationMenu(): ReactElement {
               </NavigationMenuItem>
             );
           };
-          // No SubCategorie
+          // No SubCategories
           return (
             <NavigationMenuItem key={item.key}>
               <Link href={item.href ?? '#'} legacyBehavior passHref>
@@ -77,11 +83,6 @@ export function NavigationMenu(): ReactElement {
 // NavigationMenu △
 
 // MenuLinkItem ▽
-type MenuLinkItemProps = ComponentPropsWithoutRef<typeof Link> & {
-  title?:          string;
-  children?:       ReactNode;
-  classNameTitle?: string;
-};
 const MenuLinkItem = forwardRef<ElementRef<typeof Link>, MenuLinkItemProps>(({ className, classNameTitle, title, ...props }, ref) => (
     <li>
       <NavigationMenuLink asChild>

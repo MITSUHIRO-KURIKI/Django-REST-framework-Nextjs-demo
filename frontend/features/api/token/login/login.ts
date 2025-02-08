@@ -1,5 +1,7 @@
 // next-auth
 import { signIn, type SignInResponse } from 'next-auth/react';
+// components
+import { ToastType } from '@/app/components/utils/showToast';
 // import
 import { LoginFormInputType } from './schema';
 
@@ -10,7 +12,7 @@ type LoginParams = {
 } & LoginFormInputType;
 interface LoginResponse extends Omit<SignInResponse, 'error'> {
   message?:      string;
-  toastType?:    string;
+  toastType?:    ToastType;
   toastMessage?: string;
 };
 

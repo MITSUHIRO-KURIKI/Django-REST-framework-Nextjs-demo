@@ -1,7 +1,6 @@
 // Ref:
 //  - https://pixiv.github.io/three-vrm/packages/three-vrm/docs/index.html
 //  - https://github.com/pixiv/three-vrm/blob/dev/docs/migration-guide-1.0.md
-
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {
   VRM,
@@ -12,6 +11,7 @@ import {
 type VrmLoaderOptions = {
   crossOrigin?: string;
 };
+
 export async function vrmLoader(
   url: string,
   { crossOrigin='anonymous' }: VrmLoaderOptions={},): Promise<VRM> {

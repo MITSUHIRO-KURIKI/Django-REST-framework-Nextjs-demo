@@ -54,8 +54,8 @@ export type SidebarContextValue = {
 // SidebarContextProvider ▽
 export function SidebarContextProvider({vrmChatInitial, pageSize, children}: SidebarContentWrapperProps): ReactElement {
 
-  const [sidebarInsetTitle, setSidebarInsetTitle] = useState<string>('')
-  const [sidebarInsetSubTitle, setSidebarInsetSubTitle] = useState<string>('')
+  const [sidebarInsetTitle, setSidebarInsetTitle]       = useState<string>('');
+  const [sidebarInsetSubTitle, setSidebarInsetSubTitle] = useState<string>('');
 
   const contextValue: SidebarContextValue = {
     sidebarInsetTitle,
@@ -72,8 +72,8 @@ export function SidebarContextProvider({vrmChatInitial, pageSize, children}: Sid
                variant        = 'inset'
                collapsible    = 'offcanvas'
                className      = {cn(
-               'invisible-scrollbar',
-               'hidden md:flex',)} />
+                'invisible-scrollbar',
+                'hidden md:flex',)} />
 
       <SidebarInset className={cn(
         'w-full overflow-auto',

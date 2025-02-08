@@ -1,5 +1,5 @@
  // react
-import { type ReactNode, type ReactElement } from 'react';
+import { type ReactElement } from 'react';
 // shadcn
 import { cn } from '@/app/components/lib/shadcn';
 import { getRoomSettingsRoomNameList } from '@/features/api/vrmchat';
@@ -7,19 +7,13 @@ import { getRoomSettingsRoomNameList } from '@/features/api/vrmchat';
 import { Navbar } from '@/app/components/ui/Navigation';
 // import
 import { SidebarContextProvider } from '@/app/providers';
-
-// type
-type SidebarWrapperProps = {
-  wrapName?:  string;
-  className?: string | null;
-  children:   ReactNode;
-};
+import { NavigationWrapperProps } from './type.d';
 
 // SidebarWrapper
-export async function SidebarWrapper({ wrapName, className, children }: SidebarWrapperProps): Promise<ReactElement> {
+export async function SidebarWrapper({ wrapName, className, children }: NavigationWrapperProps): Promise<ReactElement> {
   const isUseSidebar  = true;
   const navbarBgColor = 'bg-sidebar';
-  const pageSize      = 3
+  const pageSize      = 3;
 
   // InitData (サーバ取得)
   const [vrmChatInitial] = await Promise.all([
@@ -29,6 +23,7 @@ export async function SidebarWrapper({ wrapName, className, children }: SidebarW
   // const [initial1, initial2] = await Promise.all([
   //   get1(1, 3), get2(1, 3),
   // ]);
+
   return (
     <>
       <Navbar isUseSidebar   = {isUseSidebar}

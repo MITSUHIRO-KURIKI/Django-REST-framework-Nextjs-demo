@@ -10,6 +10,8 @@ import { accountsPath } from '@/features/paths/backend';
 import { BackendApiClient } from '@/features/apiClients';
 import { csrfValidatorForCookie } from '@/features/utils';
 import { cookies } from 'next/headers';
+// type
+import { DefaultResponse } from '@/features/api';
 
 // type
 export type ActivationParams = {
@@ -19,16 +21,10 @@ export type ActivationParams = {
 type ActivationRequest = ActivationParams & {
   csrfToken: string;
 };
-type ActivationResponse = {
-  ok:            boolean;
-  status:        number;
-  message?:      string;
-  toastType?:    string;
-  toastMessage?: string;
-};
+
 
 // activation
-export async function activation(params: ActivationRequest): Promise<ActivationResponse> {
+export async function activation(params: ActivationRequest): Promise<DefaultResponse> {
   try{
     const { uid, token, csrfToken } = params;
 
@@ -40,7 +36,7 @@ export async function activation(params: ActivationRequest): Promise<ActivationR
 
     // input valid
     if (!uid || !token || !csrfResult?.ok) {
-      const response: ActivationResponse = {
+      const response: DefaultResponse = {
         ok:           false,
         status:       400,
         message:      '認証エラー',
@@ -58,7 +54,7 @@ export async function activation(params: ActivationRequest): Promise<ActivationR
       { headers: { 'Content-Type': 'application/json', }},
     );
     //  Axios は 2xx 以外で catch に飛ぶ
-    const response: ActivationResponse = {
+    const response: DefaultResponse = {
       ok:           true,
       status:       res.status,
       message:      '本登録が完了しました',
@@ -70,7 +66,7 @@ export async function activation(params: ActivationRequest): Promise<ActivationR
     if (axios.isAxiosError(error) && error.response) {
       const status = error.response.status;
       if (status === 429) {
-        const response: ActivationResponse = {
+        const response: DefaultResponse = {
           ok:           false,
           status:       429,
           message:      '時間をおいて再度お試しください',
@@ -79,7 +75,7 @@ export async function activation(params: ActivationRequest): Promise<ActivationR
         };
         return response;
       } else {
-        const response: ActivationResponse = {
+        const response: DefaultResponse = {
           ok:           false,
           status:       400, // 400しか返さない
           message:      '認証エラー',
@@ -90,7 +86,7 @@ export async function activation(params: ActivationRequest): Promise<ActivationR
       };
     };
     // error.response が無い場合 (ネットワーク障害など)
-    const response: ActivationResponse = {
+    const response: DefaultResponse = {
       ok:           false,
       status:       500,
       message:      '認証エラー',

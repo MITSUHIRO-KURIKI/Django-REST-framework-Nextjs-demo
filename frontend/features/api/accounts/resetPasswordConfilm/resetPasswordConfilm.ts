@@ -12,22 +12,18 @@ import { csrfValidatorForCookie } from '@/features/utils';
 import { cookies } from 'next/headers';
 // import
 import { ResetPasswordConfilmFormInputType } from './schema';
+// type
+import { DefaultResponse } from '@/features/api';
 
 // type
 type PasswordResetConfilmRequest = {
   uid:   string;
   token: string;
 } & ResetPasswordConfilmFormInputType;
-type ResetPasswordConfilmResponse = {
-  ok:            boolean;
-  status:        number;
-  message?:      string;
-  toastType?:    string;
-  toastMessage?: string;
-};
+
 
 // resetPasswordConfilm
-export async function resetPasswordConfilm(params: PasswordResetConfilmRequest): Promise<ResetPasswordConfilmResponse> {
+export async function resetPasswordConfilm(params: PasswordResetConfilmRequest): Promise<DefaultResponse> {
   try {
     const { uid, token, newPassword, reNewPassword, csrfToken } = params;
 
@@ -39,7 +35,7 @@ export async function resetPasswordConfilm(params: PasswordResetConfilmRequest):
 
     // input valid
     if (!uid || !token || !newPassword || !reNewPassword || !csrfResult?.ok) {
-      const response: ResetPasswordConfilmResponse = {
+      const response: DefaultResponse = {
         ok:           false,
         status:       400,
         message:      'パスワード再設定に失敗しました',
@@ -60,7 +56,7 @@ export async function resetPasswordConfilm(params: PasswordResetConfilmRequest):
       { headers: { 'Content-Type': 'application/json', }},
     );
     //  Axios は 2xx 以外で catch に飛ぶ
-    const response: ResetPasswordConfilmResponse = {
+    const response: DefaultResponse = {
       ok:           true,
       status:       res.status,
       message:      '再設定用のメールを送信しました',
@@ -72,7 +68,7 @@ export async function resetPasswordConfilm(params: PasswordResetConfilmRequest):
     if (axios.isAxiosError(error) && error.response) {
       const status = error.response.status;
       if (status === 429) {
-        const response: ResetPasswordConfilmResponse = {
+        const response: DefaultResponse = {
           ok:           false,
           status:       429,
           message:      '時間をおいて再度お試しください',
@@ -81,7 +77,7 @@ export async function resetPasswordConfilm(params: PasswordResetConfilmRequest):
         };
         return response;
       } else {
-        const response: ResetPasswordConfilmResponse = {
+        const response: DefaultResponse = {
           ok:           false,
           status:       400, // 400しか返さない
           message:      'パスワード再設定に失敗しました',
@@ -92,7 +88,7 @@ export async function resetPasswordConfilm(params: PasswordResetConfilmRequest):
       };
     };
     // error.response が無い場合 (ネットワーク障害など)
-    const response: ResetPasswordConfilmResponse = {
+    const response: DefaultResponse = {
       ok:           false,
       status:       500,
       message:      'パスワード再設定に失敗しました',

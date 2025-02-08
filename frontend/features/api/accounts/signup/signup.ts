@@ -12,18 +12,12 @@ import { csrfValidatorForCookie } from '@/features/utils';
 import { cookies } from 'next/headers';
 // import
 import { SignupFormInputType } from './schema';
-
 // type
-type SignupResponse = {
-  ok:            boolean;
-  status:        number;
-  message?:      string;
-  toastType?:    string;
-  toastMessage?: string;
-};
+import { DefaultResponse } from '@/features/api';
+
 
 // signup
-export async function signup(params: SignupFormInputType): Promise<SignupResponse> {
+export async function signup(params: SignupFormInputType): Promise<DefaultResponse> {
   try {
     const { email, password, rePassword, csrfToken } = params;
 
@@ -35,7 +29,7 @@ export async function signup(params: SignupFormInputType): Promise<SignupRespons
 
     // input valid
     if (!email || !csrfResult?.ok) {
-      const response: SignupResponse = {
+      const response: DefaultResponse = {
         ok:           false,
         status:       400,
         message:      'サインアップに失敗しました',
@@ -55,7 +49,7 @@ export async function signup(params: SignupFormInputType): Promise<SignupRespons
       { headers: { 'Content-Type': 'application/json', }},
     );
     //  Axios は 2xx 以外で catch に飛ぶ
-    const response: SignupResponse = {
+    const response: DefaultResponse = {
       ok:           true,
       status:       res.status,
       message:      '認証メールを送信しました',
@@ -67,7 +61,7 @@ export async function signup(params: SignupFormInputType): Promise<SignupRespons
     if (axios.isAxiosError(error) && error.response) {
       const status = error.response.status;
       if (status === 429) {
-        const response: SignupResponse = {
+        const response: DefaultResponse = {
           ok:           false,
           status:       429,
           message:      '時間をおいて再度お試しください',
@@ -76,7 +70,7 @@ export async function signup(params: SignupFormInputType): Promise<SignupRespons
         };
         return response;
       } else {
-        const response: SignupResponse = {
+        const response: DefaultResponse = {
           ok:           false,
           status:       400, // 400しか返さない
           message:      'サインアップに失敗しました',
@@ -87,7 +81,7 @@ export async function signup(params: SignupFormInputType): Promise<SignupRespons
       };
     };
     // error.response が無い場合 (ネットワーク障害など)
-    const response: SignupResponse = {
+    const response: DefaultResponse = {
       ok:           false,
       status:       500,
       message:      'サインアップに失敗しました',

@@ -24,6 +24,7 @@ type NavigationProps = {
   
 // NavigationItems ▽
 export const NavigationItems: NavigationProps = {
+  // Navbar
   Navbar: [
     {
       key:   'getStarted',
@@ -79,6 +80,7 @@ export const NavigationItems: NavigationProps = {
       icon:  StickyNote,
     },
   ],
+  // SidebarFooter
   SidebarFooter: [
     {
       key:   'FAQ',

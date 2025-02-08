@@ -12,19 +12,12 @@ import { csrfValidatorForCookie } from '@/features/utils';
 import { cookies } from 'next/headers';
 // import
 import { PasswordResetFormInputType } from './schema';
-
-
 // type
-type ResetPasswordResponse = {
-  ok:            boolean;
-  status:        number;
-  message?:      string;
-  toastType?:    string;
-  toastMessage?: string;
-};
+import { DefaultResponse } from '@/features/api';
+
 
 // resetPassword
-export async function resetPassword(params: PasswordResetFormInputType): Promise<ResetPasswordResponse> {
+export async function resetPassword(params: PasswordResetFormInputType): Promise<DefaultResponse> {
   try {
     const { email, csrfToken } = params;
 
@@ -36,7 +29,7 @@ export async function resetPassword(params: PasswordResetFormInputType): Promise
 
     // input valid
     if (!email || !csrfResult?.ok) {
-      const response: ResetPasswordResponse = {
+      const response: DefaultResponse = {
         ok:           false,
         status:       400,
         message:      'パスワード再設定に失敗しました',
@@ -52,7 +45,7 @@ export async function resetPassword(params: PasswordResetFormInputType): Promise
       { headers: { 'Content-Type': 'application/json', }},
     );
     //  Axios は 2xx 以外で catch に飛ぶ
-    const response: ResetPasswordResponse = {
+    const response: DefaultResponse = {
       ok:           true,
       status:       res.status,
       message:      '再設定用のメールを送信しました',
@@ -64,7 +57,7 @@ export async function resetPassword(params: PasswordResetFormInputType): Promise
     if (axios.isAxiosError(error) && error.response) {
       const status = error.response.status;
       if (status === 429) {
-        const response: ResetPasswordResponse = {
+        const response: DefaultResponse = {
           ok:           false,
           status:       429,
           message:      '時間をおいて再度お試しください',
@@ -73,7 +66,7 @@ export async function resetPassword(params: PasswordResetFormInputType): Promise
         };
         return response;
       } else {
-        const response: ResetPasswordResponse = {
+        const response: DefaultResponse = {
           ok:           false,
           status:       400, // 400しか返さない
           message:      'パスワード再設定に失敗しました',
@@ -84,7 +77,7 @@ export async function resetPassword(params: PasswordResetFormInputType): Promise
       };
     };
     // error.response が無い場合 (ネットワーク障害など)
-    const response: ResetPasswordResponse = {
+    const response: DefaultResponse = {
       ok:           false,
       status:       500,
       message:      'パスワード再設定に失敗しました',

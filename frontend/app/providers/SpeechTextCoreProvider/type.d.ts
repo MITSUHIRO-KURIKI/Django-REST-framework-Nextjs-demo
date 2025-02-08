@@ -6,7 +6,9 @@ export type SpeechTextCoreContextValue = {
   setRecognizedText:    Dispatch<SetStateAction<string[]>>;
   allrecognizedTextRef: MutableRefObject<string[]>;
   isLoading:            boolean;
+  toggleRecognition:    () => void;
   isSpacePressedRef:    MutableRefObject<boolean>;
+  isRecognizing:        boolean;
   isStopRecognition:    boolean;
   isSpeechStreaming:    boolean;
   speechDataArray:      Uint8Array | null;

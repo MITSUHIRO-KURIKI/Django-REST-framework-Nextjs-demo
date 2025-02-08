@@ -29,7 +29,6 @@ type AccountMenuItemsList = {
 // AccountMenuItems ▽
 export function AccountMenuItems(): AccountMenuItemsList[] {
   const { status } = useSession();
-
   switch (status) {
     case 'loading':
       return [{

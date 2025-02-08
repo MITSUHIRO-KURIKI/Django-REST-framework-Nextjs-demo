@@ -3,7 +3,11 @@
 // react
 import { type ReactElement } from 'react';
 // providers
-import { WebSocketCoreProvider, SpeechTextGcloudCoreProvider, VrmCoreProvider } from '@/app/providers';
+import {
+  WebSocketCoreProvider,
+  SpeechTextAzureCoreProvider as SpeechTextCoreProvider, // or SpeechTextGcloudCoreProvider
+  VrmCoreProvider,
+} from '@/app/providers';
 // features
 import { vrmChatPath } from '@/features/paths/backend';
 // import
@@ -17,13 +21,12 @@ export function VrmChatRoomContent({ roomId, roomTitle }: VrmChatRoomParams): Re
   return (
     <>
       <WebSocketCoreProvider WebsocketUrl={vrmChatPath.ws_room} WebsocketId={roomId}>
-        <SpeechTextGcloudCoreProvider>
-          {/* {process.env.NEXT_PUBLIC_BACKEND_STATIC_URL+'/services/vrmchat/vrm/model.vrm'} CROS発生...? */}
-          <VrmCoreProvider url={'/services/vrmchat/vrm/model.vrm'}>
+        <SpeechTextCoreProvider>
+          <VrmCoreProvider url       = {'/services/vrmchat/vrm/model.vrm'}>
             <ClientContext roomId    = {roomId}
                            roomTitle = {roomTitle}/>
           </VrmCoreProvider>
-        </SpeechTextGcloudCoreProvider>
+        </SpeechTextCoreProvider>
       </WebSocketCoreProvider>
     </>
   );

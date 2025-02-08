@@ -1,7 +1,13 @@
 'use client';
 
 // react
-import { useEffect, useState, type ReactElement } from 'react';
+import {
+  useEffect,
+  useState,
+  Dispatch,
+  SetStateAction,
+  type ReactElement,
+} from 'react';
 // hookform
 import {
   getRoomSettings,
@@ -48,10 +54,12 @@ import { OverlaySpinner } from '@/app/components/utils';
 import { VrmChatRoomParams } from '../page';
 
 // type
-export type RoomSettingsFormProps = Pick<VrmChatRoomParams, 'roomId'>
+export type RoomSettingsFormProps = Pick<VrmChatRoomParams, 'roomId'> & {
+  setSheetOpen: Dispatch<SetStateAction<boolean>>;
+};
 
 // RoomSettingsForm ▽
-export function RoomSettingsForm({ roomId }: RoomSettingsFormProps): ReactElement {
+export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps): ReactElement {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSending, setIsSending] = useState<boolean>(false);
   const [errorMsg, setErrorMsg]   = useState<string>('');
@@ -134,6 +142,7 @@ export function RoomSettingsForm({ roomId }: RoomSettingsFormProps): ReactElemen
     } finally {
       // 多重送信防止
       setIsSending(false);
+      setSheetOpen(false);
     };
   };
   // ++++++++++
@@ -174,12 +183,13 @@ export function RoomSettingsForm({ roomId }: RoomSettingsFormProps): ReactElemen
                       </Button>
                   </FormControl>
                 </PopoverTrigger>
-                <PopoverContent className='p-0'>
+                <PopoverContent className='p-0'
+                                onWheel={(e) => {e.stopPropagation();}} >
                   <Command>
                     <CommandInput placeholder='Search...' />
                     <CommandList>
                       <CommandEmpty>Not found.</CommandEmpty>
-                      <CommandGroup popoverProps={{onWheel: (e) => {e.stopPropagation()}}}>
+                      <CommandGroup>
                         {modelNameChoices?.map((choice) => (
                           <CommandItem key      = {choice.value}
                                        value    = {String(choice.value)}
@@ -349,7 +359,7 @@ export function RoomSettingsForm({ roomId }: RoomSettingsFormProps): ReactElemen
           <Button type      = 'submit'
                   className = 'w-full'
                   disabled  = {isSending}>
-            {isSending ? <Loader2 className='mr-2 size-4 animate-spin' /> : '設定を更新'}
+            {isSending ? <Loader2 className='size-4 animate-spin' /> : '設定を更新'}
           </Button>
         </form>
       </Form>

@@ -1,13 +1,16 @@
 // react
-import { type ReactNode, type ReactElement } from 'react';
+import { type ReactElement } from 'react';
 // shadcn
 import { cn } from '@/app/components/lib/shadcn';
 // components
 import { Navbar } from '@/app/components/ui/Navigation';
+// import
+import { NavigationWrapperProps } from './type.d';
 
 // NavbarWrapper
-export function NavbarWrapper({ wrapName, className, children }: { wrapName?: string, className?: string | null, children: ReactNode }): ReactElement {
-  const isUseSidebar = false
+export function NavbarWrapper({ wrapName, className, children }:NavigationWrapperProps ): ReactElement {
+  const isUseSidebar = false;
+
   return (
     <>
       <Navbar isUseSidebar={isUseSidebar}/>

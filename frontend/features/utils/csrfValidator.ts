@@ -14,7 +14,7 @@ const TOKEN_DELIMITERS = ['|', '%7C'] as const;
 function extractCsrfCookieValueFromHeader(rawCookieString: string | null): string | null {
   if (!rawCookieString) return null;
 
-  const rawCookiesArr: string[] = rawCookieString.split(';');
+  const rawCookiesArr: string[]        = rawCookieString.split(';');
   const csrfCookie: string | undefined = rawCookiesArr.find(
     (cookie) => cookie.trim().startsWith(CSRF_COOKIE_NAME)
   );
@@ -116,7 +116,6 @@ export function csrfValidatorForRequest(request: NextRequest): NextResponse {
 
     // SUCSESS
     return new NextResponse(null, { status: 200 });
-
   } catch {
     return new NextResponse(null, { status: 403 });
   };
@@ -144,7 +143,6 @@ export function csrfValidatorForCookie(
 
     // SUCSESS
     return new NextResponse(null, { status: 200 });
-
   } catch {
     return new NextResponse(null, { status: 403 });
   };

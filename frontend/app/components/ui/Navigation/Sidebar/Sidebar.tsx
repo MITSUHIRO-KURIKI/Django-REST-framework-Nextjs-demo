@@ -111,7 +111,7 @@ export function SidebarBody({ vrmChatInitial, pageSize,  ...props }: SidebarBody
       setIsVrmChatRoomSending(false);
     };
   };
-  const handleLoadMoreVrmChatRoom = async (e: MouseEvent<HTMLElement>) => {
+  const handleLoadMoreVrmChatRoom = async (e: MouseEvent<HTMLElement>): Promise<void> => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -136,14 +136,12 @@ export function SidebarBody({ vrmChatInitial, pageSize,  ...props }: SidebarBody
     };
   };
   const handleRoomNameEditModal = (e: MouseEvent<HTMLElement>, roomId: string, currentName: string): void => {
-    e.preventDefault();
     e.stopPropagation();
     setEditRoomName(currentName);
     setEditRoomNameTargetRoomId(roomId);
     setEditRoomNameModalOpen(true);
   };
   const handleDeleteRoomModal = (e: MouseEvent<HTMLElement>, roomId: string): void => {
-    e.preventDefault();
     e.stopPropagation();
     setDeleteRoomTargetRoomId(roomId);
     setDeleteRoomModalOpen(true);
@@ -223,13 +221,13 @@ export function SidebarBody({ vrmChatInitial, pageSize,  ...props }: SidebarBody
                           className = 'my-2 me-4 p-2 text-xs font-normal'
                           disabled  = {isVrmChatRoomSending}
                           onClick   = {handleCreateVrmChatRoom}>
-                        {isVrmChatRoomSending ? <Loader2 className='mr-2 size-4 animate-spin' /> : '新しい会話を始める'}
+                        {isVrmChatRoomSending ? <Loader2 className='size-4 animate-spin' /> : '新しい会話を始める'}
                   </Button>
                   { vrmChatItems && vrmChatItems.map((subItem) => (
                     <SidebarMenuItem key={subItem.key}>
                       <div className='flex w-full items-center justify-between'>
                         <SidebarMenuButton className='truncate' asChild>{/* isActive={subItem.isActive}> */}
-                          <Link href={UrlToString(pagesPath.servicesPath.vrmChatRoom.$url())+'/'+subItem.href}>
+                          <Link href={UrlToString(pagesPath.servicesPath.vrmChatRoom.$url({_roomId:subItem.href}))}>
                             {subItem.label}
                           </Link>
                         </SidebarMenuButton>
@@ -259,7 +257,7 @@ export function SidebarBody({ vrmChatInitial, pageSize,  ...props }: SidebarBody
                           className = 'mt-3 text-xs text-foreground/60'
                           disabled  = {isVrmChatRoomSending}
                           onClick   = {handleLoadMoreVrmChatRoom}>
-                        {isVrmChatRoomSending ? <Loader2 className='mr-2 size-4 animate-spin' /> : 'もっと見る'}
+                        {isVrmChatRoomSending ? <Loader2 className='size-4 animate-spin' /> : 'もっと見る'}
                   </Button>
                 </SidebarMenu>
               </SidebarGroupContent>

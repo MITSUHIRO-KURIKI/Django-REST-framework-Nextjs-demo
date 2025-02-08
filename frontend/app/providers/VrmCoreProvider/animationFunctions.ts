@@ -1,7 +1,7 @@
 // lib/vrm/animations.ts
 import type { VRM } from '@pixiv/three-vrm';
 
-// リップシンク
+// リップシンク ▽
 // 音量を解析してVRMのリップシンクを制御
 // 返り値でストップ用の関数を渡す
 // Ref. https://qiita.com/daifukusan/items/de74f272e71dd87f853c
@@ -70,8 +70,9 @@ export function startLipSync(vrm: VRM, analyser: AnalyserNode, dataArray: Uint8A
   };
   return stopLipSync;
 };
+// リップシンク △
 
-// 瞬き
+// 瞬き ▽
 export let blinkingTimeoutId: ReturnType<typeof setTimeout> | null = null;
 export type StartBlinkingOptions = {
   blinkInterval?:      number;
@@ -101,8 +102,9 @@ export function startBlinking(
   };
   blinkingTimeoutId = setTimeout(blink, blinkInterval);
 };
+// 瞬き △
 
-// 呼吸
+// 呼吸 ▽
 export type StartBreathingOptions = {
   breathInterval?:  number;
   breathDuration?:  number;
@@ -123,8 +125,9 @@ export function startBreathing(
     }, breathDuration);
   }, breathInterval);
 };
+// 呼吸 △
 
-// 左右動き (ゆらゆら)
+// 左右動き (ゆらゆら) ▽
 export type StartSwayingOptions = {
   swaySpeed?:   number;
   maxRotation?: number;
@@ -143,8 +146,9 @@ export function startSwaying(
   };
   requestAnimationFrame(swayLoop);
 };
+// 左右動き (ゆらゆら) △
 
-// よそ見
+// よそ見 ▽
 export type StartRandomEyeMovementOptions = {
   eyeMovementInterval?:    number;
   eyeMovementDuration?:    number;
@@ -182,3 +186,4 @@ export function startRandomEyeMovementWithDice(
   };
   checkDice();
 };
+// よそ見 △

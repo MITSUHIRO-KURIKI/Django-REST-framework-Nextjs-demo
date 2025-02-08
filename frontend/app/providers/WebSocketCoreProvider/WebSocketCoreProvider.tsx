@@ -94,17 +94,175 @@ export type WebSocketCoreContextValue = {
 // WebSocketCoreProvider ▽
 export function WebSocketCoreProvider({ WebsocketUrl, WebsocketId, children,}: WebSocketCoreProviderProps): ReactElement {
 
-  // Base
+  // WebSocket
   const socketRef        = useRef<WebSocket | null>(null);
   const brotliRef        = useRef<BrotliWasm | null>(null);
   const accessIdRef      = useRef<string>('');
+  // ping
   const pingIntervalRef  = useRef<NodeJS.Timeout | null>(null);
   const pingIntervalTime = 5000;
+  // 状態管理
   const [serverMessageState, setServerMessageState] = useState<ServerMessage | null>(null);
   const [isWebSocketWaiting, setIsWebSocketWaiting] = useState<boolean>(false);
-  
-  // wsLoadData: WebSocketからのメッセージを処理
-  const wsLoadData = useCallback( async (event: MessageEvent): Promise<ServerMessage> => {
+
+  // --------------------
+  // WebSocket 接続 / 再接続
+  // --------------------
+  // setUpWebSocketListeners: WebSocket イベントリスナー
+  const setUpWebSocketListeners = useCallback((ws: WebSocket) => {
+    // open
+    ws.addEventListener('open', () => {
+      setIsWebSocketWaiting(false);
+      showToast('success', 'Connected', {position: 'bottom-right', duration: 3000,});
+    });
+    // message
+    ws.addEventListener('message', (event: MessageEvent) => {
+      handleReceiveMessage(event).catch(() => {
+        showToast('error', 'socket error', {position: 'bottom-right', duration: 3000,});
+      });
+    });
+    // close
+    ws.addEventListener('close', () => {
+      setIsWebSocketWaiting(false);
+      showToast('info', 'Disconnected', {position: 'bottom-right', duration: 3000,});
+    });
+    // error
+    ws.addEventListener('error', () => {
+      showToast('error', 'Connection error', {position: 'bottom-right', duration: 3000,});
+      if (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN) {
+        ws.close();
+        setIsWebSocketWaiting(false);
+      };
+    });
+  }, []);
+
+  // connectWebSocket: 新規接続
+  const connectWebSocket = useCallback(async (): Promise<void> => {
+    try {
+      // 既存ソケットが CONNECTING or OPEN なら一旦閉じる
+      if (socketRef.current) {
+        const { readyState } = socketRef.current;
+        if (readyState === WebSocket.CONNECTING || readyState === WebSocket.OPEN) {
+          socketRef.current.close();
+        };
+      };
+      // 新規ソケット生成
+      const wsProtocol    = window.location.protocol === 'https:' ? 'wss' : 'ws';
+      const backendDomain = process.env.NEXT_PUBLIC_BACKEND_DOMAIN;
+      const wsUrl         = `${wsProtocol}://${backendDomain}/${WebsocketUrl}${WebsocketId}`;
+      const newSocket     = new WebSocket(wsUrl);
+      setUpWebSocketListeners(newSocket);
+      socketRef.current = newSocket;
+      console.log('connectWebSocket OK'); // Debug
+    } catch {
+      showToast('error', 'Connection error', { position: 'bottom-right', duration: 3000 });
+    };
+  }, [WebsocketId, WebsocketUrl, setUpWebSocketListeners]);
+
+  // reConnectWebSocket: 再接続
+  const reConnectWebSocket = useCallback( async (options: { isForced?: boolean } = {}): Promise<void> => {
+    const { isForced = false } = options;
+    const ws                   = socketRef.current;
+    // ソケットが無ければ単純に接続
+    if (!ws) {
+      await connectWebSocket();
+      return;
+    };
+    // 既に CONNECTING or OPEN で、強制フラグfalseなら何もしない
+    if (!isForced && (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN)) {
+      return;
+    };
+    // 一度クローズして再接続
+    ws.close();
+    // 再接続
+    showToast('info', '自動的に再接続を試みます', {position: 'bottom-right', duration: 3000,});
+    setIsWebSocketWaiting(false);
+    await connectWebSocket();
+    // Debug
+    console.log('reConnectWebSocket');
+  }, [connectWebSocket]);
+
+  // --------------------
+  // 送信メソッド
+  // --------------------
+  // sendMessage: 送信共通処理
+  const sendMessage = useCallback((
+    message: ClientMessage,
+    { compressLevel = 4,
+      isWaitBlock   = true, }: {compressLevel?: number; isWaitBlock?: boolean; } = {}): void => {
+    const ws = socketRef.current;
+    if (!ws) {
+      // ソケットが無ければ再接続
+      void reConnectWebSocket();
+      return;
+    };
+    // 多重送信など送信ブロックをかける場合
+    // -> isWaitBlock = falase はシステムメッセージを想定
+    if (isWaitBlock) {
+      if (isWebSocketWaiting) {
+        return;
+      };
+      // 送信できる場合 (多重送信をブロック)
+      setIsWebSocketWaiting(true);
+    };
+    // 送信
+    if (ws.readyState === WebSocket.OPEN) {
+      // (共通処理)IDをセット
+      message.request_user_access_id = accessIdRef.current;
+      try {
+        // Brotli圧縮
+        if (compressLevel && brotliRef.current) {
+          const jsonString     = JSON.stringify(message);
+          const compressedData = brotliRef.current.compress(
+            new TextEncoder().encode(jsonString),
+            { quality: compressLevel },
+          );
+          ws.send(compressedData);
+        } else {
+          ws.send(JSON.stringify(message));
+        };
+      } catch {
+        // 失敗したら非圧縮送信
+        ws.send(JSON.stringify(message));
+      };
+    } else if (ws.readyState === WebSocket.CONNECTING) {
+      // 接続中なら特に何もせずに待つ
+    } else {
+      // CLOSE or エラー状態
+      void reConnectWebSocket();
+    };
+  }, [isWebSocketWaiting]);
+  // handleSendCore: UIから呼び出される送信ハンドラ
+  //  呼び出し例:
+  //   const handleClickSendMessage = () => {
+  //    handleSendCore('cmd', { message: inputText });
+  //   };
+  //   <button onClick={handleClickSendMessage} disabled={isWebSocketWaiting}>
+  const handleSendCore = useCallback((cmd: string, messageBody: Record<string, string>) => {
+    // サニタイズ
+    const safeMessageBody = Object.fromEntries(
+      Object.entries(messageBody).map(([k, v]) => [
+        sanitizeDOMPurify(k),
+        sanitizeDOMPurify(v),
+      ]),
+    );
+    const message: ClientMessage = {
+      cmd,
+      data: safeMessageBody,
+    };
+    // 送信
+    sendMessage(message, { compressLevel: 4 });
+  }, [sendMessage]);
+  // handleSendSystemMessageCore: isWebSocketWaiting=true でも send 実行
+  const handleSendSystemMessageCore = useCallback((message: ClientMessage, compressLevel?: number): void => {
+    sendMessage(message, { compressLevel, isWaitBlock: false });
+  }, [sendMessage]);
+
+  // --------------------
+  // 受信メソッド
+  // --------------------
+  // decodeReceivedData: WebSocketからのメッセージを処理
+  const decodeReceivedData = useCallback( async (event: MessageEvent): Promise<ServerMessage> => {
     // 受信データがテキスト → 非圧縮とみなす
     if (typeof event.data === 'string') {
       return JSON.parse(event.data) as ServerMessage;
@@ -114,27 +272,20 @@ export function WebSocketCoreProvider({ WebsocketUrl, WebsocketId, children,}: W
       const reader = new FileReader();
       return new Promise<ServerMessage>((resolve, reject) => {
         reader.onload = () => {
-          if (!reader.result) {
-            reject(new Error('parseError'));
-            return;
-          };
+
+          if (!reader.result)     return reject(new Error('parseError'));
+          if (!brotliRef.current) return reject(new Error('parseError'));
+
           try {
-            if (!brotliRef.current) {
-              reject(new Error('parseError'));
-              return;
-            };
             const compressedData   = new Uint8Array(reader.result as ArrayBuffer);
             const decompressedData = brotliRef.current.decompress(compressedData);
             const decodedString    = new TextDecoder('utf-8').decode(decompressedData);
-            const parsed           = JSON.parse(decodedString) as ServerMessage;
-            resolve(parsed);
+            resolve(JSON.parse(decodedString) as ServerMessage);
           } catch {
             reject(new Error('parseError'));
           };
         };
-        reader.onerror = () => {
-          reject(new Error('parseError'));
-        };
+        reader.onerror = () => reject(new Error('parseError'));
         reader.readAsArrayBuffer(event.data);
       });
     };
@@ -142,174 +293,12 @@ export function WebSocketCoreProvider({ WebsocketUrl, WebsocketId, children,}: W
     throw new Error('parseError');
   }, []);
 
-  // connectWebSocket: WebSocket 接続
-  const connectWebSocket = useCallback(async (): Promise<void> => {
+  // handleReceiveMessage
+  async function handleReceiveMessage(event: MessageEvent): Promise<void> {
     try {
-      // 既存ソケットがCONNECTING or OPENなら一旦閉じる
-      if (socketRef.current) {
-        const { readyState } = socketRef.current;
-        if (readyState === WebSocket.CONNECTING || readyState === WebSocket.OPEN) {
-          socketRef.current.close();
-        };
-      };
-      const wsProtocol    = window.location.protocol === 'https:' ? 'wss' : 'ws';
-      const backendDomain = process.env.NEXT_PUBLIC_BACKEND_DOMAIN;
-      const wsUrl         = `${wsProtocol}://${backendDomain}/${WebsocketUrl}${WebsocketId}`;
-      const newSocket     = new WebSocket(wsUrl);
-      newSocket.addEventListener('open', () => {
-        setIsWebSocketWaiting(false);
-        showToast('success', 'Connect', {position: 'bottom-right', duration: 3000});
-      });
-      newSocket.addEventListener('message', (e: MessageEvent) => {
-        handleReceiveMessage(e)
-        .catch(() => {
-          showToast('error', 'error', {position: 'bottom-right', duration: 3000});
-        });
-      });
-      newSocket.addEventListener('close', () => {
-        setIsWebSocketWaiting(false);
-        showToast('info', 'disconnect', {position: 'bottom-right', duration: 3000});
-      });
-      newSocket.addEventListener('error', () => {
-        showToast('error', 'Connection error', {position: 'bottom-right', duration: 3000});
-        if (newSocket.readyState === WebSocket.CONNECTING || newSocket.readyState === WebSocket.OPEN) {
-          newSocket.close();
-        };
-      });
-      socketRef.current = newSocket;
-      console.log('connectWebSocket OK'); // Debug
-    } catch {
-      showToast('error', 'Connection error', { position: 'bottom-right', duration: 3000 });
-    };
-  }, [WebsocketId]);
-  // reConnectWebSocket: WebSocket 再接続
-  const reConnectWebSocket = useCallback( async (options: { isForced?: boolean } = {}): Promise<void> => {
-    const { isForced = false } = options;
-    const currentSocket        = socketRef.current;
-    // ソケットが無ければ単純に接続
-    if (!currentSocket) {
-      await connectWebSocket();
-      return;
-    };
-    // 既に CONNECTING or OPEN で、強制フラグfalseなら何もしない
-    if (!isForced && (currentSocket.readyState === WebSocket.CONNECTING || currentSocket.readyState === WebSocket.OPEN)) {
-      return;
-    };
-    // CONNECTING or OPEN なら一度閉じる(強制フラグTrue)
-    if (currentSocket.readyState === WebSocket.CONNECTING || currentSocket.readyState === WebSocket.OPEN) {
-      currentSocket.close();
-    };
-    // 再接続
-    showToast('info', '自動的に再接続を試みます', {position: 'bottom-right', duration: 3000,});
-    setIsWebSocketWaiting(false);
-    await connectWebSocket();
-    // Debug
-    console.log('reConnectWebSocket');
-  }, [connectWebSocket]);
-
-  // wsSendMessage: メッセージ受けは connectWebSocket
-  const wsSendMessage = useCallback((message: ClientMessage, compressLevel = 4): void => {
-    const currentSocket = socketRef.current;
-    if (!currentSocket) {
-      // ソケットがまだなら再接続
-      void reConnectWebSocket();
-      return;
-    };
-    if (currentSocket.readyState === WebSocket.OPEN && !isWebSocketWaiting) {
-      // 多重送信をブロック
-      setIsWebSocketWaiting(true);
-
-      // (共通処理)IDをセット
-      message.request_user_access_id = accessIdRef.current;
-
-      // Brotli圧縮
-      if (compressLevel && brotliRef.current) {
-        // 圧縮が失敗した場合は 非圧縮 で送信
-        try {
-          const jsonString     = JSON.stringify(message);
-          const compressedData = brotliRef.current.compress(
-            new TextEncoder().encode(jsonString),
-            { quality: compressLevel }
-          );
-          currentSocket.send(compressedData);
-        } catch {
-          currentSocket.send(JSON.stringify(message));
-        };
-      } else {
-        currentSocket.send(JSON.stringify(message));
-      };
-    } else if (currentSocket.readyState === WebSocket.CONNECTING && !isWebSocketWaiting) {
-      // 接続準備中：特になにもしない
-    } else {
-      // 接続が閉じている場合は再接続
-      void reConnectWebSocket();
-    }
-  }, [reConnectWebSocket]);
-  // handleSendSystemMessageCore: isWebSocketWaiting=true でも send 実行
-  const handleSendSystemMessageCore = useCallback((message: ClientMessage, compressLevel?: number): void => {
-    const currentSocket = socketRef.current;
-    if (!currentSocket) {
-      // ソケットがまだなら再接続
-      void reConnectWebSocket();
-      return;
-    };
-    if (currentSocket.readyState === WebSocket.OPEN) {
-      // (共通処理)IDをセット
-      message.request_user_access_id = accessIdRef.current;
-
-      // Brotli圧縮
-      if (compressLevel && brotliRef.current) {
-        // 圧縮が失敗した場合は 非圧縮 で送信
-        try {
-          const jsonString     = JSON.stringify(message);
-          const compressedData = brotliRef.current.compress(
-            new TextEncoder().encode(jsonString),
-            { quality: compressLevel }
-          );
-          currentSocket.send(compressedData);
-        } catch {
-          currentSocket.send(JSON.stringify(message));
-        };
-      } else {
-        currentSocket.send(JSON.stringify(message));
-      }
-    } else if (currentSocket.readyState === WebSocket.CONNECTING) {
-      // 接続準備中：特になにもしない
-    } else {
-      // 接続が閉じている場合は再接続
-      void reConnectWebSocket();
-    }
-  }, [reConnectWebSocket]);
-
-  // handleSendCore: UIから呼び出される送信ハンドラ
-  //  呼び出し例:
-  //   const handleClickSendMessage = () => {
-  //    handleSendCore('cmd', { message: inputText });
-  //   };
-  //   <button onClick={handleClickSendMessage} disabled={isWebSocketWaiting}>
-  const handleSendCore = useCallback((cmd: string, messageBody: Record<string, string>) => {
-    // サニタイズ
-    const safeMessageBody = Object.entries(messageBody).reduce<Record<string, string>>(
-      (acc, [k, v]) => {
-        const safeKey = sanitizeDOMPurify(k);
-        const safeVal = sanitizeDOMPurify(v);
-        acc[safeKey]  = safeVal;
-        return acc;
-      }, {}
-    );
-    const message: ClientMessage = {
-      cmd,
-      data: safeMessageBody,
-    };
-    // 送信
-    wsSendMessage(message, 4);
-  }, [wsSendMessage]);
-  // handleReceiveMessage (受)
-  async function handleReceiveMessage(event) {
-    try {
-      const serverMessage = await wsLoadData(event);
+      const serverMessage = await decodeReceivedData(event);
       if (!serverMessage || typeof serverMessage !== 'object') {
-        throw new Error('Invalid message data');
+        throw new Error('Invalid data');
       };
       const { cmd, ok, data } = serverMessage;
       // 共通処理 ▽
@@ -318,6 +307,7 @@ export function WebSocketCoreProvider({ WebsocketUrl, WebsocketId, children,}: W
       if (cmd === 'wsClose') {
         socketRef.current?.close();
         setIsWebSocketWaiting(false);
+        return;
       // SetUserAccessId: アクセスID をセット
       } else if (cmd === 'SetUserAccessId' && data?.access_id) {
         if (ok) {
@@ -327,15 +317,7 @@ export function WebSocketCoreProvider({ WebsocketUrl, WebsocketId, children,}: W
           showToast('error', 'Connection error', {position: 'bottom-right', duration: 3000});
         };
         setIsWebSocketWaiting(false);
-      // SetUserAccessId: アクセスID をセット
-    } else if (cmd === 'SetUserAccessId' && data?.access_id) {
-      if (ok) {
-        const accessId      = sanitizeDOMPurify(String(data.access_id));
-        accessIdRef.current = accessId;
-      } else {
-        showToast('error', 'Connection error', {position: 'bottom-right', duration: 3000});
-      };
-      setIsWebSocketWaiting(false);
+        return;
       // 共通処理 △
       } else {
         // 共通処理以外は Context で返す
@@ -348,24 +330,22 @@ export function WebSocketCoreProvider({ WebsocketUrl, WebsocketId, children,}: W
     };
   };
 
-  // ping ▽
-  //  - socket接続 が生きてるか確認
+  // --------------------
+  // ping
+  // - socket 死活監視
+  // - 切断状態なら handleSendSystemMessageCore を通して再接続を試みる
+  // --------------------
   //  - sendPing
   const sendPing = useCallback(() => {
-    if(socketRef.current) {
-      const pingMessage: ClientMessage = { cmd: 'ping' };
-      socketRef.current.send(JSON.stringify(pingMessage));
-      console.log('ping'); // Debug
-    };
+    handleSendSystemMessageCore({ cmd: 'ping' });
+    console.log('ping'); // Debug
   }, [handleSendSystemMessageCore]);
   //  - startPing
   const startPing = useCallback(() => {
     // Ping が未設定の場合のみ設定
     if (!pingIntervalRef.current) {
       pingIntervalRef.current = setInterval(() => {
-        if(socketRef.current) {
-          sendPing();
-        };
+        sendPing();
       }, pingIntervalTime);
     };
   }, [sendPing]);
@@ -377,41 +357,41 @@ export function WebSocketCoreProvider({ WebsocketUrl, WebsocketId, children,}: W
     };
   }, []);
 
+  // --------------------
+  // 画面終了・タブ閉じなど
+  // --------------------
   // closeSocketAll: 主に画面が閉じられる時などの共通処理
   const closeSocketAll = useCallback((): void => {
     if (socketRef.current) {
       socketRef.current.close();
-    }
+    };
     stopPing();
   }, [stopPing]);
-  // ping △
 
+  // --------------------
   // マウント時の初期処理
+  // --------------------
   useEffect(() => {
     let isMounted = true;
     (async () => {
-      if (isMounted) {
-        // brotli-wasm ロード
-        try {
-          brotliRef.current = await brotliPromise;
-        } catch {
-          // エラーなら以後すべて非圧縮で正常処理を進める
-          // グループ の場合など両者で圧縮が異なると解凍時エラー
-          brotliRef.current = null;
-        };
-        // WebSocket接続
-        await connectWebSocket();
+      if (!isMounted) return;
+      // brotli-wasm ロード
+      try {
+        brotliRef.current = await brotliPromise;
+      } catch {
+        brotliRef.current = null; // 失敗しても非圧縮で続行
       };
+      // ソケット接続開始
+      await connectWebSocket();
     })();
+
     // Ping開始
     startPing();
+    
     // タブを閉じる・リロード前
     const handleBeforeUnload = () => {
-      if (socketRef.current) {
-        const rs = socketRef.current.readyState;
-        if (rs === WebSocket.CONNECTING || rs === WebSocket.OPEN) {
-          closeSocketAll();
-        };
+      if (socketRef.current?.readyState === WebSocket.CONNECTING || socketRef.current?.readyState === WebSocket.OPEN) {
+        closeSocketAll();
       };
     };
     // タブ可視状態変化
@@ -420,14 +400,17 @@ export function WebSocketCoreProvider({ WebsocketUrl, WebsocketId, children,}: W
         // 非アクティブになったら閉じる
         closeSocketAll();
       } else {
-        // アクティブに戻ったら再接続
+        // アクティブになったら再接続 & Ping
         void reConnectWebSocket({ isForced: true });
         sendPing();
-        if (!pingIntervalRef.current) startPing();
+        startPing();
       };
     };
+
+    // イベント登録
     window.addEventListener('beforeunload',       handleBeforeUnload);
     document.addEventListener('visibilitychange', handleVisibilityChange);
+
     // Cleanup(アンマウント時)
     return () => {
       isMounted = false;
@@ -435,8 +418,11 @@ export function WebSocketCoreProvider({ WebsocketUrl, WebsocketId, children,}: W
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       closeSocketAll();
     };
-  }, [WebsocketId, connectWebSocket, closeSocketAll, reConnectWebSocket, startPing,]);
+  }, [WebsocketId]);
 
+  // --------------------
+  // contextValue
+  // --------------------
   const contextValue: WebSocketCoreContextValue = {
     socketRef,
     accessIdRef,

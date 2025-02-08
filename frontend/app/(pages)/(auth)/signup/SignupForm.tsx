@@ -13,10 +13,10 @@ import {
 // hookform
 import {
   signup,
-  passwordSchema,
   signupFormSchema,
   type SignupFormInputType
- } from '@/features/api/accounts/signup';
+} from '@/features/api/accounts/signup';
+import { passwordSchema } from '@/features/api/accounts';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -81,9 +81,9 @@ export function SignupForm({
     });
   }, [form]);
   // パスワード強度 ▽
-  const watchNewPassword = form.watch('password');
+  const watchNewPassword                  = form.watch('password');
   const [passwordScore, setPasswordScore] = useState(0);
-  const strengthLabel = getZxcvbnStrengthLabel(passwordScore);
+  const strengthLabel                     = getZxcvbnStrengthLabel(passwordScore);
   // newPassword の変更を監視してスコア計算
   useEffect(() => {
     if (!watchNewPassword) {
@@ -92,7 +92,7 @@ export function SignupForm({
     };
     // zxcvbnでスコア計算
     const zxcvbnResult = zxcvbn(watchNewPassword);
-    let score  = zxcvbnResult.score;
+    let score          = zxcvbnResult.score;
     // zod 必須条件を満たしていない場合、scoreを2までに抑える
     const parsed = passwordSchema.safeParse(watchNewPassword);
     if (!parsed.success && score > 2) {
@@ -240,7 +240,7 @@ export function SignupForm({
           <Button type      = 'submit'
                   className = 'w-full'
                   disabled  = {isSending}>
-            {isSending ? <Loader2 className='mr-2 size-4 animate-spin' /> : '新規登録'}
+            {isSending ? <Loader2 className='size-4 animate-spin' /> : '新規登録'}
           </Button>
         </div>
       </form>

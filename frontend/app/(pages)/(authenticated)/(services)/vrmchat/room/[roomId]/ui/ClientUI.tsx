@@ -9,31 +9,36 @@ import {
   CardContent,
 } from '@/app/components/ui/shadcn/card';
 import { ScrollArea } from '@/app/components/ui/shadcn/scroll-area';
+import { Skeleton } from '@/app/components/ui/shadcn/skeleton';
 import { Badge } from '@/app/components/ui/shadcn/badge';
+// icon
+import { MicOff, Loader2 } from 'lucide-react';
+// components
+import { MarkdownRender } from '@/app/components/utils';
 // include
 import { SheetRoomSettings } from './RoomSettingsSheet';
 // type
 import type { ClientUIProps } from '../ClientContext';
-import { MicOff, Loader2 } from 'lucide-react';
+
 
 // ClientUI ▽
 export function ClientUI({
   roomId,
+  isWebSocketWaiting,
   recognizedText,
   recognizingText,
   receivedMessages,
+  isLoading,
+  isRecognizing,
   isStopRecognition,
+  toggleRecognition,
   width,
   height,
   containerRef,
-  isWebSocketWaiting,
-  isLoading,
-  isSpacePressed,
-  isFirstRender,
 }: ClientUIProps): ReactElement{
 
   return ( 
-    <div className="relative size-full">
+    <div className='relative size-full'>
       {/* VRM */}
       <div ref       = {containerRef}
            className = {cn(
@@ -46,31 +51,42 @@ export function ClientUI({
 
       {/* 会話テキスト */}
       <Card className={cn(
-          'absolute bottom-20 left-1/2 -translate-x-1/2',
-          'w-[80%] h-[10rem]',
+          'absolute bottom-[4%] left-1/2 -translate-x-1/2',
+          'text-xs md:text-base',
+          'w-[60rem] h-[10rem] max-w-[95%] max-h-[30%]',
           'bg-transparent shadow-none',)}
-          style={{
-            top: 'clamp(0px, calc(50% + 200px), calc(100% - 10rem))',
-          }}>
+          >
+
+        {/* カード背景のグラデーション */}
         <div className={cn(
             'pointer-events-none absolute inset-0',
-            'bg-gradient-to-t from-background from-80% to-background/60',)}/>
+            'bg-gradient-to-t from-background from-80% to-background/60',)} />
+
         <CardContent className="relative z-10 flex h-full flex-col p-4 pr-16">
+
           {/* ユーザ発話 or AI レスポンスの表示切り替え */}
-          { isFirstRender ? (
-            <ScrollArea>
-              <span className='text-foreground/60'>スペースキーを押している間、あなたの声を認識します。</span>
-            </ScrollArea>
-          ) : ( (!isStopRecognition || isWebSocketWaiting) ? (
-            <ScrollArea>
-              <span className='text-foreground'>{recognizedText}</span>
-              <span className='text-foreground/60'>{recognizingText}</span>
-            </ScrollArea>
-          ) : (
-            <ScrollArea>
-              <span className='text-foreground'>{receivedMessages}</span>
-            </ScrollArea>
-          ))}
+          <ScrollArea>
+            { (!recognizedText?.length && !recognizingText && !receivedMessages?.length) ? (
+              <>
+                <p className='text-foreground/60'>スペースキーを押している間、あなたの声を認識します。</p>
+                <p className='text-foreground/60'>右のマイクのアイコンをクリックしても認識を開始できます。</p>
+              </>
+              
+            ) : ( (!isStopRecognition || isWebSocketWaiting) ? (
+              <>
+                <span className='text-foreground'>{recognizedText}</span>
+                <span className='text-foreground/60'>{recognizingText}</span>
+              </>
+            ) : ( (receivedMessages) ? (
+              <MarkdownRender markdownString={receivedMessages}/>
+            ) : (
+              <>
+                <Skeleton className='mt-1 w-[25rem] h-[20px] rounded-full' />
+                <Skeleton className='mt-1 w-[20rem] h-[20px] rounded-full' />
+              </>
+            )
+            ))}
+          </ScrollArea>
 
           {/* 会話ターンの表示 */}
           <div className='absolute -left-4 -top-4 z-sticky'>
@@ -83,12 +99,18 @@ export function ClientUI({
 
           {/* 音声認識の利用可能状態の表示 */}
           <div className='absolute right-4 top-1/2 -translate-y-1/2'>
-            { (isLoading || isWebSocketWaiting) ? (
-              <Loader2 className='size-9 animate-spin' />
-            ) : ((isSpacePressed) ? (
-              <div className="size-9 animate-spin rounded-bl-[1.9rem] rounded-br-[2.1rem] rounded-tl-[2.1rem] rounded-tr-[1.9rem] bg-gradient-to-r from-teal-400 to-blue-400" />
-            ) : (<MicOff className='size-9' />))}
+            <button type    = 'button' 
+                    onClick = {toggleRecognition}>
+              {isLoading || isWebSocketWaiting ? (
+                <Loader2 className='size-9 animate-spin' />
+              ) : isRecognizing ? (
+                <div className='size-9 animate-spin rounded-bl-[1.9rem] rounded-br-[2.1rem] rounded-tl-[2.1rem] rounded-tr-[1.9rem] bg-gradient-to-r from-teal-400 to-blue-400'/>
+              ) : (
+                <MicOff className='size-9' />
+              )}
+            </button>
           </div>
+
         </CardContent>
       </Card>
     </div>

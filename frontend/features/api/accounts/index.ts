@@ -1,6 +1,5 @@
 export {
   signup,
-  passwordSchema,
   signupFormSchema,
   type SignupFormInputType,
 } from './signup';
@@ -15,3 +14,7 @@ export {
   resetPasswordConfilmFormSchema,
   type ResetPasswordConfilmFormInputType,
 } from './resetPasswordConfilm';
+export {
+  passwordSchema,
+  emailSchema,
+} from './utils';

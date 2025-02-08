@@ -16,7 +16,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   try {
     // CSRFチェック ▽
-    const csrfResult: NextResponse | undefined = csrfValidatorForRequest(request);
+    const csrfResult = csrfValidatorForRequest(request);
     if (!csrfResult?.ok) {
       return new NextResponse(null, { status: 403 });
     };
@@ -24,19 +24,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // NextAuth の JWT をサーバーサイドで取得
     const token: JWT | null = await getToken({
-      req: request,
+      req:    request,
       secret: process.env.NEXTAUTH_SECRET,
     });
     if (!token) {
       return new NextResponse(null, { status: 204 });
     };
     // JWT に保存された refreshToken を取り出す
-    const refreshToken: string | null | undefined = token.refreshToken as string | null;
+    const refreshToken = token.refreshToken;
     if (!refreshToken) {
       return new NextResponse(null, { status: 204 });
     };
 
-    // ログアウト処理
+    // ログアウト処理 (リフレッシュトークンの無効化)
     await BackendApiClient.post(
       tokenPath.blacklist,
       { refresh: refreshToken },

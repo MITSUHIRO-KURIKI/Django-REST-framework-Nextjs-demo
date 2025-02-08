@@ -15,8 +15,6 @@ RUN apt-get update \
 RUN yarn install --frozen-lockfile
 # ソースコード全体をコピー
 COPY . .
-# アプリケーションをビルド
-RUN yarn build
 
 # ホスト設定を外部アクセス可能に設定
 ENV HOST 0.0.0.0

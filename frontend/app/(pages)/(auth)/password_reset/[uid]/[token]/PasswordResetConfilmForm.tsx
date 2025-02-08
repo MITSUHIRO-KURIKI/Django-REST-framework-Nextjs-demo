@@ -87,9 +87,9 @@ export function PasswordResetConfilmForm({
     });
   }, [form]);
   // パスワード強度 ▽
-  const watchNewPassword = form.watch('newPassword');
+  const watchNewPassword                  = form.watch('newPassword');
   const [passwordScore, setPasswordScore] = useState(0);
-  const strengthLabel = getZxcvbnStrengthLabel(passwordScore);
+  const strengthLabel                     = getZxcvbnStrengthLabel(passwordScore);
   // newPassword の変更を監視してスコア計算
   useEffect(() => {
     if (!watchNewPassword) {
@@ -98,7 +98,7 @@ export function PasswordResetConfilmForm({
     };
     // zxcvbnでスコア計算
     const zxcvbnResult = zxcvbn(watchNewPassword);
-    let score  = zxcvbnResult.score;
+    let score          = zxcvbnResult.score;
     // zod 必須条件を満たしていない場合、scoreを2までに抑える
     const parsed = passwordSchema.safeParse(watchNewPassword);
     if (!parsed.success && score > 2) {
@@ -230,7 +230,7 @@ export function PasswordResetConfilmForm({
           <Button type      = 'submit'
                   className = 'w-full'
                   disabled  = {isSending}>
-            {isSending ? <Loader2 className='mr-2 size-4 animate-spin' /> : 'パスワード再設定'}
+            {isSending ? <Loader2 className='size-4 animate-spin' /> : 'パスワード再設定'}
           </Button>
         </div>
       </form>

@@ -14,12 +14,17 @@ import { pagesPath } from '@/features/paths/frontend';
 import { getAuthSession } from '@/features/nextauth';
 import { UrlToString } from '@/features/utils';
 
+// type
+type AuthRedirectProps = {
+  redirectPath?: string;
+  children:      ReactNode;
+};
 
 // AuthRedirectForUnauthenticated
-// 未ログインならリダイレクト
+// 未ログインなら redirectPath にリダイレクト
 export async function AuthRedirectForUnauthenticated({
   redirectPath = UrlToString(pagesPath.Home.$url({query: {errmsg:'unauthenticated'}})),
-  children }: {redirectPath?: string, children: ReactNode}): Promise<ReactElement> {
+  children, }:AuthRedirectProps ): Promise<ReactElement> {
   const session: Session | null = await getAuthSession();
   if (!session?.user?.accessToken) {
     redirect(redirectPath);
@@ -28,11 +33,10 @@ export async function AuthRedirectForUnauthenticated({
 };
 
 // AuthRedirectForAuthenticated
-// ログイン済みならリダイレクト
+// ログイン済みなら redirectPath にリダイレクト
 export async function AuthRedirectForAuthenticated({
   redirectPath = UrlToString(pagesPath.servicesPath.dashBoard.$url()),
-  children
-}: {redirectPath?: string, children: ReactNode}): Promise<ReactElement> {
+  children, }:AuthRedirectProps ): Promise<ReactElement> {
   const session: Session | null = await getAuthSession();
   if (session?.user?.accessToken) {
     redirect(redirectPath);

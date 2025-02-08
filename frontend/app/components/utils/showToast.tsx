@@ -1,5 +1,9 @@
 // sonner
 import { toast } from 'sonner';
+
+type StrictToastType = 'success' | 'error' | 'info' | 'warning';
+export type ToastType = StrictToastType | undefined;
+
 export interface SonnerOptions {
   position?:
     | 'top-center'
@@ -10,8 +14,9 @@ export interface SonnerOptions {
     | 'bottom-right';
   duration?: number;
 };
+
 // defaultOptions
-const defaultOptions: Record<'success' | 'info' | 'warning' | 'error', SonnerOptions> = {
+const defaultOptions: Record<StrictToastType, SonnerOptions> = {
   success: {
     position: 'bottom-right',
     duration: 1500,
@@ -31,13 +36,10 @@ const defaultOptions: Record<'success' | 'info' | 'warning' | 'error', SonnerOpt
 };
 
 // showToast
-export function showToast( type?: string, message?: string, userOptions?: SonnerOptions,): void {
-  const setType = type === 'success' || type === 'info' || type === 'warning' || type === 'error' ;
-  const baseOptions = setType ? defaultOptions[type as 'success' | 'info' | 'warning' | 'error'] : {};
-  const mergedOptions: SonnerOptions = {
-    ...baseOptions,
-    ...userOptions,
-  };   // タイプ別デフォルトを取得し、ユーザー指定があればマージ
+export function showToast( type?: ToastType, message?: string, userOptions?: SonnerOptions,): void {
+  const isToastType = type === 'success' || type === 'info' || type === 'warning' || type === 'error' ;
+  const baseOptions = isToastType ? defaultOptions[type] : {};
+  const mergedOptions: SonnerOptions = { ...baseOptions, ...userOptions };   // タイプ別デフォルトを取得し、ユーザー指定があればマージ
 
   switch (type) {
     case 'success':
@@ -53,7 +55,7 @@ export function showToast( type?: string, message?: string, userOptions?: Sonner
       toast.error(message, mergedOptions);
       break;
     default:
-      toast(message)
+      toast(message, mergedOptions);
       break;
   };
 };

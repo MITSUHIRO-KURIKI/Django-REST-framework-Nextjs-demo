@@ -15,6 +15,8 @@ import type {
   RoomSettingsRoomNameChangeInputType,
 } from './schema';
 import type { RoomSettingsResponseData } from './type.d';
+// type
+import { DefaultResponse } from '@/features/api';
 
 // type
 type PatchRoomSettingsRequest = {
@@ -25,20 +27,16 @@ type PatchRoomSettingsRoomNameChangeRequest = {
   roomId:   string;
   sendData: RoomSettingsRoomNameChangeInputType;
 };
-type PatchRoomSettingsResponse = {
-  ok:            boolean;
-  status:        number;
-  data?:         RoomSettingsResponseData[];
-  message?:      string;
-  toastType?:    string;
-  toastMessage?: string;
+type PatchRoomSettingsResponse = DefaultResponse & {
+  data?: RoomSettingsResponseData[];
 };
   
 // patchRoomSettings
 export async function patchRoomSettings(params: PatchRoomSettingsRequest): Promise<PatchRoomSettingsResponse> {
   try {
-      const { roomId, sendData } = params;
+      const { roomId, sendData }    = params;
       const session: Session | null = await getAuthSession();
+
       const res = await BackendApiClient.patch(
         vrmChatPath.room_settings+roomId,
         sendData,
@@ -60,7 +58,6 @@ export async function patchRoomSettings(params: PatchRoomSettingsRequest): Promi
       };
       return response;
   } catch (error) {
-    console.log(error)
     if (axios.isAxiosError(error) && error.response) {
       const status = error.response.status;
       if (status === 429) {
@@ -95,11 +92,12 @@ export async function patchRoomSettings(params: PatchRoomSettingsRequest): Promi
   };
 };
 
-// patchRoomSettings
+// patchRoomSettingsRoomNameChange
 export async function patchRoomSettingsRoomNameChange(params: PatchRoomSettingsRoomNameChangeRequest): Promise<PatchRoomSettingsResponse> {
   try {
-      const { roomId, sendData } = params;
+      const { roomId, sendData }    = params;
       const session: Session | null = await getAuthSession();
+
       const res = await BackendApiClient.patch(
         vrmChatPath.room_settings+roomId,
         sendData,
@@ -116,7 +114,6 @@ export async function patchRoomSettingsRoomNameChange(params: PatchRoomSettingsR
       };
       return response;
   } catch (error) {
-    console.log(error)
     if (axios.isAxiosError(error) && error.response) {
       const status = error.response.status;
       if (status === 429) {
@@ -124,6 +121,15 @@ export async function patchRoomSettingsRoomNameChange(params: PatchRoomSettingsR
           ok:           false,
           status:       429,
           message:      '更新に失敗しました',
+          toastType:    'error',
+          toastMessage: '更新に失敗しました',
+        };
+        return response;
+      } else if (status === 400 && error.response.data) {
+        const response: PatchRoomSettingsResponse = {
+          ok:           false,
+          status:       400, // 400しか返さない
+          message:      error.response.data,
           toastType:    'error',
           toastMessage: '更新に失敗しました',
         };

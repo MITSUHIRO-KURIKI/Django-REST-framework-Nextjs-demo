@@ -1,1 +1,2 @@
-export { getTokenOrRefresh, type AzureTokenResponse } from './getTokenOrRefresh';
+export { getTokenOrRefresh } from './getTokenOrRefresh';
+export type { AzureTokenResponse } from './type.d';
