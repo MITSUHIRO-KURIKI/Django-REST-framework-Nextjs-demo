@@ -14,6 +14,7 @@ class RoomDeleteViewSet(APIView):
     throttle_classes   = [StandardThrottle]
 
     def delete(self, request, room_id, *args, **kwargs):
+        # データは残して参照不可とする
         try:
             room_obj = get_object_or_404(Room,
                                          create_user = request.user,
@@ -21,7 +22,7 @@ class RoomDeleteViewSet(APIView):
                                          is_active   = True,)
             room_obj.is_active = False
             room_obj.save()
-            response = Response({}, status=status.HTTP_200_OK)
+            response = Response({}, status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             print(e)
             response = Response({

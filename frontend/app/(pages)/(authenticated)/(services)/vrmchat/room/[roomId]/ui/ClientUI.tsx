@@ -81,8 +81,8 @@ export function ClientUI({
               <MarkdownRender markdownString={receivedMessages}/>
             ) : (
               <>
-                <Skeleton className='mt-1 w-[25rem] h-[20px] rounded-full' />
-                <Skeleton className='mt-1 w-[20rem] h-[20px] rounded-full' />
+                <Skeleton className='mt-1 h-[20px] w-[25rem] rounded-full' />
+                <Skeleton className='mt-1 h-[20px] w-80 rounded-full' />
               </>
             )
             ))}

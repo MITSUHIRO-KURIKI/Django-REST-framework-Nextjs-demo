@@ -477,8 +477,8 @@ class VrmchatConsumer(AsyncWebsocketConsumer):
         try:
             formatted_prompt = base_prompt.format(userMessage=user_message)
         except Exception as e:
-            formatted_prompt = None
             print(e)
+            formatted_prompt = None
         return formatted_prompt
 
     ####################

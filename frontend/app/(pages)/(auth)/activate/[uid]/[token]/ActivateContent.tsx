@@ -45,9 +45,11 @@ export function ActivateContent({ uid, token }: ActivationParams): ReactElement 
       setIsLoading(true);
 
       activation({
-        uid:   uid,
-        token: token,
-        csrfToken,
+        formData: {
+          uid:   uid,
+          token: token,
+        },
+        csrfToken: csrfToken,
       }).then(result => {
         showToast(result?.toastType, result?.toastMessage, {duration: 5000});
         if (result?.ok) {

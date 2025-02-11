@@ -9,23 +9,22 @@ import { vrmChatPath } from '@/features/paths/backend';
 // features
 import { getAuthSession } from '@/features/nextauth';
 import { BackendApiClient } from '@/features/apiClients';
-// import
+// type
 import type {
   RoomSettingsFormInputType,
   RoomSettingsRoomNameChangeInputType,
 } from './schema';
 import type { RoomSettingsResponseData } from './type.d';
-// type
-import { DefaultResponse } from '@/features/api';
+import type { DefaultResponse } from '@/features/api';
 
 // type
 type PatchRoomSettingsRequest = {
   roomId:   string;
-  sendData: RoomSettingsFormInputType;
+  formData: RoomSettingsFormInputType;
 };
 type PatchRoomSettingsRoomNameChangeRequest = {
   roomId:   string;
-  sendData: RoomSettingsRoomNameChangeInputType;
+  formData: RoomSettingsRoomNameChangeInputType;
 };
 type PatchRoomSettingsResponse = DefaultResponse & {
   data?: RoomSettingsResponseData[];
@@ -33,13 +32,16 @@ type PatchRoomSettingsResponse = DefaultResponse & {
   
 // patchRoomSettings
 export async function patchRoomSettings(params: PatchRoomSettingsRequest): Promise<PatchRoomSettingsResponse> {
+
+  const responseDefaultErrMsg = '更新に失敗しました';
+
   try {
-      const { roomId, sendData }    = params;
+      const { roomId, formData }    = params;
       const session: Session | null = await getAuthSession();
 
       const res = await BackendApiClient.patch(
         vrmChatPath.room_settings+roomId,
-        sendData,
+        formData,
         { headers: {
           'Content-Type':  'application/json',
           'Authorization': `Bearer ${session?.user?.accessToken}`,
@@ -59,34 +61,46 @@ export async function patchRoomSettings(params: PatchRoomSettingsRequest): Promi
       return response;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      const status = error.response.status;
+
+      const status  = error.response.status;
+      const errData = error.response.data;
+
       if (status === 429) {
         const response: PatchRoomSettingsResponse = {
           ok:           false,
           status:       429,
-          message:      '更新に失敗しました',
+          message:      '時間をおいて再度お試しください',
           toastType:    'error',
-          toastMessage: '更新に失敗しました',
+          toastMessage: '時間をおいて再度お試しください',
         };
         return response;
-      } else {
+      } else if (errData && Array.isArray(errData.errors) && errData.errors.length > 0) {
+        const detailStr = errData.errors[0].detail ?? responseDefaultErrMsg;
         const response: PatchRoomSettingsResponse = {
           ok:           false,
           status:       400, // 400しか返さない
-          message:      '更新に失敗しました',
+          message:      String(detailStr),
           toastType:    'error',
-          toastMessage: '更新に失敗しました',
+          toastMessage: responseDefaultErrMsg,
         };
         return response;
       };
+      const response: PatchRoomSettingsResponse = {
+        ok:           false,
+        status:       400, // 400しか返さない
+        message:      responseDefaultErrMsg,
+        toastType:    'error',
+        toastMessage: responseDefaultErrMsg,
+      };
+      return response;
     };
     // error.response が無い場合 (ネットワーク障害など)
     const response: PatchRoomSettingsResponse = {
       ok:           false,
       status:       500,
-      message:      '更新に失敗しました',
+      message:      responseDefaultErrMsg,
       toastType:    'error',
-      toastMessage: '更新に失敗しました',
+      toastMessage: responseDefaultErrMsg,
     };
     return response;
   };
@@ -94,13 +108,16 @@ export async function patchRoomSettings(params: PatchRoomSettingsRequest): Promi
 
 // patchRoomSettingsRoomNameChange
 export async function patchRoomSettingsRoomNameChange(params: PatchRoomSettingsRoomNameChangeRequest): Promise<PatchRoomSettingsResponse> {
+
+  const responseDefaultErrMsg = '更新に失敗しました';
+
   try {
-      const { roomId, sendData }    = params;
+      const { roomId, formData }    = params;
       const session: Session | null = await getAuthSession();
 
       const res = await BackendApiClient.patch(
         vrmChatPath.room_settings+roomId,
-        sendData,
+        formData,
         { headers: {
           'Content-Type':  'application/json',
           'Authorization': `Bearer ${session?.user?.accessToken}`,
@@ -115,43 +132,46 @@ export async function patchRoomSettingsRoomNameChange(params: PatchRoomSettingsR
       return response;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      const status = error.response.status;
+
+      const status  = error.response.status;
+      const errData = error.response.data;
+
       if (status === 429) {
         const response: PatchRoomSettingsResponse = {
           ok:           false,
           status:       429,
-          message:      '更新に失敗しました',
+          message:      '時間をおいて再度お試しください',
           toastType:    'error',
-          toastMessage: '更新に失敗しました',
+          toastMessage: '時間をおいて再度お試しください',
         };
         return response;
-      } else if (status === 400 && error.response.data) {
+      } else if (errData && Array.isArray(errData.errors) && errData.errors.length > 0) {
+        const detailStr = errData.errors[0].detail ?? responseDefaultErrMsg;
         const response: PatchRoomSettingsResponse = {
           ok:           false,
           status:       400, // 400しか返さない
-          message:      error.response.data,
+          message:      String(detailStr),
           toastType:    'error',
-          toastMessage: '更新に失敗しました',
-        };
-        return response;
-      } else {
-        const response: PatchRoomSettingsResponse = {
-          ok:           false,
-          status:       400, // 400しか返さない
-          message:      '更新に失敗しました',
-          toastType:    'error',
-          toastMessage: '更新に失敗しました',
+          toastMessage: responseDefaultErrMsg,
         };
         return response;
       };
+      const response: PatchRoomSettingsResponse = {
+        ok:           false,
+        status:       400, // 400しか返さない
+        message:      responseDefaultErrMsg,
+        toastType:    'error',
+        toastMessage: responseDefaultErrMsg,
+      };
+      return response;
     };
     // error.response が無い場合 (ネットワーク障害など)
     const response: PatchRoomSettingsResponse = {
       ok:           false,
       status:       500,
-      message:      '更新に失敗しました',
+      message:      responseDefaultErrMsg,
       toastType:    'error',
-      toastMessage: '更新に失敗しました',
+      toastMessage: responseDefaultErrMsg,
     };
     return response;
   };

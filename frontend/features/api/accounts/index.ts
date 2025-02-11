@@ -3,7 +3,6 @@ export {
   signupFormSchema,
   type SignupFormInputType,
 } from './signup';
-export { activation, type ActivationParams } from './activation';
 export {
   resetPassword,
   passwordResetFormSchema,
@@ -15,6 +14,16 @@ export {
   type ResetPasswordConfilmFormInputType,
 } from './resetPasswordConfilm';
 export {
+  setPassword,
+  setPasswordFormSchema,
+  type SetPasswordFormInputType,
+} from './setPassword';
+export {
   passwordSchema,
   emailSchema,
 } from './utils';
+export {
+  activation,
+  type ActivationParams,
+} from './activation';
+export { deleteAccount } from './delete';

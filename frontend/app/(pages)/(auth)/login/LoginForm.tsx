@@ -66,9 +66,8 @@ export function LoginForm({
     setErrorMsg('');
     try {
       const result = await login({
-        email:    data.email,
-        password: data.password,
-        callbackUrl,
+        formData:    data,
+        callbackUrl: callbackUrl,
       });
       showToast(result?.toastType, result?.toastMessage);
       if (result?.ok) {

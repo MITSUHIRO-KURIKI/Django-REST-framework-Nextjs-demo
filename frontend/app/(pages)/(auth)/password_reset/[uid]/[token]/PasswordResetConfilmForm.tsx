@@ -72,8 +72,8 @@ export function PasswordResetConfilmForm({
   const form = useForm<ResetPasswordConfilmFormInputType>({
     resolver: zodResolver(resetPasswordConfilmFormSchema),
     defaultValues: {
-      newPassword:   '',
-      reNewPassword: '',
+      new_password:    '',
+      re_new_password: '',
     },
   });
   // - csrfToken
@@ -82,12 +82,11 @@ export function PasswordResetConfilmForm({
     getCsrfToken().then((token) => {
       if (token) {
         setCsrfTokenValue(token);
-        form.setValue('csrfToken', token);
       };
     });
   }, [form]);
   // パスワード強度 ▽
-  const watchNewPassword                  = form.watch('newPassword');
+  const watchNewPassword                  = form.watch('new_password');
   const [passwordScore, setPasswordScore] = useState(0);
   const strengthLabel                     = getZxcvbnStrengthLabel(passwordScore);
   // newPassword の変更を監視してスコア計算
@@ -124,11 +123,10 @@ export function PasswordResetConfilmForm({
     setErrorMsg('');
     try {
       const result = await resetPasswordConfilm({
-        uid:           uid,
-        token:         token,
-        newPassword:   data.newPassword,
-        reNewPassword: data.reNewPassword,
-        csrfToken:     data.csrfToken,
+        formData:  data,
+        uid:       uid,
+        token:     token,
+        csrfToken: csrfToken,
       });
       showToast(result?.toastType, result?.toastMessage);
       if (result?.ok) {
@@ -163,20 +161,18 @@ export function PasswordResetConfilmForm({
   ) : (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        {/* csrfToken */}
-        <input type='hidden' {...form.register('csrfToken')} value={csrfToken} readOnly />
         <div className='flex flex-col gap-6'>
           <div className='grid gap-2'>
-            {/* newPassword */}
+            {/* new_password */}
             <FormField control = {form.control}
-                       name    = 'newPassword'
+                       name    = 'new_password'
                        render  = {({ field }) => (
               <FormItem>
-                <FormLabel htmlFor='newPassword'>Password</FormLabel>
+                <FormLabel htmlFor='new_password'>Password</FormLabel>
                 <FormControl>
                   <Input {...field}
                          type         = 'password'
-                         id           = 'newPassword'
+                         id           = 'new_password'
                          className    = 'mt-2'
                          autoComplete = 'new-password'
                          required />
@@ -209,16 +205,16 @@ export function PasswordResetConfilmForm({
             )} />
           </div>
           <div className='grid gap-2'>
-            {/* reNewPassword */}
+            {/* re_new_password */}
             <FormField control = {form.control}
-                       name    = 'reNewPassword'
+                       name    = 're_new_password'
                        render  = {({ field }) => (
               <FormItem>
-                <FormLabel htmlFor='reNewPassword'>Password (Check)</FormLabel>
+                <FormLabel htmlFor='re_new_password'>Password (Check)</FormLabel>
                 <FormControl>
                   <Input {...field}
                          type         = 'password'
-                         id           = 'reNewPassword'
+                         id           = 're_new_password'
                          className    = 'mt-2'
                          autoComplete = 'new-password'
                          required />

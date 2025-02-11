@@ -7,9 +7,11 @@ env = read_env(settings.BASE_DIR)
 
 # Static files
 STATIC_URL = '/static/'
-
-# Static files
 STATICFILES_DIRS = [os.path.join(settings.BASE_DIR, 'static')]
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT       = os.path.join(settings.BASE_DIR, 'media')
+
 
 STATIC_ROOT = os.path.join(settings.BASE_DIR, 'staticfiles')
 
@@ -26,3 +28,9 @@ STORAGES = {
 }
 ## https://github.com/heroku/python-getting-started/blob/main/gettingstarted/settings.py
 WHITENOISE_KEEP_ONLY_HASHED_FILES = True
+
+# THUMBNAIL
+# https://sorl-thumbnail.readthedocs.io/en/latest/reference/settings.html
+# https://github.com/jazzband/sorl-thumbnail/tree/master
+THUMBNAIL_PRESERVE_FORMAT = True # True: Preservation of format
+THUMBNAIL_FORCE_OVERWRITE = True

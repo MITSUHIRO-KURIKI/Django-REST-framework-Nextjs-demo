@@ -79,7 +79,7 @@ export function SidebarContextProvider({vrmChatInitial, pageSize, children}: Sid
         'w-full overflow-auto',
         'max-h-[calc(100svh_-_var(--navbar-height))] min-h-[calc(100svh_-_var(--navbar-height))]',
         'peer-data-[variant=inset]:min-h-[calc(100svh_-_var(--navbar-height))]',
-        'md:peer-data-[variant=inset]:rounded-l-xg md:peer-data-[variant=inset]:rounded-r-none',
+        'md:peer-data-[variant=inset]:rounded-l-xl md:peer-data-[variant=inset]:rounded-r-none',
         'md:peer-data-[variant=inset]:m-0',)}>
         <header className={cn(
           'sticky top-0 h-12 z-sticky',

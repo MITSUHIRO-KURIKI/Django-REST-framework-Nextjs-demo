@@ -4,7 +4,7 @@ import { emailSchema } from '@/features/api/accounts';
 
 export const loginFormSchema = z.object({
   email:    emailSchema,
-  password: z.string().min(1,{ message: 'パスワードを入力してください' }),
+  password: z.string().min(1, { message: 'パスワードを入力してください' }),
 });
 
 export type LoginFormInputType = z.infer<typeof loginFormSchema>;

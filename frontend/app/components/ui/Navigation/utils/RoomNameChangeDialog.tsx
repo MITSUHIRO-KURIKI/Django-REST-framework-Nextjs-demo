@@ -76,7 +76,7 @@ export function RoomNameChangeDialog({
     try {
       const result = await patchRoomSettingsRoomNameChange({
         roomId:   editRoomNametargetRoomId,
-        sendData: {room_name: sanitizeDOMPurify(editRoomName)},
+        formData: {room_name: sanitizeDOMPurify(editRoomName)},
       });
       if (result.ok) {
         setVrmChatItems((prev) =>

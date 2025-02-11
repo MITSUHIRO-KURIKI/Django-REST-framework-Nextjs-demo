@@ -4,10 +4,10 @@
 import { redirect } from 'next/navigation';
 // react
 import { Suspense, type ReactElement } from 'react';
-import { getRoomSettingsRoomName } from '@/features/api/vrmchat';
 // pagesPath
-import { pagesPath } from '@/features/paths/frontend'
+import { pagesPath } from '@/features/paths/frontend';
 // features
+import { getRoomSettingsRoomName } from '@/features/api/vrmchat';
 import { UrlToString } from '@/features/utils';
 // include
 import { VrmChatRoomContent } from './VrmChatRoomContent';
@@ -29,7 +29,7 @@ export default async function VrmChatRoomPage(props: PageProps): Promise<ReactEl
 
   const { roomId } = await props.params;
   
-  // ルームタイトルおよび認証 (権限や未知のroomIdならここで弾く)
+  // ルームタイトル取得および認証 (権限や未知のroomIdならここで弾く)
   const [result] = await Promise.all([
     getRoomSettingsRoomName(roomId),
   ]);
@@ -37,7 +37,7 @@ export default async function VrmChatRoomPage(props: PageProps): Promise<ReactEl
   if (!result?.ok) {
     redirect(UrlToString(pagesPath.servicesPath.vrmChat.$url({query:{errmsg: 'notfound'}})));
   };
-  const roomTitle = result.data ?? ''
+  const roomTitle = result.data ?? '';
 
   return (
     <Suspense fallback={<Loading />}>

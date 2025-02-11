@@ -41,9 +41,9 @@ export function NavigationMenu(): ReactElement {
               <NavigationMenuItem key={item.key}>
                 <NavigationMenuTrigger
                   className={cn(
-                    'gap-2 text-xs font-light text-foreground',
+                    'p-2 text-xs font-light text-foreground',
                     'bg-transparent hover:bg-transparent [&>svg]:text-sidebar-accent-foreground',)}>
-                  {item.icon && <item.icon className='size-4' />}{item.label}
+                  {item.icon && <item.icon className='mr-2 size-4' />}{item.label}
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <ul className={cn(
@@ -68,9 +68,9 @@ export function NavigationMenu(): ReactElement {
                 <NavigationMenuLink
                   className={cn(
                     navigationMenuTriggerStyle(),
-                    'gap-2 text-xs font-light text-foreground',
+                    'p-2 text-xs font-light text-foreground',
                     'bg-transparent [&>svg]:text-sidebar-accent-foreground',)}>
-                  {item.icon && <item.icon className='size-4' />}{item.label}
+                  {item.icon && <item.icon className='mr-2 size-4' />}{item.label}
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>

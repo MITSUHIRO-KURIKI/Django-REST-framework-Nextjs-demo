@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     ## Base APPS
     'accounts.apps.AccountsConfig',
     'apps.access_security.apps.AccessSecurityConfig',
+    'apps.user_properties.apps.UserPropertiesConfig',
     ## ADD APPS
     'apps.vrmchat.apps.VrmChatConfig',
     'apps.third_party.gcloud.stt_tts.apps.ThirdPartyGcloudSstTtsConfig',
@@ -92,6 +93,7 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',            # ADD whitenoise
     'django_cleanup',                           # ADD django-cleanup(DELETE OLD IMAGE/ NOT DELETE MODEL DECORATE '@cleanup.ignore')
     'import_export',                            # ADD django-import-export
+    'sorl.thumbnail',                           # ADD ImageFile Resize
 ]
 
 # [LOAD .admin_protect] AdminProtectSetting.py

@@ -59,7 +59,6 @@ export function PasswordResetForm({
     resolver: zodResolver(passwordResetFormSchema),
     defaultValues: {
       email:     '',
-      csrfToken: '',
     },
   });
   // - form data
@@ -68,7 +67,6 @@ export function PasswordResetForm({
     getCsrfToken().then((token) => {
       if (token) {
         setCsrfTokenValue(token);
-        form.setValue('csrfToken', token);
       };
     });
   }, [form]);
@@ -82,8 +80,8 @@ export function PasswordResetForm({
     setErrorMsg('');
     try {
       const result = await resetPassword({
-        email:     data.email,
-        csrfToken: data.csrfToken,
+        formData:  data,
+        csrfToken: csrfToken,
       });
       showToast(result?.toastType, result?.toastMessage, {duration: 5000});
       if (result?.ok) {
@@ -113,8 +111,6 @@ export function PasswordResetForm({
   ) : (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        {/* csrfToken */}
-        <input type='hidden' {...form.register('csrfToken')} value={csrfToken} readOnly />
         <div className='flex flex-col gap-6'>
           <div className='grid gap-2'>
             {/* email */}

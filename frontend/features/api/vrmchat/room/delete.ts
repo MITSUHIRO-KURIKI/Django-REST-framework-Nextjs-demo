@@ -10,11 +10,14 @@ import { vrmChatPath } from '@/features/paths/backend';
 import { getAuthSession } from '@/features/nextauth';
 import { BackendApiClient } from '@/features/apiClients';
 // type
-import { DefaultResponse } from '@/features/api';
+import type { DefaultResponse } from '@/features/api';
 
 
 // createRoom
 export async function deleteRoom(roomId: string): Promise<DefaultResponse> {
+
+  const responseDefaultErrMsg = 'データ取得に失敗しました';
+
   try {
       const session: Session | null = await getAuthSession();
       const res = await BackendApiClient.delete(
@@ -32,34 +35,46 @@ export async function deleteRoom(roomId: string): Promise<DefaultResponse> {
       return response;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      const status = error.response.status;
+
+      const status  = error.response.status;
+      const errData = error.response.data;
+
       if (status === 429) {
         const response: DefaultResponse = {
           ok:           false,
           status:       429,
-          message:      'データ取得に失敗しました',
+          message:      '時間をおいて再度お試しください',
           toastType:    'error',
-          toastMessage: 'データ取得に失敗しました',
+          toastMessage: '時間をおいて再度お試しください',
         };
         return response;
-      } else {
+      } else if (errData && Array.isArray(errData.errors) && errData.errors.length > 0) {
+        const detailStr = errData.errors[0].detail ?? responseDefaultErrMsg;
         const response: DefaultResponse = {
           ok:           false,
           status:       400, // 400しか返さない
-          message:      'データ取得に失敗しました',
+          message:      String(detailStr),
           toastType:    'error',
-          toastMessage: 'データ取得に失敗しました',
+          toastMessage: responseDefaultErrMsg,
         };
         return response;
       };
+      const response: DefaultResponse = {
+        ok:           false,
+        status:       400, // 400しか返さない
+        message:      responseDefaultErrMsg,
+        toastType:    'error',
+        toastMessage: responseDefaultErrMsg,
+      };
+      return response;
     };
     // error.response が無い場合 (ネットワーク障害など)
     const response: DefaultResponse = {
       ok:           false,
       status:       500,
-      message:      'データ取得に失敗しました',
+      message:      responseDefaultErrMsg,
       toastType:    'error',
-      toastMessage: 'データ取得に失敗しました',
+      toastMessage: responseDefaultErrMsg,
     };
     return response;
   };

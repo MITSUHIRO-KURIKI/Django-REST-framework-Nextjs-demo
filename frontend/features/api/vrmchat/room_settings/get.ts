@@ -10,11 +10,10 @@ import { vrmChatPath } from '@/features/paths/backend';
 import { getAuthSession } from '@/features/nextauth';
 import { BackendApiClient } from '@/features/apiClients';
 import { parseResponseData } from '@/features/utils';
-// import
+// type
 import type { RoomSettingsResponseData, RoomSettingsRoomNameListResponseItem } from './type.d';
 import type { SubItem } from '@/app/components/ui/Navigation/data';
-// type
-import { DefaultResponse } from '@/features/api';
+import type { DefaultResponse } from '@/features/api';
 
 // type
 type GetRoomSettingsResponse = DefaultResponse & {
@@ -29,6 +28,9 @@ type GetRoomSettingsRoomNameListResponse = DefaultResponse & {
 
 // getRoomSettings
 export async function getRoomSettings(roomId: string): Promise<GetRoomSettingsResponse> {
+
+  const responseDefaultErrMsg = 'データ取得に失敗しました';
+
   try {
       const session: Session | null = await getAuthSession();
       const res = await BackendApiClient.get(
@@ -48,34 +50,46 @@ export async function getRoomSettings(roomId: string): Promise<GetRoomSettingsRe
       return response;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      const status = error.response.status;
+
+      const status  = error.response.status;
+      const errData = error.response.data;
+
       if (status === 429) {
         const response: GetRoomSettingsResponse = {
           ok:           false,
           status:       429,
-          message:      'データ取得に失敗しました',
+          message:      '時間をおいて再度お試しください',
           toastType:    'error',
-          toastMessage: 'データ取得に失敗しました',
+          toastMessage: '時間をおいて再度お試しください',
         };
         return response;
-      } else {
+      } else if (errData && Array.isArray(errData.errors) && errData.errors.length > 0) {
+        const detailStr = errData.errors[0].detail ?? responseDefaultErrMsg;
         const response: GetRoomSettingsResponse = {
           ok:           false,
           status:       400, // 400しか返さない
-          message:      'データ取得に失敗しました',
+          message:      String(detailStr),
           toastType:    'error',
-          toastMessage: 'データ取得に失敗しました',
+          toastMessage: responseDefaultErrMsg,
         };
         return response;
       };
+      const response: GetRoomSettingsResponse = {
+        ok:           false,
+        status:       400, // 400しか返さない
+        message:      responseDefaultErrMsg,
+        toastType:    'error',
+        toastMessage: responseDefaultErrMsg,
+      };
+      return response;
     };
     // error.response が無い場合 (ネットワーク障害など)
     const response: GetRoomSettingsResponse = {
       ok:           false,
       status:       500,
-      message:      'データ取得に失敗しました',
+      message:      responseDefaultErrMsg,
       toastType:    'error',
-      toastMessage: 'データ取得に失敗しました',
+      toastMessage: responseDefaultErrMsg,
     };
     return response;
   };
@@ -83,6 +97,9 @@ export async function getRoomSettings(roomId: string): Promise<GetRoomSettingsRe
 
 // getRoomSettingsRoomNameList
 export async function getRoomSettingsRoomName(roomId: string): Promise<GetRoomSettingsRoomNameResponse> {
+
+  const responseDefaultErrMsg = 'データ取得に失敗しました';
+
   try {
       const session: Session | null = await getAuthSession();
       const res = await BackendApiClient.get(
@@ -102,34 +119,46 @@ export async function getRoomSettingsRoomName(roomId: string): Promise<GetRoomSe
       return response;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      const status = error.response.status;
+
+      const status  = error.response.status;
+      const errData = error.response.data;
+
       if (status === 429) {
         const response: GetRoomSettingsRoomNameResponse = {
           ok:           false,
           status:       429,
-          message:      'データ取得に失敗しました',
+          message:      '時間をおいて再度お試しください',
           toastType:    'error',
-          toastMessage: 'データ取得に失敗しました',
+          toastMessage: '時間をおいて再度お試しください',
         };
         return response;
-      } else {
+      } else if (errData && Array.isArray(errData.errors) && errData.errors.length > 0) {
+        const detailStr = errData.errors[0].detail ?? responseDefaultErrMsg;
         const response: GetRoomSettingsRoomNameResponse = {
           ok:           false,
           status:       400, // 400しか返さない
-          message:      'データ取得に失敗しました',
+          message:      String(detailStr),
           toastType:    'error',
-          toastMessage: 'データ取得に失敗しました',
+          toastMessage: responseDefaultErrMsg,
         };
         return response;
       };
+      const response: GetRoomSettingsRoomNameResponse = {
+        ok:           false,
+        status:       400, // 400しか返さない
+        message:      responseDefaultErrMsg,
+        toastType:    'error',
+        toastMessage: responseDefaultErrMsg,
+      };
+      return response;
     };
     // error.response が無い場合 (ネットワーク障害など)
     const response: GetRoomSettingsRoomNameResponse = {
       ok:           false,
       status:       500,
-      message:      'データ取得に失敗しました',
+      message:      responseDefaultErrMsg,
       toastType:    'error',
-      toastMessage: 'データ取得に失敗しました',
+      toastMessage: responseDefaultErrMsg,
     };
     return response;
   };
@@ -137,6 +166,9 @@ export async function getRoomSettingsRoomName(roomId: string): Promise<GetRoomSe
 
 // getRoomSettingsRoomNameList
 export async function getRoomSettingsRoomNameList(page: number, size:number): Promise<GetRoomSettingsRoomNameListResponse> {
+
+  const responseDefaultErrMsg = 'データ取得に失敗しました';
+
   try {
       const session: Session | null = await getAuthSession();
       // 途中フロントでサブメニューを操作しているので全量を取得してフロントに反映する
@@ -162,34 +194,46 @@ export async function getRoomSettingsRoomNameList(page: number, size:number): Pr
       return response;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      const status = error.response.status;
+
+      const status  = error.response.status;
+      const errData = error.response.data;
+
       if (status === 429) {
         const response: GetRoomSettingsRoomNameListResponse = {
           ok:           false,
           status:       429,
-          message:      'データ取得に失敗しました',
+          message:      '時間をおいて再度お試しください',
           toastType:    'error',
-          toastMessage: 'データ取得に失敗しました',
+          toastMessage: '時間をおいて再度お試しください',
         };
         return response;
-      } else {
+      } else if (errData && Array.isArray(errData.errors) && errData.errors.length > 0) {
+        const detailStr = errData.errors[0].detail ?? responseDefaultErrMsg;
         const response: GetRoomSettingsRoomNameListResponse = {
           ok:           false,
           status:       400, // 400しか返さない
-          message:      'データ取得に失敗しました',
+          message:      String(detailStr),
           toastType:    'error',
-          toastMessage: 'データ取得に失敗しました',
+          toastMessage: responseDefaultErrMsg,
         };
         return response;
       };
+      const response: GetRoomSettingsRoomNameListResponse = {
+        ok:           false,
+        status:       400, // 400しか返さない
+        message:      responseDefaultErrMsg,
+        toastType:    'error',
+        toastMessage: responseDefaultErrMsg,
+      };
+      return response;
     };
     // error.response が無い場合 (ネットワーク障害など)
     const response: GetRoomSettingsRoomNameListResponse = {
       ok:           false,
       status:       500,
-      message:      'データ取得に失敗しました',
+      message:      responseDefaultErrMsg,
       toastType:    'error',
-      toastMessage: 'データ取得に失敗しました',
+      toastMessage: responseDefaultErrMsg,
     };
     return response;
   };

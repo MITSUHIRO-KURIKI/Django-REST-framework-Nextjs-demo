@@ -10,38 +10,43 @@ import { accountsPath } from '@/features/paths/backend';
 import { BackendApiClient } from '@/features/apiClients';
 import { csrfValidatorForCookie } from '@/features/utils';
 import { cookies } from 'next/headers';
-// import
-import { PasswordResetFormInputType } from './schema';
 // type
-import { DefaultResponse } from '@/features/api';
+import { type PasswordResetFormInputType } from './schema';
+import type { DefaultResponse } from '@/features/api';
 
+// type
+type PasswordResetRequest = {
+  formData:  PasswordResetFormInputType;
+  csrfToken: string;
+};
 
 // resetPassword
-export async function resetPassword(params: PasswordResetFormInputType): Promise<DefaultResponse> {
+export async function resetPassword(params: PasswordResetRequest): Promise<DefaultResponse> {
+
+  const responseDefaultErrMsg = 'パスワード再設定に失敗しました';
+
   try {
-    const { email, csrfToken } = params;
+    const { formData, csrfToken } = params;
 
     // CSRFチェック ▽
     const cookieStore = await cookies();
     const allCookies  = cookieStore.getAll();
     const csrfResult: NextResponse | undefined = csrfValidatorForCookie(allCookies, csrfToken);
-    // CSRFチェック △
-
-    // input valid
-    if (!email || !csrfResult?.ok) {
+    if (!csrfResult?.ok) {
       const response: DefaultResponse = {
         ok:           false,
         status:       400,
-        message:      'パスワード再設定に失敗しました',
+        message:      responseDefaultErrMsg,
         toastType:    'error',
-        toastMessage: 'パスワード再設定に失敗しました',
+        toastMessage: responseDefaultErrMsg,
       };
       return response;
     };
+    // CSRFチェック △
 
     const res = await BackendApiClient.post(
       accountsPath.reset_password,
-      { email: email },
+      formData,
       { headers: { 'Content-Type': 'application/json', }},
     );
     //  Axios は 2xx 以外で catch に飛ぶ
@@ -55,7 +60,10 @@ export async function resetPassword(params: PasswordResetFormInputType): Promise
     return response;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      const status = error.response.status;
+
+      const status  = error.response.status;
+      const errData = error.response.data;
+
       if (status === 429) {
         const response: DefaultResponse = {
           ok:           false,
@@ -65,24 +73,33 @@ export async function resetPassword(params: PasswordResetFormInputType): Promise
           toastMessage: '時間をおいて再度お試しください',
         };
         return response;
-      } else {
+      } else if (errData && Array.isArray(errData.errors) && errData.errors.length > 0) {
+        const detailStr = errData.errors[0].detail ?? responseDefaultErrMsg;
         const response: DefaultResponse = {
           ok:           false,
           status:       400, // 400しか返さない
-          message:      'パスワード再設定に失敗しました',
+          message:      String(detailStr),
           toastType:    'error',
-          toastMessage: 'パスワード再設定に失敗しました',
+          toastMessage: responseDefaultErrMsg,
         };
         return response;
       };
+      const response: DefaultResponse = {
+        ok:           false,
+        status:       400, // 400しか返さない
+        message:      responseDefaultErrMsg,
+        toastType:    'error',
+        toastMessage: responseDefaultErrMsg,
+      };
+      return response;
     };
     // error.response が無い場合 (ネットワーク障害など)
     const response: DefaultResponse = {
       ok:           false,
       status:       500,
-      message:      'パスワード再設定に失敗しました',
+      message:      responseDefaultErrMsg,
       toastType:    'error',
-      toastMessage: 'パスワード再設定に失敗しました',
+      toastMessage: responseDefaultErrMsg,
     };
     return response;
   };

@@ -1,6 +1,6 @@
 export function defaultUrlTransform(url: string): string {
     
-  const allowedDomainsList = ['go.jp', 'or.jp', 'google.com','imgur.com'];
+  const allowedDomainsList = ['go.jp', 'or.jp', 'google.com',];
   const removeNonAscii     = (str: string) => str.replace(/[^\x00-\x7F]+/g, '');
 
   try {

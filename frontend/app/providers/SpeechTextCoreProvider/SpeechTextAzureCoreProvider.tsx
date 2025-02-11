@@ -80,19 +80,19 @@ export function SpeechTextAzureCoreProvider({
   const synthesizerSetCookiePrefix = 'sy-';
 
   const getSpeechToken = useCallback(async (setCookiePrefix: string): Promise<AzureTokenResponse> => {
-      const speechToken = getCookie(`${setCookiePrefix}speech-token`);
-      if (speechToken) {
-        // "accessToken:region" の形
-        const idx = speechToken.indexOf(':');
-        return {
-          accessToken: speechToken.slice(0, idx),
-          region:      speechToken.slice(idx + 1),
-        };
-      } else {
-        // API から取得
-        return await getTokenOrRefresh({ setCookiePrefix });
+    const speechToken = getCookie(`${setCookiePrefix}speech-token`);
+    if (speechToken) {
+      // "accessToken:region" の形
+      const idx = speechToken.indexOf(':');
+      return {
+        accessToken: speechToken.slice(0, idx),
+        region:      speechToken.slice(idx + 1),
       };
-    }, []);
+    } else {
+      // API から取得
+      return await getTokenOrRefresh({ setCookiePrefix });
+    };
+  }, []);
 
   /**
    * STT:SpeechRecognizer セットアップ

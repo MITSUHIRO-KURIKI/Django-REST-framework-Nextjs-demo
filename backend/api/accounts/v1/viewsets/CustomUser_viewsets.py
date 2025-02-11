@@ -20,7 +20,7 @@ class CustomUserViewSet(UserViewSet):
     lookup_url_kwarg = 'unique_account_id'
 
     # PUT と PATCH は不要なため除外
-    http_method_names = ['get', 'post', 'head', 'options', 'delete']
+    http_method_names = ['get', 'post', 'head', 'options',]
 
     # /api/accounts/ 置き換え
     ## スロット分類は [Restricted]
@@ -55,7 +55,7 @@ class CustomUserViewSet(UserViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     ## スロット分類は [Limited]
-    @action(['get', 'delete'], detail=False, throttle_classes=[LimitedThrottle])
+    @action(['get'], detail=False, throttle_classes=[LimitedThrottle])
     def me(self, request, *args, **kwargs):
         return super().me(request, *args, **kwargs)
 

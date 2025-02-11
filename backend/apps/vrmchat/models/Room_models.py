@@ -46,6 +46,12 @@ class Room(models.Model):
                     help_text    = _('作成日時'),)
     version = AutoIncVersionField()
 
+    def __str__(self):
+        return self.room_id
+
+    def get_absolute_url(self):
+        return self
+
     class Meta:
         app_label    = 'vrmchat'
         db_table     = 'room_model'
@@ -146,6 +152,12 @@ class RoomSettings(models.Model):
                     unique       = False,
                     help_text    = _('半角英数字 256文字以下'),)
     version = AutoIncVersionField()
+
+    def __str__(self):
+        return self.room_id
+
+    def get_absolute_url(self):
+        return self
 
     class Meta:
         app_label    = 'vrmchat'

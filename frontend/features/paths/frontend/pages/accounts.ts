@@ -2,17 +2,19 @@
 import type { UrlConfig } from '@/features/paths/types.d';
 
 export const accountsPath = {
-  user: {
-    $url: (args?: {_uniqueAccountId: string} & UrlConfig) => {
-      const uniqueAccountId = args?._uniqueAccountId ?? '';
-      return {
-        pathname: `/accounts/${uniqueAccountId}` as const,
-        query: {
-          ...args?.query,
-        },
-        hash: args?.hash,
-      };
-    },
+  home: {
+    $url: (args?: UrlConfig) => ({
+      pathname: '/accounts' as const,
+      query:    args?.query,
+      hash:     args?.hash,
+    }),
+  },
+  profile: {
+    $url: (args?: UrlConfig) => ({
+      pathname: '/accounts/profile' as const,
+      query:    args?.query,
+      hash:     args?.hash,
+    }),
   },
   password_change: {
     $url: (args?: UrlConfig) => ({

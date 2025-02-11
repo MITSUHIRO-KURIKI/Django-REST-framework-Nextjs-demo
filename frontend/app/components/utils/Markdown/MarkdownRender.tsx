@@ -110,7 +110,7 @@ export function MarkdownRender({markdownString,}: {markdownString: string;}): Re
                     <div className='relative'>
                       {language && (
                         <Badge  variant   = 'secondary'
-                                className = 'absolute top-0 right-0 text-xs font-thin px-2'>
+                                className = 'absolute right-0 top-0 px-2 text-xs font-thin'>
                           {language}
                         </Badge>
                       )}
@@ -132,7 +132,7 @@ export function MarkdownRender({markdownString,}: {markdownString: string;}): Re
                   return (
                     <div className='relative'>
                       <Badge  variant   = 'secondary'
-                              className = 'absolute top-0 right-0 text-xs font-thin px-2'>
+                              className = 'absolute right-0 top-0 px-2 text-xs font-thin'>
                         Text
                       </Badge>
                       <pre style={{

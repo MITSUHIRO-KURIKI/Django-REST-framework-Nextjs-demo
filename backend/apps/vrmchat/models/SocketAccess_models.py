@@ -69,6 +69,12 @@ class SocketAccess(models.Model):
                     help_text    = _('アクセス日時'),)
     version = AutoIncVersionField()
 
+    def __str__(self):
+        return self.room_id
+
+    def get_absolute_url(self):
+        return self
+
     class Meta:
         app_label    = 'vrmchat'
         db_table     = 'socket_access_model'

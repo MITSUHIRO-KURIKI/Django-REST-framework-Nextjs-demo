@@ -56,7 +56,7 @@ export function DeleteCheckDialog({
   const pathname                                    = usePathname();
 
   const [safetyCheckInput, setSafetyCheckInput] = useState<string>('');
-  const [errorMsg, setErrorMsg]                     = useState<string>('');
+  const [errorMsg, setErrorMsg]                 = useState<string>('');
   useEffect(() => {
     if (deleteRoomModalOpen) {
       setSafetyCheckInput('')
@@ -78,6 +78,7 @@ export function DeleteCheckDialog({
     if (isVrmChatRoomSending) return;
 
     setIsVrmChatRoomSending(true);
+    setErrorMsg('');
     try {
       const result = await deleteRoom(deleteRoomTargetRoomId);
       if (result.ok) {
@@ -106,13 +107,13 @@ export function DeleteCheckDialog({
               onOpenChange = {setDeleteRoomModalOpen}>
         <DialogContent className='bg-sidebar'>
         <DialogHeader>
-            <DialogTitle>
-              ルームを削除しますか？
-            </DialogTitle>
-            <DialogDescription>
-              この操作は元に戻せません
-            </DialogDescription>
-          </DialogHeader>
+          <DialogTitle>
+            ルームを削除しますか？
+          </DialogTitle>
+          <DialogDescription>
+            この操作は元に戻せません
+          </DialogDescription>
+        </DialogHeader>
 
         <div className = 'my-2'>
           { errorMsg ? (

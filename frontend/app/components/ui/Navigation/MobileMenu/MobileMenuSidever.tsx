@@ -44,6 +44,7 @@ import { Loader } from '@/app/components/ui/common';
 import { showToast } from '@/app/components/utils';
 // include
 import { MobileMenuBase } from './MobileMenuBase';
+import { AccountSettingsModal } from '../AccountSettingsModal';
 import { RoomNameChangeDialog, DeleteCheckDialog } from '../utils';
 import { AccountMenuItems, type SubItem, type LoadItemDataProps } from '../data';
 
@@ -59,9 +60,10 @@ export function MobileMenuSidever({ setIsNavVisible, vrmChatInitial, pageSize }:
   // accountMenu
   const accountMenuItems = AccountMenuItems();
   // モバイルメニュー
-  const [isSubCategoryOpen, setIsSubCategoryOpen] = useState<boolean>(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen]   = useState<boolean>(false);
-  const [overlayActive, setOverlayActive]         = useState<boolean>(false);
+  const [isSubCategoryOpen, setIsSubCategoryOpen]   = useState<boolean>(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen]     = useState<boolean>(false);
+  const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
+  const [overlayActive, setOverlayActive]           = useState<boolean>(false);
 
   // バックエンド問い合わせ
   const router                                                  = useRouter();
@@ -247,6 +249,24 @@ export function MobileMenuSidever({ setIsNavVisible, vrmChatInitial, pageSize }:
                     </Button>
                   );
                 };
+                if (item.key === 'settings') {
+                  return (
+                    <Button variant   = 'link'
+                            size      = 'fit'
+                            key       = {item.key}
+                            onClick   = {() => {
+                              setIsMobileMenuOpen(false);
+                              setIsAccountModalOpen(true);
+                            }} 
+                            className = {cn(
+                              'w-full h-8 justify-start rounded',
+                              'text-sm font-normal text-foreground',
+                              'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                              '[&>svg]:text-foreground hover:[&>svg]:text-sidebar-accent-foreground',)}>
+                      {item.icon && <item.icon className='size-4' />}{item.label}
+                    </Button>
+                  );
+                };
                 return (
                   <Link key       = {item.key}
                         href      = {item.href ?? '#'}
@@ -338,24 +358,28 @@ export function MobileMenuSidever({ setIsNavVisible, vrmChatInitial, pageSize }:
               {/* サブカテゴリ △ */}
           </div>
         </div>
-
-        {/* RoomNameChangeDialog */}
-        <RoomNameChangeDialog setVrmChatItems          = {setVrmChatItems}
-                              isVrmChatRoomSending     = {isVrmChatRoomSending}
-                              setIsVrmChatRoomSending  = {setIsVrmChatRoomSending}
-                              editRoomName             = {editRoomName}
-                              setEditRoomName          = {setEditRoomName}
-                              editRoomNametargetRoomId = {editRoomNametargetRoomId}
-                              editRoomNameModalOpen    = {editRoomNameModalOpen}
-                              setEditRoomNameModalOpen = {setEditRoomNameModalOpen}/>
-        {/* DeleteCheckDialog */}
-        <DeleteCheckDialog setVrmChatItems         = {setVrmChatItems}
-                           isVrmChatRoomSending    = {isVrmChatRoomSending}
-                           setIsVrmChatRoomSending = {setIsVrmChatRoomSending}
-                           deleteRoomTargetRoomId  = {deleteRoomTargetRoomId}
-                           deleteRoomModalOpen     = {deleteRoomModalOpen}
-                           setDeleteRoomModalOpen  = {setDeleteRoomModalOpen}/>
       </MobileMenuBase>
+
+      {/* アカウント設定 モーダル */}
+      <AccountSettingsModal open         = {isAccountModalOpen}
+                            onOpenChange = {setIsAccountModalOpen} />
+
+      {/* RoomNameChangeDialog */}
+      <RoomNameChangeDialog setVrmChatItems          = {setVrmChatItems}
+                            isVrmChatRoomSending     = {isVrmChatRoomSending}
+                            setIsVrmChatRoomSending  = {setIsVrmChatRoomSending}
+                            editRoomName             = {editRoomName}
+                            setEditRoomName          = {setEditRoomName}
+                            editRoomNametargetRoomId = {editRoomNametargetRoomId}
+                            editRoomNameModalOpen    = {editRoomNameModalOpen}
+                            setEditRoomNameModalOpen = {setEditRoomNameModalOpen}/>
+      {/* DeleteCheckDialog */}
+      <DeleteCheckDialog setVrmChatItems         = {setVrmChatItems}
+                         isVrmChatRoomSending    = {isVrmChatRoomSending}
+                         setIsVrmChatRoomSending = {setIsVrmChatRoomSending}
+                         deleteRoomTargetRoomId  = {deleteRoomTargetRoomId}
+                         deleteRoomModalOpen     = {deleteRoomModalOpen}
+                         setDeleteRoomModalOpen  = {setDeleteRoomModalOpen}/>
     </>
   );
 };

@@ -24,6 +24,7 @@ import {
 import { Loader } from '@/app/components/ui/common';
 // include
 import { MobileMenuBase } from './MobileMenuBase';
+import { AccountSettingsModal } from '../AccountSettingsModal';
 import { AccountMenuItems, NavigationItems } from '../data';
 
 // type
@@ -41,10 +42,11 @@ export function MobileMenu({ setIsNavVisible }: MobileMenuProps): ReactElement {
   // accountMenu
   const accountMenuItems = AccountMenuItems();
   // モバイルメニュー
-  const [activeCategory, setActiveCategory]       = useState<string | null>(null); // null = 大項目一覧表示,
-  const [isSubCategoryOpen, setIsSubCategoryOpen] = useState<boolean>(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen]   = useState<boolean>(false);
-  const [overlayActive, setOverlayActive]         = useState<boolean>(false);
+  const [activeCategory, setActiveCategory]         = useState<string | null>(null); // null = 大項目一覧表示,
+  const [isSubCategoryOpen, setIsSubCategoryOpen]   = useState<boolean>(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen]     = useState<boolean>(false);
+  const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
+  const [overlayActive, setOverlayActive]           = useState<boolean>(false);
 
   // handleCategoryClick
   const handleCategoryClick = (e: MouseEvent<HTMLElement>, categoryKey: string,): void => {
@@ -140,6 +142,24 @@ export function MobileMenu({ setIsNavVisible }: MobileMenuProps): ReactElement {
                     </Button>
                   );
                 };
+                if (item.key === 'settings') {
+                  return (
+                    <Button variant   = 'link'
+                            size      = 'fit'
+                            key       = {item.key}
+                            onClick   = {() => {
+                              setIsMobileMenuOpen(false);
+                              setIsAccountModalOpen(true);
+                            }}
+                            className = {cn(
+                              'w-full h-8 justify-start rounded',
+                              'text-sm font-normal text-foreground',
+                              'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                              '[&>svg]:text-foreground hover:[&>svg]:text-sidebar-accent-foreground',)}>
+                      {item.icon && <item.icon className='size-4' />}{item.label}
+                    </Button>
+                  );
+                };
                 return (
                   <Link key       = {item.key}
                         href      = {item.href ?? '#'}
@@ -178,6 +198,10 @@ export function MobileMenu({ setIsNavVisible }: MobileMenuProps): ReactElement {
           </div>
         </div>
       </MobileMenuBase>
+
+      {/* アカウント設定 モーダル */}
+      <AccountSettingsModal open         = {isAccountModalOpen}
+                            onOpenChange = {setIsAccountModalOpen} />
     </>
   );
 };

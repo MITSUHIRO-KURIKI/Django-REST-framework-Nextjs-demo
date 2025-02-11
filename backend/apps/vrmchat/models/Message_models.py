@@ -59,6 +59,12 @@ class Message(models.Model):
                     help_text    = _('作成日時'),)
     version = AutoIncVersionField()
 
+    def __str__(self):
+        return self.message_id
+
+    def get_absolute_url(self):
+        return self
+
     class Meta:
         app_label    = 'vrmchat'
         db_table     = 'message_model'

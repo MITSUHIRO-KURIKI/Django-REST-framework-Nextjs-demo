@@ -291,7 +291,7 @@ export function SidebarBody({ vrmChatInitial, pageSize,  ...props }: SidebarBody
         </SidebarContent>
         <p className='font-mono text-xs text-slate-400'>&copy; 2024 K.Mitsuhiro</p>
       </SidebarFooter>
-      <SidebarRail />
+      <SidebarRail className='hover:after:bg-transpant' />
 
       {/* RoomNameChangeDialog */}
       <RoomNameChangeDialog setVrmChatItems          = {setVrmChatItems}

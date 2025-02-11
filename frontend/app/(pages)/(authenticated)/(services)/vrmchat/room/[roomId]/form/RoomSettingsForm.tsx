@@ -128,7 +128,7 @@ export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps
     try {
       const result = await patchRoomSettings({
         roomId:   roomId,
-        sendData: data,
+        formData: data,
       });
       showToast(result?.toastType, result?.toastMessage, {duration: 5000});
       if (result.ok) {
@@ -152,7 +152,7 @@ export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps
       {/* OverlaySpinner */}
       <OverlaySpinner isActivate={isLoading || isSending} />
       {/* Alert */}
-      {errorMsg !== '' && (
+      {errorMsg && (
         <Alert variant   = 'destructive'
                className = 'mb-4'>
           <AlertDescription>{errorMsg}</AlertDescription>
@@ -166,12 +166,13 @@ export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps
                      name    = 'model_name'
                      render  = {({ field }) => (
             <FormItem className='mb-4'>
-              <FormLabel>model_name</FormLabel>
+              <FormLabel htmlFor='model_name'>model_name</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button variant   = 'outline'
                             role      = 'combobox'
+                            id        = 'model_name'
                             className = {cn(
                               'w-full justify-between',
                               !field.value && 'text-muted-foreground',)}>
@@ -183,8 +184,8 @@ export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps
                       </Button>
                   </FormControl>
                 </PopoverTrigger>
-                <PopoverContent className='p-0'
-                                onWheel={(e) => {e.stopPropagation();}} >
+                <PopoverContent className = 'p-0'
+                                onWheel   = {(e) => {e.stopPropagation();}} >
                   <Command>
                     <CommandInput placeholder='Search...' />
                     <CommandList>
@@ -214,11 +215,12 @@ export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps
                      name    = 'system_sentence'
                      render  = {({ field }) => (
             <FormItem className='mb-4'>
-              <FormLabel>system_sentence</FormLabel>
+              <FormLabel htmlFor='system_sentence'>system_sentence</FormLabel>
               <FormControl>
                 <Textarea {...field}
-                          placeholder='システム文を入力'
-                          className='resize-y' />
+                          id          = 'system_sentence'
+                          className   = 'resize-y'
+                          placeholder = 'システム文を入力' />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -229,11 +231,12 @@ export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps
                      name    = 'assistant_sentence'
                      render  = {({ field }) => (
             <FormItem className='mb-4'>
-              <FormLabel>assistant_sentence</FormLabel>
+              <FormLabel htmlFor='assistant_sentence'>assistant_sentence</FormLabel>
               <FormControl>
                 <Textarea {...field}
-                          placeholder='アシスタント文を入力'
-                          className="resize-y" />
+                          id          = 'assistant_sentence'
+                          className   = 'resize-y'
+                          placeholder = 'アシスタント文を入力' />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -244,9 +247,10 @@ export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps
                      name    = 'history_len'
                      render  = {({ field }) => (
             <FormItem className='mb-4'>
-              <FormLabel>history_len: {field.value}</FormLabel>
+              <FormLabel htmlFor='history_len'>history_len: {field.value}</FormLabel>
               <FormControl>
-                <Slider value ={[field.value]}
+                <Slider value = {[field.value]}
+                        id    = 'history_len'
                         min   = {0}
                         max   = {30}
                         step  = {1}
@@ -261,9 +265,10 @@ export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps
                      name    = 'max_tokens'
                      render  = {({ field }) => (
             <FormItem className='mb-4'>
-              <FormLabel>max_tokens: {field.value}</FormLabel>
+              <FormLabel htmlFor='max_tokens'>max_tokens: {field.value}</FormLabel>
               <FormControl>
-                <Slider value ={[field.value]}
+                <Slider value = {[field.value]}
+                        id    = 'max_tokens'
                         min   = {50}
                         max   = {2048}
                         step  = {1}
@@ -278,9 +283,10 @@ export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps
                      name    = 'temperature'
                      render  = {({ field }) => (
             <FormItem className='mb-4'>
-              <FormLabel>temperature: {field.value}</FormLabel>
+              <FormLabel htmlFor='temperature'>temperature: {field.value}</FormLabel>
               <FormControl>
-                <Slider value ={[field.value]}
+                <Slider value = {[field.value]}
+                        id    = 'temperature'
                         min   = {0}
                         max   = {2}
                         step  = {0.01}
@@ -295,9 +301,10 @@ export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps
                      name    = 'top_p'
                      render  = {({ field }) => (
             <FormItem className='mb-4'>
-              <FormLabel>top_p: {field.value}</FormLabel>
+              <FormLabel htmlFor='top_p'>top_p: {field.value}</FormLabel>
               <FormControl>
-                <Slider value ={[field.value]}
+                <Slider value = {[field.value]}
+                        id    = 'top_p'
                         min   = {0}
                         max   = {1}
                         step  = {0.01}
@@ -312,9 +319,10 @@ export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps
                      name    = 'presence_penalty'
                      render  = {({ field }) => (
             <FormItem className='mb-4'>
-              <FormLabel>presence_penalty: {field.value}</FormLabel>
+              <FormLabel htmlFor='presence_penalty'>presence_penalty: {field.value}</FormLabel>
               <FormControl>
-                <Slider value ={[field.value]}
+                <Slider value = {[field.value]}
+                        id    = 'presence_penalty'
                         min   = {-2}
                         max   = {2}
                         step  = {0.01}
@@ -329,9 +337,10 @@ export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps
                      name    = 'frequency_penalty'
                      render  = {({ field }) => (
             <FormItem className='mb-4'>
-              <FormLabel>frequency_penalty: {field.value}</FormLabel>
+              <FormLabel htmlFor='frequency_penalty'>frequency_penalty: {field.value}</FormLabel>
               <FormControl>
-                <Slider value ={[field.value]}
+                <Slider value = {[field.value]}
+                        id    = 'frequency_penalty'
                         min   = {-2}
                         max   = {2}
                         step  = {0.01}
@@ -346,11 +355,12 @@ export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps
                      name    = 'comment'
                      render  = {({ field }) => (
             <FormItem className='mb-4'>
-              <FormLabel>comment</FormLabel>
+              <FormLabel htmlFor='comment'>comment</FormLabel>
               <FormControl>
                 <Textarea {...field}
-                          placeholder='memo/comment'
-                          className="resize-y" />
+                          id          = 'comment'
+                          className   = 'resize-y'
+                          placeholder = 'memo/comment' />
               </FormControl>
               <FormMessage />
             </FormItem>

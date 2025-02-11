@@ -1,8 +1,9 @@
 const NEXT_PUBLIC_SITE_URL           = process.env.NEXT_PUBLIC_SITE_URL;
 const BACKEND_API_URL                = process.env.BACKEND_API_URL;
 const NEXT_PUBLIC_BACKEND_STATIC_URL = process.env.NEXT_PUBLIC_BACKEND_STATIC_URL;
-const backendParsedUrl               = new URL(NEXT_PUBLIC_BACKEND_STATIC_URL ?? 'http://host.docker.internal:8000/');
-
+const NEXT_PUBLIC_BACKEND_MEDIA_URL  = process.env.NEXT_PUBLIC_BACKEND_MEDIA_URL;
+const backendStaticParsedUrl         = new URL(NEXT_PUBLIC_BACKEND_STATIC_URL ?? 'http://host.docker.internal:8000/static/frontend');
+const backendMediaParsedUrl          = new URL(NEXT_PUBLIC_BACKEND_MEDIA_URL  ?? 'http://host.docker.internal:8000/media/frontend');
 
 const nextConfig = {
   images: {
@@ -10,10 +11,15 @@ const nextConfig = {
     // Django の static の配信
     remotePatterns: [
       {
-        protocol: backendParsedUrl.protocol.replace(':',''),
-        hostname: backendParsedUrl.hostname,
-        port:     backendParsedUrl.port,
+        protocol: backendStaticParsedUrl.protocol.replace(':',''),
+        hostname: backendStaticParsedUrl.hostname,
+        port:     backendStaticParsedUrl.port,
         pathname: '/static/**',
+      },{
+        protocol: backendMediaParsedUrl.protocol.replace(':',''),
+        hostname: backendMediaParsedUrl.hostname,
+        port:     backendMediaParsedUrl.port,
+        pathname: '/media/**',
       },
     ],
   },

@@ -10,48 +10,48 @@ import { accountsPath } from '@/features/paths/backend';
 import { BackendApiClient } from '@/features/apiClients';
 import { csrfValidatorForCookie } from '@/features/utils';
 import { cookies } from 'next/headers';
-// import
-import { ResetPasswordConfilmFormInputType } from './schema';
 // type
-import { DefaultResponse } from '@/features/api';
+import { type ResetPasswordConfilmFormInputType } from './schema';
+import type { DefaultResponse } from '@/features/api';
 
 // type
 type PasswordResetConfilmRequest = {
-  uid:   string;
-  token: string;
-} & ResetPasswordConfilmFormInputType;
-
+  formData:  ResetPasswordConfilmFormInputType;
+  uid:       string;
+  token:     string;
+  csrfToken: string;
+};
 
 // resetPasswordConfilm
 export async function resetPasswordConfilm(params: PasswordResetConfilmRequest): Promise<DefaultResponse> {
+
+  const responseDefaultErrMsg = 'パスワード再設定に失敗しました';
+
   try {
-    const { uid, token, newPassword, reNewPassword, csrfToken } = params;
+    const { formData, uid, token, csrfToken } = params;
 
     // CSRFチェック ▽
     const cookieStore = await cookies();
     const allCookies  = cookieStore.getAll();
     const csrfResult: NextResponse | undefined = csrfValidatorForCookie(allCookies, csrfToken);
-    // CSRFチェック △
-
-    // input valid
-    if (!uid || !token || !newPassword || !reNewPassword || !csrfResult?.ok) {
+    if (!csrfResult?.ok) {
       const response: DefaultResponse = {
         ok:           false,
         status:       400,
-        message:      'パスワード再設定に失敗しました',
+        message:      responseDefaultErrMsg,
         toastType:    'error',
-        toastMessage: 'パスワード再設定に失敗しました',
+        toastMessage: responseDefaultErrMsg,
       };
       return response;
     };
+    // CSRFチェック △
 
     const res = await BackendApiClient.post(
       accountsPath.reset_password_confirm,
       {
-        uid:             uid,
-        token:           token,
-        new_password:    newPassword,
-        re_new_password: reNewPassword,
+        ...formData,
+        uid,
+        token,
       },
       { headers: { 'Content-Type': 'application/json', }},
     );
@@ -66,7 +66,10 @@ export async function resetPasswordConfilm(params: PasswordResetConfilmRequest):
     return response;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      const status = error.response.status;
+
+      const status  = error.response.status;
+      const errData = error.response.data;
+
       if (status === 429) {
         const response: DefaultResponse = {
           ok:           false,
@@ -76,24 +79,33 @@ export async function resetPasswordConfilm(params: PasswordResetConfilmRequest):
           toastMessage: '時間をおいて再度お試しください',
         };
         return response;
-      } else {
+      } else if (errData && Array.isArray(errData.errors) && errData.errors.length > 0) {
+        const detailStr = errData.errors[0].detail ?? responseDefaultErrMsg;
         const response: DefaultResponse = {
           ok:           false,
           status:       400, // 400しか返さない
-          message:      'パスワード再設定に失敗しました',
+          message:      String(detailStr),
           toastType:    'error',
-          toastMessage: 'パスワード再設定に失敗しました',
+          toastMessage: responseDefaultErrMsg,
         };
         return response;
       };
+      const response: DefaultResponse = {
+        ok:           false,
+        status:       400, // 400しか返さない
+        message:      responseDefaultErrMsg,
+        toastType:    'error',
+        toastMessage: responseDefaultErrMsg,
+      };
+      return response;
     };
     // error.response が無い場合 (ネットワーク障害など)
     const response: DefaultResponse = {
       ok:           false,
       status:       500,
-      message:      'パスワード再設定に失敗しました',
+      message:      responseDefaultErrMsg,
       toastType:    'error',
-      toastMessage: 'パスワード再設定に失敗しました',
+      toastMessage: responseDefaultErrMsg,
     };
     return response;
   };

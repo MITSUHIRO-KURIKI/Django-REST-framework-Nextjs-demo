@@ -5,7 +5,7 @@ export const roomSettingsFormSchema = z.object({
   model_name:         z.coerce.number().min(1),
   system_sentence:    z.string().superRefine((val, ctx) => {
     const max = 1500;
-    if (val.length >= max) {
+    if (val.length > max) {
       ctx.addIssue({
         code:     z.ZodIssueCode.custom,
         message: `${max} 字以内で入力してください ( ${val.length} 文字)`,
@@ -14,7 +14,7 @@ export const roomSettingsFormSchema = z.object({
   }),
   assistant_sentence: z.string().superRefine((val, ctx) => {
     const max = 1500;
-    if (val.length >= max) {
+    if (val.length > max) {
       ctx.addIssue({
         code:     z.ZodIssueCode.custom,
         message: `${max} 字以内で入力してください ( ${val.length} 文字)`,
@@ -29,7 +29,7 @@ export const roomSettingsFormSchema = z.object({
   frequency_penalty:  z.coerce.number().min(-2).max(2),
   comment:            z.string().superRefine((val, ctx) => {
     const max = 256;
-    if (val.length >= max) {
+    if (val.length > max) {
       ctx.addIssue({
         code:     z.ZodIssueCode.custom,
         message: `${max} 字以内で入力してください ( ${val.length} 文字)`,
@@ -48,7 +48,7 @@ export const roomSettingsRoomNameChangeSchema = z.object({
         message: `ルーム名を入力してください`,
       });
     };
-    if (val.length >= max) {
+    if (val.length > max) {
       ctx.addIssue({
         code:    z.ZodIssueCode.custom,
         message: `${max} 字以内で入力してください ( ${val.length} 文字)`,

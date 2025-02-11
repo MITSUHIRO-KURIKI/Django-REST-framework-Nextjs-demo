@@ -21,13 +21,17 @@ export async function authorizeUser(email: string, password: string): Promise<Us
         refreshToken: token.data.refresh        ?? null,
       };  // UserObject -> callbacks.jwt の user にセットされる
     } catch(error: unknown) {
-      if (axios.isAxiosError(error)) {
-        const statusCode = error.response?.status;
-        if (statusCode === 401) {
-          throw new Error('ログインに失敗しました');
-        } else if (statusCode === 403) {
+      if (axios.isAxiosError(error) && error.response) {
+        
+        const status  = error.response.status;
+
+        if (status === 429) {
+          throw new Error('時間をおいて再度お試しください');
+        } else if (status === 403) {
           throw new Error('アカウントがロックされています');
-        } else if (statusCode) {
+        } else if (status === 401) {
+          throw new Error('ログインに失敗しました');
+        } else if (status) {
           throw new Error('ログインに失敗しました');
         };
       };

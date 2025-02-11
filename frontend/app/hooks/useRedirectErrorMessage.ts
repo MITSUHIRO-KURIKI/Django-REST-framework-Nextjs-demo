@@ -23,6 +23,9 @@ export function useRedirectErrorMessage(): void {
     if (error === 'notfound') {
       showToast('info', 'ページが見つかりませんでした');
     };
+    if (error === 'dataerr') {
+      showToast('error', 'データが取得できませんでした');
+    };
     // 必要に応じてエラーの種類を増やす
   }, [error]);
 };

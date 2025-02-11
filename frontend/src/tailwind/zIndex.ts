@@ -23,4 +23,5 @@ export const zIndex = {
   popover2:           '2070',
   tooltip2:           '2080',
   toast2:             '2090',
+  forceFront:         '99999',
 };

@@ -64,10 +64,9 @@ export function SignupForm({
   const form = useForm<SignupFormInputType>({
     resolver: zodResolver(signupFormSchema),
     defaultValues: {
-      email:      '',
-      password:   '',
-      rePassword: '',
-      csrfToken:  '',
+      email:       '',
+      password:    '',
+      re_password: '',
     },
   });
   // - csrfToken
@@ -76,7 +75,6 @@ export function SignupForm({
     getCsrfToken().then((token) => {
       if (token) {
         setCsrfTokenValue(token);
-        form.setValue('csrfToken', token);
       };
     });
   }, [form]);
@@ -118,10 +116,8 @@ export function SignupForm({
     setErrorMsg('');
     try {
       const result = await signup({
-        email:      data.email,
-        password:   data.password,
-        rePassword: data.rePassword,
-        csrfToken:  data.csrfToken,
+        formData:   data,
+        csrfToken:  csrfToken,
       });
       showToast(result?.toastType, result?.toastMessage, {duration: 5000});
       if (result?.ok) {
@@ -153,8 +149,6 @@ export function SignupForm({
   ) : (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-      {/* csrfToken */}
-      <input type='hidden' {...form.register('csrfToken')} value={csrfToken} readOnly />
         <div className='flex flex-col gap-6'>
           <div className='grid gap-2'>
             {/* email */}
@@ -221,14 +215,14 @@ export function SignupForm({
           <div className='grid gap-2'>
             {/* rePassword */}
             <FormField control = {form.control}
-                       name    = 'rePassword'
+                       name    = 're_password'
                        render  = {({ field }) => (
             <FormItem>
                 <FormLabel htmlFor='rePassword'>Password (Check)</FormLabel>
                 <FormControl>
                 <Input {...field}
                        type         = 'password'
-                       id           = 'rePassword'
+                       id           = 're_password'
                        className    = 'mt-2'
                        autoComplete = 'new-password'
                        required />
