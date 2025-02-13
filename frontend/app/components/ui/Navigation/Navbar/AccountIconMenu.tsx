@@ -16,7 +16,7 @@ import { Button } from '@/app/components/ui/shadcn/button';
 // icons
 import { User } from 'lucide-react';
 // components
-import { Loader } from '@/app/components/ui/common';
+import { ThemeToggle, Loader } from '@/app/components/ui/common';
 // include
 import { AccountSettingsModal } from '../AccountSettingsModal';
 import { AccountMenuItems } from '../data';
@@ -86,6 +86,19 @@ export function AccountIconMenu(): ReactElement {
             );
           };
         })}
+
+        <div className={cn('my-2','h-[1px] w-full rounded-full bg-border',)} />
+
+        {/* ThemeToggle */}
+        <div className = {cn(
+          'relative flex justify-between cursor-default select-none items-center gap-2 ',
+          'text-xs font-light text-foreground text-left',
+          'px-4 outline-none',
+        )}>
+          <span>Appearance</span>
+          <ThemeToggle />
+        </div>
+
       </DropdownMenuContent>
 
       {/* アカウント設定 モーダル */}

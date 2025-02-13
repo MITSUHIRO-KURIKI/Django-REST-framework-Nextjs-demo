@@ -13,4 +13,4 @@ export type Item = {
 };
 export type LoadItemDataProps = {
   vrmChatInitial?: SubItem[] | undefined;
-}
+};

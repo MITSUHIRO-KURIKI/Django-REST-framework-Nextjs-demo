@@ -76,7 +76,9 @@ export function RoomNameChangeDialog({
     try {
       const result = await patchRoomSettingsRoomNameChange({
         roomId:   editRoomNametargetRoomId,
-        formData: {room_name: sanitizeDOMPurify(editRoomName)},
+        formData: {
+          room_name: sanitizeDOMPurify(editRoomName),
+        },
       });
       if (result.ok) {
         setVrmChatItems((prev) =>
@@ -120,7 +122,7 @@ export function RoomNameChangeDialog({
         {/* Alert */}
         { errorMsg && (
           <Alert variant   = 'destructive'
-                  className = 'mb-2'>
+                 className = 'mb-2'>
             <AlertDescription>
               {errorMsg}
             </AlertDescription>

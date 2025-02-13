@@ -21,7 +21,7 @@ import {
   ChevronLeft,
 } from 'lucide-react';
 // components
-import { Loader } from '@/app/components/ui/common';
+import { ThemeToggle, Loader } from '@/app/components/ui/common';
 // include
 import { MobileMenuBase } from './MobileMenuBase';
 import { AccountSettingsModal } from '../AccountSettingsModal';
@@ -103,7 +103,7 @@ export function MobileMenu({ setIsNavVisible }: MobileMenuProps): ReactElement {
                     <Link href      = {item.href ?? '#'}
                           className = {cn(
                             'gap-2 flex w-full h-8 justify-start items-center rounded',
-                            'text-sm font-normal text-foreground [&>svg]:text-sidebar-accent-foreground',
+                            'text-sm font-normal text-foreground select-none [&>svg]:text-sidebar-accent-foreground',
                             'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                             '[&>svg]:text-foreground hover:[&>svg]:text-sidebar-accent-foreground',)}
                           onClick={() => setIsMobileMenuOpen(false)} >
@@ -115,7 +115,7 @@ export function MobileMenu({ setIsNavVisible }: MobileMenuProps): ReactElement {
             </ul>
 
             <div className={cn(
-              'mt-8 mb-4 mr-8 ml-0',
+              'mt-6 mb-2 mr-8 ml-0',
               'h-[1px] w-auto rounded-full bg-border',)} />
 
             {/* accountMenuItems */}
@@ -165,7 +165,7 @@ export function MobileMenu({ setIsNavVisible }: MobileMenuProps): ReactElement {
                         href      = {item.href ?? '#'}
                         className = {cn(
                           'flex gap-2 w-full h-8 justify-start items-center rounded',
-                          'text-sm font-normal text-foreground',
+                          'text-sm font-normal text-foreground select-none',
                           'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                           '[&>svg]:text-foreground hover:[&>svg]:text-sidebar-accent-foreground',)}
                         onClick={() => setIsMobileMenuOpen(false)} >
@@ -173,6 +173,17 @@ export function MobileMenu({ setIsNavVisible }: MobileMenuProps): ReactElement {
                   </Link>
                 );
               })}
+
+              {/* ThemeToggle */}
+              <div className = {cn(
+                'relative flex justify-between cursor-default select-none items-center gap-2 ',
+                'text-xs font-light text-foreground text-left',
+                'outline-none',
+              )}>
+                <span>Appearance</span>
+                <ThemeToggle />
+              </div>
+
             </div>
           </div>
         </div>
@@ -218,7 +229,7 @@ function SubCategoryList({ activeKey, setIsMobileMenuOpen }: SubCategoryListProp
     <div>
       <div className={cn(
         'flex gap-2 mb-2 justify-start items-center',
-        'text-xs font-light text-foreground',
+        'text-xs font-light text-foreground select-none',
         '[&>svg]:text-foreground',)}>
         {item?.label}
       </div>
@@ -229,7 +240,7 @@ function SubCategoryList({ activeKey, setIsMobileMenuOpen }: SubCategoryListProp
               <Link href      = {subItem.href}
                     className = {cn(
                       'flex w-full h-8 justify-start items-center rounded',
-                      'text-sm font-normal text-foreground',
+                      'text-sm font-normal text-foreground select-none',
                       'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',)}
                     onClick={() => setIsMobileMenuOpen(false)} >
                 {subItem.label}

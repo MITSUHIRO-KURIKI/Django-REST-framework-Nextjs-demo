@@ -73,7 +73,7 @@ import { showToast } from '@/app/components/utils';
 // lib
 import brotliPromise from 'brotli-wasm';
 // types
-import type { ClientMessage, ServerMessage, BrotliWasm } from './types';
+import type { ClientMessage, ServerMessage, BrotliWasm } from './type.d';
 
 // type
 type WebSocketCoreProviderProps = {

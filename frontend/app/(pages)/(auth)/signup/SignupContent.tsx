@@ -39,9 +39,10 @@ export function SignupContent(): ReactElement {
         <div className={cn(
           'invisible lg:visible',
           'flex justify-center p-4',
+          'select-none',
           'md:justify-start',)}>
           <Link href={pagesPath.$url()} className='font-bold'>
-                {process.env.NEXT_PUBLIC_SITE_NAME as string}
+            {process.env.NEXT_PUBLIC_SITE_NAME as string}
           </Link>
         </div>
         {/* main */}
@@ -51,6 +52,7 @@ export function SignupContent(): ReactElement {
               {/* logo */}
               <div className={cn(
                 'visible lg:invisible',
+                'select-none',
                 'flex justify-center',)}>
                 <Link href={pagesPath.$url()} className='font-bold'>
                   {process.env.NEXT_PUBLIC_SITE_NAME as string}
@@ -83,12 +85,12 @@ export function SignupContent(): ReactElement {
               <div className='text-center text-sm'>
               { !isSuccess ? (
                 <Link href={pagesPath.authPath.login.$url()}
-                      className='hover:underline hover:underline-offset-4'>
+                      className='hover:underline hover:underline-offset-4 select-none'>
                    ログインページに戻る
                 </Link>
               ) : (
                 <Link href={pagesPath.$url()}
-                      className='hover:underline hover:underline-offset-4'>
+                      className='hover:underline hover:underline-offset-4 select-none'>
                    ホームに戻る
                 </Link>
               )}

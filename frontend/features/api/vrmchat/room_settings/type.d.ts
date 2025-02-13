@@ -5,7 +5,7 @@ export type ModelNameChoices = {
 
 export type RoomSettingsResponseData = {
   id:                number;
-  roomId:            number;
+  roomId:            string;
   roomName:          string;
   modelName:         number;
   systemSentence:    string | null;
@@ -21,7 +21,7 @@ export type RoomSettingsResponseData = {
 };
 
 export type RoomSettingsRoomNameListResponseItem = {
-  roomId_RoomId: string;
-  roomName:      string;
+  roomId:   string;
+  roomName: string;
 };
 export type RoomSettingsRoomNameListResponseData = RoomSettingsRoomNameItem[];

@@ -18,7 +18,7 @@ export function MermaidDraw({ code }: {code: string}) {
             ref.current!.innerHTML = svgCode;
           });
         } catch {
-          ref.current!.innerHTML = `<p style="color:#999999;font-weight:100;font-size:0.7rem;">Sorry Mermaid parse error...</p><p>${code}</p>`;
+          ref.current!.innerHTML = `<p style="color:#999999;font-size:0.75rem;font-weight:100;user-select:none;">Sorry Mermaid parse error...</p><p>${code}</p>`;
         };
       };
     }, [code, theme]);

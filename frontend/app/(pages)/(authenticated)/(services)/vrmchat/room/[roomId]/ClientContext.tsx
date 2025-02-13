@@ -6,14 +6,18 @@ import { useState, useEffect, useContext, useRef, type ReactElement } from 'reac
 import { showToast } from '@/app/components/utils';
 // providers
 import {
+  // WebSocket
   WebSocketCoreContext,
   type WebSocketCoreContextValue,
   type ServerMessage,
+  // SpeechText
   SpeechTextAzureCoreContext as SpeechTextCoreContext, // or SpeechTextGcloudCoreContext
   type SpeechTextCoreContextValue,
+  // Vrm
   VrmCoreContext,
   startLipSync,
   type VrmCoreContextValue,
+  // Sidebar
   SidebarContext,
   type SidebarContextValue,
 } from '@/app/providers';
@@ -123,7 +127,7 @@ export function ClientContext({ roomId, roomTitle }: VrmChatRoomParams): ReactEl
   // WebSocketCoreContext last ▽
   if (!wsContext || !stContext || !vrmContext) {
     showToast('error', 'error', { position: 'bottom-right', duration: 3000 });
-    return <p>not available</p>;
+    return <p className='text-xs font-thin text-muted-foreground select-none'>Sorry, not available</p>;
   };
   // WebSocketCoreContext last △
 

@@ -289,7 +289,7 @@ export function SidebarBody({ vrmChatInitial, pageSize,  ...props }: SidebarBody
             );
           })}
         </SidebarContent>
-        <p className='font-mono text-xs text-slate-400'>&copy; 2024 K.Mitsuhiro</p>
+        <p className='font-mono text-xs text-slate-400 select-none'>&copy; 2024 K.Mitsuhiro</p>
       </SidebarFooter>
       <SidebarRail className='hover:after:bg-transpant' />
 

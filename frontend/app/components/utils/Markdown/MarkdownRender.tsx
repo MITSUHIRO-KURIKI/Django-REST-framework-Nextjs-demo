@@ -22,11 +22,16 @@ import { defaultUrlTransform } from '@/features/utils';
 // hooks
 import { useStringCopy } from '@/app/hooks';
 // include
-import {MermaidDraw} from './MermaidDraw';
+import { MermaidDraw } from './MermaidDraw';
 
+// type
+type MarkdownRenderProps = {
+  markdownString: string;
+  className?:     string;
+};
 
 // MarkdownRender ▽
-export function MarkdownRender({markdownString,}: {markdownString: string;}): ReactElement{
+export function MarkdownRender({markdownString, className,}:MarkdownRenderProps): ReactElement{
 
   const handleStringCopy = useStringCopy();
 
@@ -63,7 +68,8 @@ export function MarkdownRender({markdownString,}: {markdownString: string;}): Re
         '[&_blockquote]:border-s-4 [&_blockquote]:border-gray-300 [&_blockquote]:dark:border-gray-500',
         '[&_blockquote]:bg-gray-50  [&_blockquote]:dark:bg-gray-800',
         // 区切り線に対するスタイル
-        '[&_hr]:my-2',)}>
+        '[&_hr]:my-2',
+        className,)}>
         <ReactMarkdown
             remarkPlugins = {[
               remarkGfm,
@@ -88,7 +94,6 @@ export function MarkdownRender({markdownString,}: {markdownString: string;}): Re
             }}
             components = {{
               img({ alt, ...props }) {
-                console.log(props)
                 return (
                   <img className={cn(
                           'max-w-30 max-h-30',

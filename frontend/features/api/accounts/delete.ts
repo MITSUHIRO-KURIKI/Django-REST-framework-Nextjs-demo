@@ -22,7 +22,7 @@ export async function deleteAccount(): Promise<DefaultResponse> {
     const session: Session | null = await getAuthSession();
 
     const res = await BackendApiClient.delete(
-      accountsPath.root,
+      accountsPath.delete,
       { headers: {
         'Content-Type':  'application/json',
         'Authorization': `Bearer ${session?.user?.accessToken}`,

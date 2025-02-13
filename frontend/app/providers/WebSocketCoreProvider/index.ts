@@ -3,4 +3,4 @@ export {
   WebSocketCoreContext,
   type WebSocketCoreContextValue,
 } from './WebSocketCoreProvider';
-export type { ServerMessage } from './types.d';
+export type { ServerMessage } from './type.d';

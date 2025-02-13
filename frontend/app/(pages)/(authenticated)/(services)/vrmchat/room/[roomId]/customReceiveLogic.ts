@@ -37,6 +37,7 @@ export async function customReceiveLogic(
     if (cmd === 'VRMMessage') {
       if (ok) {
         const messageText = sanitizeDOMPurify(String(data?.aiMessage || ''));
+        
         setRecognizedText([]);
         setReceivedMessages(messageText);
         textToSpeech(messageText);

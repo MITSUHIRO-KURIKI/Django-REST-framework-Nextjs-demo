@@ -20,13 +20,13 @@ import {
   FormField,
   FormLabel,
   FormControl,
+  FormDescription,
   FormItem,
   FormMessage,
 } from '@/app/components/ui/shadcn/form';
 // shadcn
 import { cn } from '@/app/components/lib/shadcn';
 import { Button } from '@/app/components/ui/shadcn/button';
-import { Input } from '@/app/components/ui/shadcn/input';
 import { Alert, AlertDescription } from '@/app/components/ui/shadcn/alert';
 // icons
 import { Loader2 } from 'lucide-react';
@@ -34,6 +34,7 @@ import { Loader2 } from 'lucide-react';
 import { UrlToString } from '@/features/utils';
 import { FrontendWithCredentialsApiClient } from '@/features/apiClients';
 // components
+import { PasswordInputField } from '@/app/components/ui/form';
 import { showToast, OverlaySpinner } from '@/app/components/utils';
 // lib
 import { zxcvbn } from '@zxcvbn-ts/core';
@@ -134,7 +135,7 @@ export function PasswordChangeForm(): ReactElement {
                      render  = {({ field }) => (
               <FormItem>
                 <div className='flex items-center'>
-                  <FormLabel htmlFor='password'>現在のパスワード</FormLabel>
+                  <FormLabel htmlFor='current_password'>現在のパスワード</FormLabel>
                   <Button type      = 'button'
                           variant   = 'linelink'
                           size      = 'fit'
@@ -152,12 +153,11 @@ export function PasswordChangeForm(): ReactElement {
                   </Button>
                 </div>
                 <FormControl>
-                  <Input {...field}
-                         type         = 'password'
-                         id           = 'password'
-                         className    = 'border-muted-foreground'
-                         autoComplete = 'current-password'
-                         required />
+                  <PasswordInputField {...field}
+                                      id           = 'current_password'
+                                      className    = 'border-muted-foreground'
+                                      autoComplete = 'current-password'
+                                      required />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -170,12 +170,11 @@ export function PasswordChangeForm(): ReactElement {
               <FormItem>
                 <FormLabel htmlFor='new_password'>新しいパスワード</FormLabel>
                 <FormControl>
-                  <Input {...field}
-                         type         = 'password'
-                         id           = 'new_password'
-                         className    = 'border-muted-foreground'
-                         autoComplete = 'new-password'
-                         required />
+                  <PasswordInputField {...field}
+                                      id           = 'new_password'
+                                      className    = 'border-muted-foreground'
+                                      autoComplete = 'new-password'
+                                      required />
                 </FormControl>
                 <FormMessage />
                 {/* パスワード強度表示 */}
@@ -198,9 +197,9 @@ export function PasswordChangeForm(): ReactElement {
                     );
                   })}
                 </div>
-                <p className='mt-1 text-xs text-gray-600'>
+                <FormDescription className='mt-1 text-xs text-gray-600'>
                   パスワード強度:<span className='ml-1 font-semibold'>{strengthLabel}</span>
-                </p>
+                </FormDescription>
               </FormItem>
             )} />
 
@@ -211,12 +210,11 @@ export function PasswordChangeForm(): ReactElement {
               <FormItem>
                 <FormLabel htmlFor='re_new_password'>新しいパスワード (Check)</FormLabel>
                 <FormControl>
-                  <Input {...field}
-                         type         = 'password'
-                         id           = 're_new_password'
-                         className    = 'border-muted-foreground'
-                         autoComplete = 'new-password'
-                         required />
+                  <PasswordInputField {...field}
+                                      id           = 're_new_password'
+                                      className    = 'border-muted-foreground'
+                                      autoComplete = 'new-password'
+                                      required />
                 </FormControl>
                 <FormMessage />
               </FormItem>

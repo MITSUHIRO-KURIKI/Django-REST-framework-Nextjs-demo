@@ -28,17 +28,18 @@ import {
   FormItem,
   FormLabel,
   FormControl,
+  FormDescription,
   FormMessage,
   FormField,
 } from '@/app/components/ui/shadcn/form';
 // shadcn
 import { cn } from '@/app/components/lib/shadcn';
-import { Input } from '@/app/components/ui/shadcn/input';
 import { Button } from '@/app/components/ui/shadcn/button';
 import { Alert, AlertTitle, AlertDescription } from '@/app/components/ui/shadcn/alert';
 // icons
 import { Loader2, CircleCheckBig } from 'lucide-react';
 // components
+import { PasswordInputField } from '@/app/components/ui/form';
 import { showToast } from '@/app/components/utils';
 // lib
 import { zxcvbn } from '@zxcvbn-ts/core';
@@ -170,12 +171,11 @@ export function PasswordResetConfilmForm({
               <FormItem>
                 <FormLabel htmlFor='new_password'>Password</FormLabel>
                 <FormControl>
-                  <Input {...field}
-                         type         = 'password'
-                         id           = 'new_password'
-                         className    = 'mt-2'
-                         autoComplete = 'new-password'
-                         required />
+                  <PasswordInputField {...field}
+                                      id           = 'new_password'
+                                      className    = 'mt-2'
+                                      autoComplete = 'new-password'
+                                      required />
                 </FormControl>
                 <FormMessage />
                 {/* パスワード強度表示 */}
@@ -198,9 +198,9 @@ export function PasswordResetConfilmForm({
                     );
                   })}
                 </div>
-                <p className='mt-1 text-xs text-gray-600'>
+                <FormDescription className='mt-1 text-xs text-gray-600'>
                   パスワード強度:<span className='ml-1 font-semibold'>{strengthLabel}</span>
-                </p>
+                </FormDescription>
               </FormItem>
             )} />
           </div>
@@ -212,12 +212,11 @@ export function PasswordResetConfilmForm({
               <FormItem>
                 <FormLabel htmlFor='re_new_password'>Password (Check)</FormLabel>
                 <FormControl>
-                  <Input {...field}
-                         type         = 'password'
-                         id           = 're_new_password'
-                         className    = 'mt-2'
-                         autoComplete = 'new-password'
-                         required />
+                  <PasswordInputField {...field}
+                                      id           = 're_new_password'
+                                      className    = 'mt-2'
+                                      autoComplete = 'new-password'
+                                      required />
                 </FormControl>
                 <FormMessage />
               </FormItem>

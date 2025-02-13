@@ -1,2 +1,1 @@
 from .RoomSettings_serializers import RoomSettingsSerializer
-from .RoomSettingsRoomName_serializers import RoomSettingsRoomNameSerializer

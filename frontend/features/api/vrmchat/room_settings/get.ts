@@ -32,22 +32,22 @@ export async function getRoomSettings(roomId: string): Promise<GetRoomSettingsRe
   const responseDefaultErrMsg = 'データ取得に失敗しました';
 
   try {
-      const session: Session | null = await getAuthSession();
-      const res = await BackendApiClient.get(
-        vrmChatPath.room_settings+roomId,
-        { headers: {
-          'Content-Type':  'application/json',
-          'Authorization': `Bearer ${session?.user?.accessToken}`,
-        }}
-      );
-      //  Axios は 2xx 以外で catch に飛ぶ
-      const data:RoomSettingsResponseData = res.data;
-      const response: GetRoomSettingsResponse = {
-        ok:     true,
-        status: res.status,
-        data:   data,
-      };
-      return response;
+    const session: Session | null = await getAuthSession();
+    const res = await BackendApiClient.get(
+      vrmChatPath.room_settings+roomId,
+      { headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${session?.user?.accessToken}`,
+      }}
+    );
+    //  Axios は 2xx 以外で catch に飛ぶ
+    const data:RoomSettingsResponseData = res.data;
+    const response: GetRoomSettingsResponse = {
+      ok:     true,
+      status: res.status,
+      data:   data,
+    };
+    return response;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
 
@@ -95,28 +95,28 @@ export async function getRoomSettings(roomId: string): Promise<GetRoomSettingsRe
   };
 };
 
-// getRoomSettingsRoomNameList
+// getRoomSettingsRoomName
 export async function getRoomSettingsRoomName(roomId: string): Promise<GetRoomSettingsRoomNameResponse> {
 
   const responseDefaultErrMsg = 'データ取得に失敗しました';
 
   try {
-      const session: Session | null = await getAuthSession();
-      const res = await BackendApiClient.get(
-        vrmChatPath.room_settings_room_name+roomId,
-        { headers: {
-          'Content-Type':  'application/json',
-          'Authorization': `Bearer ${session?.user?.accessToken}`,
-        }}
-      );
-      //  Axios は 2xx 以外で catch に飛ぶ
-      const data:RoomSettingsRoomNameListResponseItem = res.data;
-      const response: GetRoomSettingsRoomNameResponse = {
-        ok:     true,
-        status: res.status,
-        data:   data.roomName,
-      };
-      return response;
+    const session: Session | null = await getAuthSession();
+    const res = await BackendApiClient.get(
+      vrmChatPath.room_settings+roomId,
+      { headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${session?.user?.accessToken}`,
+      }}
+    );
+    //  Axios は 2xx 以外で catch に飛ぶ
+    const data:RoomSettingsRoomNameListResponseItem = res.data;
+    const response: GetRoomSettingsRoomNameResponse = {
+      ok:     true,
+      status: res.status,
+      data:   data.roomName,
+    };
+    return response;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
 
@@ -170,28 +170,31 @@ export async function getRoomSettingsRoomNameList(page: number, size:number): Pr
   const responseDefaultErrMsg = 'データ取得に失敗しました';
 
   try {
-      const session: Session | null = await getAuthSession();
-      // 途中フロントでサブメニューを操作しているので全量を取得してフロントに反映する
-      const res = await BackendApiClient.get(
-        vrmChatPath.room_settings_room_name_list+'?page=1&size='+(page*size)+'&ordering_desc_field_name=id',
-        { headers: {
-          'Content-Type':  'application/json',
-          'Authorization': `Bearer ${session?.user?.accessToken}`,
-        }}
-      );
-      //  Axios は 2xx 以外で catch に飛ぶ
-      const items = parseResponseData<RoomSettingsRoomNameListResponseItem>(res);
-      const cleanData:SubItem[] = items.map((item) => ({
-        key:   item.roomId_RoomId,
-        label: item.roomName,
-        href:  item.roomId_RoomId,
-      }));
-      const response: GetRoomSettingsRoomNameListResponse = {
-        ok:     true,
-        status: res.status,
-        data:   cleanData,
-      };
-      return response;
+    const session: Session | null = await getAuthSession();
+    // 途中フロントでサブメニューを操作しているので全量を取得してフロントに反映する
+    const res = await BackendApiClient.get(
+      vrmChatPath.room_settings_room_name_list+'?page=1&size='+(page*size)+'&ordering_desc_field_name=id',
+      { headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${session?.user?.accessToken}`,
+      }}
+    );
+    //  Axios は 2xx 以外で catch に飛ぶ
+    
+    // データの成形 ▽
+    const items               = parseResponseData<RoomSettingsRoomNameListResponseItem>(res);
+    const cleanData:SubItem[] = items.map((item) => ({
+      key:   item.roomId,
+      label: item.roomName,
+      href:  item.roomId,
+    }));
+    // データの成形 △
+    const response: GetRoomSettingsRoomNameListResponse = {
+      ok:     true,
+      status: res.status,
+      data:   cleanData,
+    };
+    return response;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
 

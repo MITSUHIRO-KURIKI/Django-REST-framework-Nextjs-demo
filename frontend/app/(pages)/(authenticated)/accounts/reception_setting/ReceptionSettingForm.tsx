@@ -22,6 +22,7 @@ import {
 // shadcn
 import { Button } from '@/app/components/ui/shadcn/button';
 import { Switch } from '@/app/components/ui/shadcn/switch';
+import { Label } from '@/app/components/ui/shadcn/label';
 import { Alert, AlertDescription } from '@/app/components/ui/shadcn/alert';
 // icons
 import { Loader2 } from 'lucide-react';
@@ -86,21 +87,24 @@ export function ReceptionSettingForm({ userReceptionSettingData }: {userReceptio
       )}
       {/* Form */}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}
-              className=''>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+
+          <Label className='block mb-4 text-lg font-bold'>お知らせの受信設定</Label>
 
           {/* is_receive_all (Switch) */}
           <FormField control = {form.control}
                      name    = 'is_receive_all'
                      render  = {({ field }) => (
-              <FormItem>
+              <FormItem className='space-y-0 my-2 flex items-center space-x-2'>
                 <FormLabel htmlFor='is_receive_all'>すべてのメールを受信する</FormLabel>
                 <FormControl>
                   <Switch id              = 'is_receive_all'
+                          className       = 'border-muted-foreground'
                           checked         = {field.value}
                           onCheckedChange = {(checked) => {
                             // こちらがONになったら、もう片方をOFFにする
-                            if (checked) setValue('is_receive_important_only', false);
+                            if (checked)  setValue('is_receive_important_only', false);
+                            if (!checked) setValue('is_receive_important_only', true);
                             field.onChange(checked);
                           }} />
                 </FormControl>
@@ -112,14 +116,16 @@ export function ReceptionSettingForm({ userReceptionSettingData }: {userReceptio
           <FormField control = {form.control}
                      name    = 'is_receive_important_only'
                      render  = {({ field }) => (
-              <FormItem>
+              <FormItem className='space-y-0 my-2 flex items-center space-x-2'>
                 <FormLabel htmlFor='is_receive_important_only'>重要なメールのみ受信する</FormLabel>
                 <FormControl>
                   <Switch id              = 'is_receive_important_only'
+                          className       = 'border-muted-foreground'
                           checked         = {field.value}
                           onCheckedChange = {(checked) => {
                             // こちらがONになったら、もう片方をOFFにする
-                            if (checked) setValue('is_receive_all', false);
+                            if (checked)  setValue('is_receive_all', false);
+                            if (!checked) setValue('is_receive_all', true);
                             field.onChange(checked);
                           }} />
                 </FormControl>

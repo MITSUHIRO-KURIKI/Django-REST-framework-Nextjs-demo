@@ -4,9 +4,8 @@ from .viewsets import CustomUserViewSet, AccountDeleteViewSet
 
 app_name = 'api.accounts.v1'
 
-# URLが uniqueAccountId と競合するのでカスタムは先に登録する
 urlpatterns = [
-    path('', AccountDeleteViewSet.as_view(), name='delete'),
+    path('delete/', AccountDeleteViewSet.as_view(), name='delete'),
 ]
 
 # JWT アカウント関連

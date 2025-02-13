@@ -43,13 +43,14 @@ import {
   SelectContent,
   SelectItem,
 } from '@/app/components/ui/shadcn/select';
-// type
-import { AccountSettingsPage } from './type.d';
-// 
+// include
 import { ProfilePage } from '@/app/(pages)/(authenticated)/accounts/profile/main';
 import { ReceptionSettingPage } from '@/app/(pages)/(authenticated)/accounts/reception_setting/main';
 import { PasswordChangePage } from '@/app/(pages)/(authenticated)/accounts/password_change/main';
 import { AccountDeletePage } from '@/app/(pages)/(authenticated)/accounts/delete/main';
+// type
+import { AccountSettingsPage } from './type.d';
+
 
 // type
 type AccountSettingsModalProps = {
@@ -57,6 +58,7 @@ type AccountSettingsModalProps = {
   onOpenChange: Dispatch<SetStateAction<boolean>>;
 };
 
+// AccountSettingsModal
 export function AccountSettingsModal({ open, onOpenChange }: AccountSettingsModalProps): ReactElement {
 
   const [currentPage, setCurrentPage] = useState<AccountSettingsPage>('profile');
@@ -79,7 +81,8 @@ export function AccountSettingsModal({ open, onOpenChange }: AccountSettingsModa
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={cn(
-          'size-[90%] max-h-[90%] max-w-full',
+          // 'size-[100%] max-h-[90%] max-w-full',
+          'size-[100%] sm:size-[95%] md:size-[90%] lg:w-[85%] max-h-full max-w-full',
           'px-0 pt-3 md:px-0 md:pt-7',
           'bg-background md:bg-sidebar',
         )}>
@@ -126,23 +129,23 @@ export function AccountSettingsModal({ open, onOpenChange }: AccountSettingsModa
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                       <SidebarMenuItem>
-                      <SidebarMenuButton className = {cn(
-                                            currentPage === 'password_change'
-                                              ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                                              : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                                          )}
-                                          onClick = {() => setCurrentPage('password_change')}>
-                          パスワード変更
+                        <SidebarMenuButton className = {cn(
+                                              currentPage === 'password_change'
+                                                ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                                                : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                                            )}
+                                            onClick = {() => setCurrentPage('password_change')}>
+                            パスワード変更
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                       <SidebarMenuItem>
-                      <SidebarMenuButton className = {cn(
-                                            currentPage === 'delete'
-                                              ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                                              : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                                          )}
-                                          onClick = {() => setCurrentPage('delete')}>
-                          アカウント削除
+                        <SidebarMenuButton className = {cn(
+                                              currentPage === 'delete'
+                                                ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                                                : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                                            )}
+                                            onClick = {() => setCurrentPage('delete')}>
+                            アカウント削除
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                   </SidebarMenu>

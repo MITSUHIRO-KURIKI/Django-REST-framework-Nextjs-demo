@@ -24,6 +24,7 @@ import {
   FormItem,
   FormLabel,
   FormControl,
+  FormDescription,
   FormMessage,
   FormField,
 } from '@/app/components/ui/shadcn/form';
@@ -35,6 +36,7 @@ import { Alert, AlertTitle, AlertDescription } from '@/app/components/ui/shadcn/
 // icons
 import { Loader2, CircleCheckBig } from 'lucide-react';
 // components
+import { PasswordInputField } from '@/app/components/ui/form';
 import { showToast } from '@/app/components/utils';
 // lib
 import { zxcvbn } from '@zxcvbn-ts/core';
@@ -142,7 +144,7 @@ export function SignupForm({
         <AlertTitle>仮登録を受け付けました。</AlertTitle>
         <AlertDescription>送付されたメールから認証を完了してください。</AlertDescription>
       </Alert>
-      <p className='text-xs leading-none text-muted-foreground'>
+      <p className='text-xs leading-none text-muted-foreground select-none'>
         ※メールが届かない場合、入力したメールアドレスが間違っている可能性があります。お手数ですが、再度、登録をやり直してください。
       </p>
     </div>
@@ -178,12 +180,11 @@ export function SignupForm({
             <FormItem>
                 <FormLabel htmlFor='password'>Password</FormLabel>
                 <FormControl>
-                <Input {...field}
-                       type         = 'password'
-                       id           = 'password'
-                       className    = 'mt-2'
-                       autoComplete = 'new-password'
-                       required />
+                  <PasswordInputField {...field}
+                                      id           = 'password'
+                                      className    = 'mt-2'
+                                      autoComplete = 'new-password'
+                                      required />
                 </FormControl>
                 <FormMessage />
                 {/* パスワード強度表示 */}
@@ -206,9 +207,9 @@ export function SignupForm({
                   );
                 })}
                 </div>
-                <p className='mt-1 text-xs text-gray-600'>
+                <FormDescription className='mt-1 text-xs text-gray-600'>
                   パスワード強度:<span className='ml-1 font-semibold'>{strengthLabel}</span>
-                </p>
+                </FormDescription>
               </FormItem>
             )} />
           </div>
@@ -220,12 +221,11 @@ export function SignupForm({
             <FormItem>
                 <FormLabel htmlFor='rePassword'>Password (Check)</FormLabel>
                 <FormControl>
-                <Input {...field}
-                       type         = 'password'
-                       id           = 're_password'
-                       className    = 'mt-2'
-                       autoComplete = 'new-password'
-                       required />
+                  <PasswordInputField {...field}
+                                      id           = 're_password'
+                                      className    = 'mt-2'
+                                      autoComplete = 'new-password'
+                                      required />
                 </FormControl>
                 <FormMessage />
             </FormItem>

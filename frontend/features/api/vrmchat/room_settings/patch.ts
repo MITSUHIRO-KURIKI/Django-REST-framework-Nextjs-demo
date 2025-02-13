@@ -36,29 +36,29 @@ export async function patchRoomSettings(params: PatchRoomSettingsRequest): Promi
   const responseDefaultErrMsg = '更新に失敗しました';
 
   try {
-      const { roomId, formData }    = params;
-      const session: Session | null = await getAuthSession();
+    const { roomId, formData }    = params;
+    const session: Session | null = await getAuthSession();
 
-      const res = await BackendApiClient.patch(
-        vrmChatPath.room_settings+roomId,
-        formData,
-        { headers: {
-          'Content-Type':  'application/json',
-          'Authorization': `Bearer ${session?.user?.accessToken}`,
-        }}
-      );
+    const res = await BackendApiClient.patch(
+      vrmChatPath.room_settings+roomId,
+      formData,
+      { headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${session?.user?.accessToken}`,
+      }}
+    );
 
-      //  Axios は 2xx 以外で catch に飛ぶ
-      const data:RoomSettingsResponseData[] = res.data;
-      const response: PatchRoomSettingsResponse = {
-        ok:           true,
-        status:       res.status,
-        data:         data,
-        message:      '更新しました',
-        toastType:    'success',
-        toastMessage: '更新しました',
-      };
-      return response;
+    //  Axios は 2xx 以外で catch に飛ぶ
+    const data:RoomSettingsResponseData[] = res.data;
+    const response: PatchRoomSettingsResponse = {
+      ok:           true,
+      status:       res.status,
+      data:         data,
+      message:      '更新しました',
+      toastType:    'success',
+      toastMessage: '更新しました',
+    };
+    return response;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
 
@@ -112,24 +112,24 @@ export async function patchRoomSettingsRoomNameChange(params: PatchRoomSettingsR
   const responseDefaultErrMsg = '更新に失敗しました';
 
   try {
-      const { roomId, formData }    = params;
-      const session: Session | null = await getAuthSession();
+    const { roomId, formData }    = params;
+    const session: Session | null = await getAuthSession();
 
-      const res = await BackendApiClient.patch(
-        vrmChatPath.room_settings+roomId,
-        formData,
-        { headers: {
-          'Content-Type':  'application/json',
-          'Authorization': `Bearer ${session?.user?.accessToken}`,
-        }}
-      );
+    const res = await BackendApiClient.patch(
+      vrmChatPath.room_settings+roomId,
+      formData,
+      { headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${session?.user?.accessToken}`,
+      }}
+    );
 
-      //  Axios は 2xx 以外で catch に飛ぶ
-      const response: PatchRoomSettingsResponse = {
-        ok:           true,
-        status:       res.status,
-      };
-      return response;
+    //  Axios は 2xx 以外で catch に飛ぶ
+    const response: PatchRoomSettingsResponse = {
+      ok:           true,
+      status:       res.status,
+    };
+    return response;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
 

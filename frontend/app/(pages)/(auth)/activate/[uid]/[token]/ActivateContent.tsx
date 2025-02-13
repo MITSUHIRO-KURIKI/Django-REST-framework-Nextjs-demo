@@ -78,9 +78,10 @@ export function ActivateContent({ uid, token }: ActivationParams): ReactElement 
         <div className={cn(
           'invisible lg:visible',
           'flex justify-center p-4',
+          'select-none',
           'md:justify-start',)}>
           <Link href={pagesPath.$url()} className='font-bold'>
-                {process.env.NEXT_PUBLIC_SITE_NAME as string}
+            {process.env.NEXT_PUBLIC_SITE_NAME as string}
           </Link>
         </div>
         {/* main */}
@@ -90,6 +91,7 @@ export function ActivateContent({ uid, token }: ActivationParams): ReactElement 
               {/* logo */}
               <div className={cn(
                 'visible lg:invisible',
+                'select-none',
                 'flex justify-center',)}>
                 <Link href={pagesPath.$url()} className='font-bold'>
                   {process.env.NEXT_PUBLIC_SITE_NAME as string}
@@ -130,7 +132,7 @@ export function ActivateContent({ uid, token }: ActivationParams): ReactElement 
                           から再度仮登録を行ってください。
                         </AlertDescription>
                       </Alert>
-                      <p className='text-xs leading-none text-muted-foreground'>
+                      <p className='text-xs leading-none text-muted-foreground select-none'>
                         エラーが続く場合にはお問い合わせページよりお問い合わせください。
                       </p>
                     </>
@@ -141,12 +143,12 @@ export function ActivateContent({ uid, token }: ActivationParams): ReactElement 
               <div className='text-center text-sm'>
                 { isSuccess ? (
                   <Link href={pagesPath.authPath.login.$url()}
-                        className='hover:underline hover:underline-offset-4'>
+                        className='hover:underline hover:underline-offset-4 select-none'>
                     ログインページ
                   </Link>
                 ) : (
                   <Link href      = {pagesPath.authPath.signup.$url()}
-                        className = 'hover:underline hover:underline-offset-4'>
+                        className = 'hover:underline hover:underline-offset-4 select-none'>
                     新規登録ページ
                   </Link>
                 )}

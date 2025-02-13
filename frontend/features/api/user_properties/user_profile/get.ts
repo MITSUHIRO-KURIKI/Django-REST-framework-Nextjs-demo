@@ -25,23 +25,23 @@ export async function getUserProfile(): Promise<UserProfileResponse> {
   const responseDefaultErrMsg = 'データの取得に失敗しました';
 
   try {
-      const session: Session | null = await getAuthSession();
+    const session: Session | null = await getAuthSession();
 
-      const res = await BackendApiClient.get(
-        userPropertiesPath.user_profile,
-        { headers: {
-          'Content-Type':  'application/json',
-          'Authorization': `Bearer ${session?.user?.accessToken}`,
-        }}
-      );
+    const res = await BackendApiClient.get(
+      userPropertiesPath.user_profile,
+      { headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${session?.user?.accessToken}`,
+      }}
+    );
 
-      //  Axios は 2xx 以外で catch に飛ぶ
-      const response: UserProfileResponse = {
-        ok:     true,
-        status: res.status,
-        data:   res.data,
-      };
-      return response;
+    //  Axios は 2xx 以外で catch に飛ぶ
+    const response: UserProfileResponse = {
+      ok:     true,
+      status: res.status,
+      data:   res.data,
+    };
+    return response;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
 

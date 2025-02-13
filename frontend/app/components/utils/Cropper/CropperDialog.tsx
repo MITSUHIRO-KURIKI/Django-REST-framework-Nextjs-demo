@@ -134,7 +134,8 @@ export function CropperDialog({ onCropped, className, cropperOptions,}: CropperD
 
       {/* ドロップゾーン (クリックでファイル選択) */}
       <div className = {cn(
-            'rounded-md border-2 border-dashed p-6 text-center cursor-pointer transition-colors',
+            'rounded-md border-2 border-dashed p-6',
+            'text-center cursor-pointer select-none transition-colors',
             'hover:border-primary-foreground hover:bg-primary hover:text-primary-foreground',
             isDragOver
              ? 'border-primary-foreground bg-primary text-xs text-primary-foreground'

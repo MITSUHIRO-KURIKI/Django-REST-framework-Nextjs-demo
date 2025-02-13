@@ -38,8 +38,7 @@ export function AccountMenuItems(): AccountMenuItemsList[] {
       return [{
         key:   'settings',
         label: '設定',
-        type:  'link',
-        href:  '/',
+        type:  'action',
         icon:  Settings,
       },{
         key:     'logout',

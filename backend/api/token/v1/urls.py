@@ -18,6 +18,4 @@ urlpatterns = [
     path('refresh/',   CustomTokenRefreshViewSet.as_view(),    name='refresh'),
     path('verify/',    CustomTokenVerifyViewSet.as_view(),     name='verify'),
     path('blacklist/', CustomTokenBlacklistViewSet.as_view(),  name='blacklist'),
-    # ↓ import { getCsrfToken } from 'next-auth/react';を使うため不要
-    # path('csrf/',      CSRFTokenViewSet.as_view(),             name='csrf'),
 ]

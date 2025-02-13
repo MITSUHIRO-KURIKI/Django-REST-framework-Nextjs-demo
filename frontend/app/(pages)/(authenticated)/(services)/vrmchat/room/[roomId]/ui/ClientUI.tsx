@@ -54,28 +54,27 @@ export function ClientUI({
           'absolute bottom-[4%] left-1/2 -translate-x-1/2',
           'text-xs md:text-base',
           'w-[60rem] h-[10rem] max-w-[95%] max-h-[30%]',
-          'bg-transparent shadow-none',)}
-          >
+          'bg-transparent shadow-none',)}>
 
         {/* カード背景のグラデーション */}
         <div className={cn(
             'pointer-events-none absolute inset-0',
             'bg-gradient-to-t from-background from-80% to-background/60',)} />
 
-        <CardContent className="relative z-10 flex h-full flex-col p-4 pr-16">
+        <CardContent className='relative z-10 flex h-full flex-col p-4 pr-16'>
 
           {/* ユーザ発話 or AI レスポンスの表示切り替え */}
           <ScrollArea>
             { (!recognizedText?.length && !recognizingText && !receivedMessages?.length) ? (
               <>
-                <p className='text-foreground/60'>スペースキーを押している間、あなたの声を認識します。</p>
-                <p className='text-foreground/60'>右のマイクのアイコンをクリックしても認識を開始できます。</p>
+                <p className='text-foreground/60 select-none'>スペースキーを押している間、あなたの声を認識します。</p>
+                <p className='text-foreground/60 select-none'>右のマイクのアイコンをクリックしても認識を開始できます。</p>
               </>
               
             ) : ( (!isStopRecognition || isWebSocketWaiting) ? (
               <>
-                <span className='text-foreground'>{recognizedText}</span>
-                <span className='text-foreground/60'>{recognizingText}</span>
+                <span className='text-foreground select-none'>{recognizedText}</span>
+                <span className='text-foreground/60 select-none'>{recognizingText}</span>
               </>
             ) : ( (receivedMessages) ? (
               <MarkdownRender markdownString={receivedMessages}/>

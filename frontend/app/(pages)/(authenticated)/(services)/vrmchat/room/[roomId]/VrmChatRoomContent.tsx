@@ -22,7 +22,7 @@ export function VrmChatRoomContent({ roomId, roomTitle }: VrmChatRoomParams): Re
     <>
       <WebSocketCoreProvider WebsocketUrl={vrmChatPath.ws_room} WebsocketId={roomId}>
         <SpeechTextCoreProvider>
-          <VrmCoreProvider url       = {'/services/vrmchat/vrm/model.vrm'}>
+          <VrmCoreProvider url = {'/services/vrmchat/vrm/model.vrm'}>
             <ClientContext roomId    = {roomId}
                            roomTitle = {roomTitle}/>
           </VrmCoreProvider>

@@ -30,7 +30,7 @@ import { sanitizeDOMPurify } from '@/features/utils';
 // components
 import { showToast, isDialogOpenInDOM } from '@/app/components/utils';
 // import
-import type { ClientMessage } from '@/app/providers/WebSocketCoreProvider/types.d';
+import type { ClientMessage } from '@/app/providers/WebSocketCoreProvider/type.d';
 import type { SpeechTextCoreContextValue } from './type.d';
 
 

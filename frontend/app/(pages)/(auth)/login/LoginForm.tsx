@@ -28,6 +28,7 @@ import { Button } from '@/app/components/ui/shadcn/button';
 // icons
 import { Loader2 } from 'lucide-react';
 // components
+import { PasswordInputField } from '@/app/components/ui/form';
 import { showToast } from '@/app/components/utils';
 
 type LoginFormProps = {
@@ -126,12 +127,11 @@ export function LoginForm({
                        render  = {({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input {...field}
-                         type         = 'password'
-                         id           = 'password'
-                         className    = 'mt-2'
-                         autoComplete = 'current-password'
-                         required />
+                  <PasswordInputField {...field}
+                                      id           = 'password'
+                                      className    = 'mt-2'
+                                      autoComplete = 'current-password'
+                                      required />
                 </FormControl>
                 <FormMessage />
               </FormItem>

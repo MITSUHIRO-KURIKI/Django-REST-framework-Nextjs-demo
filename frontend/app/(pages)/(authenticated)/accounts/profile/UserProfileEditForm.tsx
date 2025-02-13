@@ -16,12 +16,14 @@ import {
   FormField,
   FormLabel,
   FormControl,
+  FormDescription,
   FormItem,
   FormMessage,
 } from '@/app/components/ui/shadcn/form';
 // shadcn
 import { Button } from '@/app/components/ui/shadcn/button';
 import { Input } from '@/app/components/ui/shadcn/input';
+import { Label } from '@/app/components/ui/shadcn/label';
 import { Alert, AlertDescription } from '@/app/components/ui/shadcn/alert';
 // icons
 import { Loader2 } from 'lucide-react';
@@ -115,10 +117,10 @@ export function UserProfileEditForm({userProfileData,}: {userProfileData: UserPr
 
           {/* user_icon (Preview) */}
           <div className='flex flex-col gap-2'>
-            <p className='text-left text-sm font-semibold text-foreground/80'>
+            <Label className='text-left text-sm font-semibold text-foreground/80'>
               プロフィール画像
-            </p>
-            <div className='relative mx-auto size-[200px] overflow-hidden rounded-full border'>
+            </Label>
+            <div className='relative mx-auto size-[200px] overflow-hidden rounded-full border select-none'>
               <img src       = {userIconPreviewUrl}
                    alt       = 'icon preview'
                    className = 'size-[200px] object-cover' />
@@ -136,9 +138,9 @@ export function UserProfileEditForm({userProfileData,}: {userProfileData: UserPr
                 clear
               </Button>
             </div>
-            <p className='text-xs text-muted-foreground'>
+            <FormDescription className='text-xs text-muted-foreground'>
               200 (px) x 200 (px) にリサイズされます
-            </p>
+            </FormDescription>
           </div>
 
           {/* display_name (Input) */}
@@ -153,9 +155,9 @@ export function UserProfileEditForm({userProfileData,}: {userProfileData: UserPr
                          className   = 'border-muted-foreground'
                          placeholder = '' />
                 </FormControl>
-                <p className='mt-1 text-xs text-muted-foreground'>
+                <FormDescription className='mt-1 text-xs text-muted-foreground'>
                   半角英数字 25文字以下
-                </p>
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )} />

@@ -19,20 +19,20 @@ export async function deleteRoom(roomId: string): Promise<DefaultResponse> {
   const responseDefaultErrMsg = 'データ取得に失敗しました';
 
   try {
-      const session: Session | null = await getAuthSession();
-      const res = await BackendApiClient.delete(
-        vrmChatPath.room_delete+roomId,
-        { headers: {
-          'Content-Type':  'application/json',
-          'Authorization': `Bearer ${session?.user?.accessToken}`,
-        }}
-      );
-      //  Axios は 2xx 以外で catch に飛ぶ
-      const response: DefaultResponse = {
-        ok:     true,
-        status: res.status,
-      };
-      return response;
+    const session: Session | null = await getAuthSession();
+    const res = await BackendApiClient.delete(
+      vrmChatPath.room+roomId,
+      { headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${session?.user?.accessToken}`,
+      }}
+    );
+    //  Axios は 2xx 以外で catch に飛ぶ
+    const response: DefaultResponse = {
+      ok:     true,
+      status: res.status,
+    };
+    return response;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
 

@@ -13,8 +13,10 @@ import { apiPath, pagesPath } from '@/features/paths/frontend';
 // shadcn
 import { Input } from '@/app/components/ui/shadcn/input';
 import { Button } from '@/app/components/ui/shadcn/button';
+import { Label } from '@/app/components/ui/shadcn/label';
+import { Alert, AlertDescription } from '@/app/components/ui/shadcn/alert';
 // icons
-import { Loader2 } from 'lucide-react';
+import { Loader2, CircleAlert } from 'lucide-react';
 // features
 import { deleteAccount } from '@/features/api/accounts';
 import { FrontendWithCredentialsApiClient } from '@/features/apiClients';
@@ -66,21 +68,33 @@ export function AccountDeleteForm(): ReactElement {
     <>
       {/* OverlaySpinner */}
       <OverlaySpinner isActivate={isSending} />
-      
+
+      <Label className='block mb-4 text-lg font-bold'>アカウントの削除</Label>
+
+      <Alert variant='destructive'>
+        <AlertDescription className='flex items-center'>
+          <CircleAlert className='size-6 mr-2' /><p>この操作は取り消せません。</p>
+        </AlertDescription>
+      </Alert>
+
       <div className = 'my-6'>
           { errorMsg ? (
-            <p className = 'mb-2 text-sm text-destructive'>
+            <p className = 'mb-2 text-sm text-destructive select-none'>
               {errorMsg}
             </p>
           ) : (
-            <p className = 'mb-2 text-sm'>
-            「delete」と入力してください
+            <p className = 'mb-2 text-sm select-none'>
+              「delete」と入力してください
             </p>
           )}
-          <Input type        = 'text'
-                 value       = {safetyCheckInput}
-                 onChange    = {(e: ChangeEvent<HTMLInputElement>) => {setSafetyCheckInput(e.target.value);}}
-                 placeholder = 'delete' />
+          <Label htmlFor='safetyCheck' className='sr-only'>削除確認</Label>
+          <Input type         = 'text'
+                 id           = 'safetyCheck'
+                 className    = 'border-muted-foreground'
+                 value        = {safetyCheckInput}
+                 onChange     = {(e: ChangeEvent<HTMLInputElement>) => {setSafetyCheckInput(e.target.value);}}
+                 placeholder  = 'delete'
+                 autoComplete = 'off' />
       </div>
 
       <Button variant   = 'destructive'

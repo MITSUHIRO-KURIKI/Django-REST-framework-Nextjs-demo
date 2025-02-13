@@ -20,26 +20,26 @@ export async function patchUserReceptionSetting(formData: userReceptionSettingFo
   const responseDefaultErrMsg = '更新に失敗しました';
 
   try {
-      const session: Session | null = await getAuthSession();
+    const session: Session | null = await getAuthSession();
 
-      const res = await BackendApiClient.patch(
-        userPropertiesPath.reception_setting,
-        formData,
-        { headers: {
-          'Content-Type':  'application/json',
-          'Authorization': `Bearer ${session?.user?.accessToken}`,
-        }}
-      );
+    const res = await BackendApiClient.patch(
+      userPropertiesPath.reception_setting,
+      formData,
+      { headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${session?.user?.accessToken}`,
+      }}
+    );
 
-      //  Axios は 2xx 以外で catch に飛ぶ
-      const response: DefaultResponse = {
-        ok:           true,
-        status:       res.status,
-        message:      '更新しました',
-        toastType:    'success',
-        toastMessage: '更新しました',
-      };
-      return response;
+    //  Axios は 2xx 以外で catch に飛ぶ
+    const response: DefaultResponse = {
+      ok:           true,
+      status:       res.status,
+      message:      '更新しました',
+      toastType:    'success',
+      toastMessage: '更新しました',
+    };
+    return response;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
 

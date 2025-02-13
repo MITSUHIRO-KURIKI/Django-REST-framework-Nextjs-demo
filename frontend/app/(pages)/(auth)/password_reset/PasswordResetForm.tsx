@@ -100,13 +100,15 @@ export function PasswordResetForm({
   // ++++++++++
 
   return isSuccess ? (
-    <div className="space-y-4">
-      <Alert className="border-success text-success-foreground [&>svg]:text-success-foreground">
+    <div className='space-y-4'>
+      <Alert className='border-success text-success-foreground [&>svg]:text-success-foreground'>
         <CircleCheckBig className='size-4' />
         <AlertTitle>パスワード再設定のメールを送信しました。</AlertTitle>
         <AlertDescription>送付されたメールからパスワードの再設定を行ってください。</AlertDescription>
       </Alert>
-      <p className="text-xs leading-none text-muted-foreground">※メールが届かない場合、入力したメールアドレスが間違っている可能性があります。お手数ですが、再度、パスワード再設定をやり直してください。</p>
+      <p className='text-xs leading-none text-muted-foreground select-none'>
+        ※メールが届かない場合、入力したメールアドレスが間違っている可能性があります。お手数ですが、再度、パスワード再設定をやり直してください。
+      </p>
     </div>
   ) : (
     <Form {...form}>

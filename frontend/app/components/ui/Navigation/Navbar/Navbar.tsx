@@ -8,8 +8,6 @@ import { useState, useEffect, type ReactElement } from 'react';
 import { pagesPath } from '@/features/paths/frontend';
 // shadcn
 import { cn } from '@/app/components/lib/shadcn';
-// components
-import { ThemeToggle } from '@/app/components/ui/common';
 // include
 import { NavigationMenu } from './NavigationMenu';
 import { AccountIconMenu } from './AccountIconMenu';
@@ -57,6 +55,7 @@ export function Navbar({isUseSidebar, vrmChatInitial, pageSize, navbarBgColor}: 
         {/* Logo */}
         <div className={cn(
           'flex-1 justify-start pl-2',
+          'select-none',
           'md:flex-1 md:pl-8',)}>
           <Link href={pagesPath.$url()} className='font-bold'>
             {process.env.NEXT_PUBLIC_SITE_NAME as string}
@@ -75,9 +74,7 @@ export function Navbar({isUseSidebar, vrmChatInitial, pageSize, navbarBgColor}: 
         {/* Right Button */}
         <div className={cn(
           'flex-2 flex justify-end pr-2',
-          'md:flex-1 md:pr-8')}>
-          {/* ThemeToggle */}
-          <ThemeToggle />
+          'md:flex-1 md:pr-8',)}>
 
           {/* AccountIconMenu */}
           <div className={cn(

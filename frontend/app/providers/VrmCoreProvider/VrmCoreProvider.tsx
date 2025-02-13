@@ -56,7 +56,7 @@ import {
   startRandomEyeMovementWithDice,
 } from './animationFunctions';
 // type
-import type { VrmCoreProviderOptions } from './types.d'
+import type { VrmCoreProviderOptions } from './type.d'
 
 // type
 type VrmExpressionManagerLike = {
@@ -158,6 +158,7 @@ export function VrmCoreProvider({url, children, options,}: VrmCoreProviderProps)
     light.castShadow = lightCastShadow;                         // 影の計算を無効化
     scene.add(light);
   }, [
+    url,
     currentVrm,
     width,
     height,
@@ -249,7 +250,7 @@ export function VrmCoreProvider({url, children, options,}: VrmCoreProviderProps)
       };
     };
     requestAnimationFrame(renderLoop);
-  }, [clock, currentVrm, interval]);
+  }, [url, clock, currentVrm, interval]);
 
   // マウント時の初期処理
   useEffect(() => {
@@ -318,7 +319,7 @@ export function VrmCoreProvider({url, children, options,}: VrmCoreProviderProps)
     height,
     maxRatio,
     containerRef,
-  }), [currentVrm, width, height]);
+  }), [url, currentVrm, width, height]);
 
   return (
     <VrmCoreContext.Provider value={contextValue}>

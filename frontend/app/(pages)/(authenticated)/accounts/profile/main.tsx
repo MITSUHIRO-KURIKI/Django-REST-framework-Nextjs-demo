@@ -43,7 +43,7 @@ export function ProfilePage(): ReactElement {
   if (loading) return <Loading />;
   // データ未取得
   if (!data) {
-    return <p className='text-muted-foreground'>情報が取得できませんでした</p>;
+    return <p className='text-xs font-thin text-muted-foreground select-none'>情報が取得できませんでした</p>;
   };
   return (
     <UserProfileContent userProfileData={data} />

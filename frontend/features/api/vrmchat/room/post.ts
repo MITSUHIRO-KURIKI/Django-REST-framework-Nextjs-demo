@@ -26,23 +26,23 @@ export async function createRoom(): Promise<CreateRoomResponse> {
   const responseDefaultErrMsg = 'データ取得に失敗しました';
 
   try {
-      const session: Session | null = await getAuthSession();
-      const res = await BackendApiClient.post(
-        vrmChatPath.room_create,
-        null,
-        { headers: {
-          'Content-Type':  'application/json',
-          'Authorization': `Bearer ${session?.user?.accessToken}`,
-        }}
-      );
-      //  Axios は 2xx 以外で catch に飛ぶ
-      const data:CreateRoomResponseData = res.data;
-      const response: CreateRoomResponse = {
-        ok:     true,
-        status: res.status,
-        data:   data.roomId,
-      };
-      return response;
+    const session: Session | null = await getAuthSession();
+    const res = await BackendApiClient.post(
+      vrmChatPath.room,
+      null,
+      { headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${session?.user?.accessToken}`,
+      }}
+    );
+    //  Axios は 2xx 以外で catch に飛ぶ
+    const data:CreateRoomResponseData = res.data;
+    const response: CreateRoomResponse = {
+      ok:     true,
+      status: res.status,
+      data:   data.roomId,
+    };
+    return response;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
 

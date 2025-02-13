@@ -25,7 +25,9 @@ import Loading from '@/app/loading';
 
 // AuthGuard
 export function AuthGuard({ children }: {children: ReactNode}): ReactElement {
+
   const { data: session, status } = useSession();
+
   const pathname       = usePathname();
   const searchParams   = useSearchParams();
   const searchString   = searchParams.toString();
