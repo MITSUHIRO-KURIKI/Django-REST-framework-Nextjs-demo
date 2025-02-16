@@ -6,10 +6,8 @@ from django_filters.rest_framework import FilterSet
 from concurrency.fields import AutoIncVersionField
 from api.utils import StandardThrottle
 from apps.vrmchat.models import RoomSettings
-from apps.vrmchat.models import MODEL_NAME_CHOICES
 from ..serializers import RoomSettingsSerializer
 
-MODEL_NAME_CHOICES_TUPLE = MODEL_NAME_CHOICES()
 
 # AutoIncVersionField を使用して filter すると型不明になるため対応
 class RoomSettingsFilter(FilterSet):
@@ -34,4 +32,4 @@ class RoomSettingsRoomNameListViewSet(ListAPIView):
 
     def get_queryset(self):
         return RoomSettings.objects.filter(room_id__create_user = self.request.user,
-                                           room_id__is_active=True,)
+                                           room_id__is_active   = True,)

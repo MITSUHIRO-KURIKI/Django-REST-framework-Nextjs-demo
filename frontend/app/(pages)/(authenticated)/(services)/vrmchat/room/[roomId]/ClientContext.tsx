@@ -1,9 +1,13 @@
 'use client';
 
 // react
-import { useState, useEffect, useContext, useRef, type ReactElement } from 'react';
-// components
-import { showToast } from '@/app/components/utils';
+import {
+  useState,
+  useEffect,
+  useContext,
+  useRef,
+  type ReactElement,
+} from 'react';
 // providers
 import {
   // WebSocket
@@ -21,7 +25,10 @@ import {
   SidebarContext,
   type SidebarContextValue,
 } from '@/app/providers';
+// customReceiveLogic
 import { customReceiveLogic } from './customReceiveLogic';
+// components
+import { showToast } from '@/app/components/utils';
 // import
 import { VrmChatRoomParams } from './page';
 // include
@@ -39,9 +46,9 @@ export type ClientUIProps = {
 // ClientContext ▽
 export function ClientContext({ roomId, roomTitle }: VrmChatRoomParams): ReactElement {
   // WebSocketCoreContext first ▽
-  const wsContext = useContext(WebSocketCoreContext);
+  const wsContext                                             = useContext(WebSocketCoreContext);
   const { isWebSocketWaiting, handleSendCore, serverMessage } = wsContext as WebSocketCoreContextValue;
-  const { cmd, status, ok, message, data } = (serverMessage ?? {}) as ServerMessage;
+  const { cmd, status, ok, message, data }                    = (serverMessage ?? {}) as ServerMessage;
   // WebSocketCoreContext first △
   // SpeechTextCoreContext first ▽
   const stContext = useContext(SpeechTextCoreContext);
@@ -73,6 +80,7 @@ export function ClientContext({ roomId, roomTitle }: VrmChatRoomParams): ReactEl
   const sbarContext = useContext(SidebarContext);
   const {
     setSidebarInsetTitle,
+    setSidebarInsetSubTitle,
   } = sbarContext as SidebarContextValue;
   // SidebarContext first △
   
@@ -86,27 +94,29 @@ export function ClientContext({ roomId, roomTitle }: VrmChatRoomParams): ReactEl
     if (isStopRecognition) {
       // 受信メッセージの初期化
       setReceivedMessages('');
-      // 送信
+      // WebSocket 送信
       handleSendCore(
-        'VRMMessage',
+        'SendUserMessage',
         {
           message: allrecognizedTextRef.current.join(''),
         }
       );
     };
   }, [isStopRecognition]);
-  // 受信
+  // WebSocket 受信
   useEffect(() => {
     // serverMessage が来た際のみ独自ロジックで処理を行う
     if (!wsContext || !serverMessage) return;
-    customReceiveLogic(
-      wsContext, { cmd, status, ok, message, data },
+    customReceiveLogic({
+      contextValue: wsContext,
+      payload:      { cmd, status, ok, message, data },
       setReceivedMessages,
       setRecognizedText,
       allrecognizedTextRef,
       textToSpeech,
-      setSidebarInsetTitle,);
-  }, [serverMessage, cmd, status, ok, message, data]);
+      setSidebarInsetTitle,
+    });
+  }, [serverMessage]);
   // VRM リップシンク
   const stopLipSyncRef = useRef<() => void>(() => {});
   useEffect(() => {
@@ -121,6 +131,7 @@ export function ClientContext({ roomId, roomTitle }: VrmChatRoomParams): ReactEl
   // Sidebar タイトルセット ▽
   useEffect(() => {
     setSidebarInsetTitle(roomTitle);
+    setSidebarInsetSubTitle('LLM Chat');
   }, [roomTitle]);
   // Sidebar タイトルセット △
 

@@ -208,6 +208,8 @@ export function SpeechTextGcloudCoreProvider({
         const dataStr = event.data;
         const data    = JSON.parse(dataStr);
         if (data.cmd) {
+          // receiverMessage
+          if (data.cmd === 'receiverMessage') return;
           // --------------------
           // Text-to-Speech
           // --------------------

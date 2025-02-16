@@ -16,6 +16,7 @@ import { VrmChatRoomParams } from './page';
 import { ClientContext } from './ClientContext';
 
 
+// VrmChatRoomContent
 export function VrmChatRoomContent({ roomId, roomTitle }: VrmChatRoomParams): ReactElement{
 
   return (

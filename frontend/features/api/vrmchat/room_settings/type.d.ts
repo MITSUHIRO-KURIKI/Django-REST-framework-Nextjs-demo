@@ -24,4 +24,4 @@ export type RoomSettingsRoomNameListResponseItem = {
   roomId:   string;
   roomName: string;
 };
-export type RoomSettingsRoomNameListResponseData = RoomSettingsRoomNameItem[];
+export type RoomSettingsRoomNameListResponseData = RoomSettingsRoomNameListResponseItem[];

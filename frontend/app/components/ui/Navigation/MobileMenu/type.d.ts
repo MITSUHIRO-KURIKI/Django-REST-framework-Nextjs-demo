@@ -1,0 +1,1 @@
+export type SubCategoryPage = 'llmChat' | 'vrmChat' | null;

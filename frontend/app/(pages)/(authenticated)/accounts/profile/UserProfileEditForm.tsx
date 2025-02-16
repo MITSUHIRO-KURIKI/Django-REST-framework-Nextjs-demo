@@ -91,7 +91,6 @@ export function UserProfileEditForm({userProfileData,}: {userProfileData: UserPr
     form.setValue('user_icon', croppedFile);
     setUserIconPreviewUrl(URL.createObjectURL(croppedFile));
   };
-
   // clear
   const handleClear = () => {
     form.setValue('user_icon', null);
@@ -165,7 +164,7 @@ export function UserProfileEditForm({userProfileData,}: {userProfileData: UserPr
           <Button type      = 'submit'
                   className = 'w-full'
                   disabled  = {isSending}>
-            {isSending ? <Loader2 className='size-4 animate-spin' /> : '設定を更新'}
+            {isSending ? <Loader2 className='animate-spin' /> : '設定を更新'}
           </Button>
         </form>
       </Form>

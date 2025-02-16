@@ -1,27 +1,12 @@
-const NEXT_PUBLIC_SITE_URL           = process.env.NEXT_PUBLIC_SITE_URL;
-const BACKEND_API_URL                = process.env.BACKEND_API_URL;
-const NEXT_PUBLIC_BACKEND_STATIC_URL = process.env.NEXT_PUBLIC_BACKEND_STATIC_URL;
-const NEXT_PUBLIC_BACKEND_MEDIA_URL  = process.env.NEXT_PUBLIC_BACKEND_MEDIA_URL;
-const backendStaticParsedUrl         = new URL(NEXT_PUBLIC_BACKEND_STATIC_URL ?? 'http://host.docker.internal:8000/static/frontend');
-const backendMediaParsedUrl          = new URL(NEXT_PUBLIC_BACKEND_MEDIA_URL  ?? 'http://host.docker.internal:8000/media/frontend');
+const NEXT_PUBLIC_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
+const BACKEND_API_URL      = process.env.BACKEND_API_URL;
+const StaticParsedUrl      = new URL(NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000');
 
 const nextConfig = {
   images: {
-    domains: [NEXT_PUBLIC_SITE_URL], // public の配信
-    // Django の static の配信
-    remotePatterns: [
-      {
-        protocol: backendStaticParsedUrl.protocol.replace(':',''),
-        hostname: backendStaticParsedUrl.hostname,
-        port:     backendStaticParsedUrl.port,
-        pathname: '/static/**',
-      },{
-        protocol: backendMediaParsedUrl.protocol.replace(':',''),
-        hostname: backendMediaParsedUrl.hostname,
-        port:     backendMediaParsedUrl.port,
-        pathname: '/media/**',
-      },
-    ],
+    domains: [
+      StaticParsedUrl.hostname, // 画像 の配信
+    ], 
   },
   poweredByHeader: false, // 'x-powered-by ヘッダーを無効化
   devIndicators: {

@@ -10,9 +10,10 @@
  *   };
  * };
  */
-
 'use client';
 
+// react
+import type { Dispatch, SetStateAction, MutableRefObject } from 'react';
 // features
 import { sanitizeDOMPurify } from '@/features/utils';
 import type { WebSocketCoreContextValue, ServerMessage } from '@/app/providers';
@@ -20,23 +21,35 @@ import type { WebSocketCoreContextValue, ServerMessage } from '@/app/providers';
 import { showToast } from '@/app/components/utils';
 
 
-export async function customReceiveLogic(
-  contextValue: WebSocketCoreContextValue,
-  payload:      ServerMessage,
+// type
+type CustomReceiveLogicProps = {
+  contextValue:         WebSocketCoreContextValue;
+  payload:              ServerMessage;
+  setReceivedMessages:  Dispatch<SetStateAction<string>>;
+  setRecognizedText:    Dispatch<SetStateAction<string[]>>;
+  allrecognizedTextRef: MutableRefObject<string[]>;
+  textToSpeech:         (text: string) => Promise<void>;
+  setSidebarInsetTitle: Dispatch<SetStateAction<string>>;
+};
+
+// customReceiveLogic ▽
+export async function customReceiveLogic({
+  contextValue,
+  payload,
   setReceivedMessages,
   setRecognizedText,
   allrecognizedTextRef,
   textToSpeech,
-  setSidebarInsetTitle,): Promise<void> {
+  setSidebarInsetTitle,}: CustomReceiveLogicProps): Promise<void> {
 
   const { setIsWebSocketWaiting } = contextValue;
   const { cmd, ok, data }         = payload;
 
   try {
-    // VRMMessage
-    if (cmd === 'VRMMessage') {
+    // SendUserMessage
+    if (cmd === 'SendUserMessage') {
       if (ok) {
-        const messageText = sanitizeDOMPurify(String(data?.aiMessage || ''));
+        const messageText = sanitizeDOMPurify(String(data?.llmResponse || ''));
         
         setRecognizedText([]);
         setReceivedMessages(messageText);
@@ -60,3 +73,4 @@ export async function customReceiveLogic(
     setIsWebSocketWaiting(false);
   };
 };
+// customReceiveLogic △

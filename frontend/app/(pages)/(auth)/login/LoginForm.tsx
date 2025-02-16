@@ -76,8 +76,7 @@ export function LoginForm({
       } else {
         setErrorMsg(result?.message ?? '');
       };
-    } catch (e){
-      console.log(e)
+    } catch {
       showToast('error', 'ログインに失敗しました');
       setErrorMsg('ログインに失敗しました');
     } finally {
@@ -140,7 +139,7 @@ export function LoginForm({
           <Button type      = 'submit'
                   className = 'w-full'
                   disabled  = {isSending}>
-            {isSending ? <Loader2 className='size-4 animate-spin' /> : 'ログイン'}
+            {isSending ? <Loader2 className='animate-spin' /> : 'ログイン'}
           </Button>
         </div>
       </form>

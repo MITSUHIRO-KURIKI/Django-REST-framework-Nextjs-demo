@@ -19,7 +19,7 @@ class SocketAccess(models.Model):
                     on_delete    = models.CASCADE, # [Memo] CASCADE:親削除子削除, SET_DEFAULT/SET_NULL:親削除子保持
                     blank        = False,
                     null         = False,
-                    related_name = 'related_socket_access_model_stage_id',
+                    related_name = 'related_vrmchat_socket_access_model_stage_id',
                     help_text    = _('紐づくステージID'),)
     access_id  = models.SlugField(
                     verbose_name   = _('アクセスID'),
@@ -34,7 +34,7 @@ class SocketAccess(models.Model):
                     on_delete    = models.CASCADE, # [Memo] CASCADE:親削除子削除, SET_DEFAULT/SET_NULL:親削除子保持
                     blank        = True,
                     null         = True,
-                    related_name = 'related_socket_access_model_user',
+                    related_name = 'related_vrmchat_socket_access_model_user',
                     help_text    = _('紐づくアカウントID'),)
     user_name = models.CharField(
                     verbose_name = _('ユーザ名'),
@@ -70,12 +70,12 @@ class SocketAccess(models.Model):
     version = AutoIncVersionField()
 
     def __str__(self):
-        return self.room_id
+        return self.access_id
 
     def get_absolute_url(self):
         return self
 
     class Meta:
         app_label    = 'vrmchat'
-        db_table     = 'socket_access_model'
+        db_table     = 'vrmchat_socket_access_model'
         verbose_name = verbose_name_plural = _('40_Socketアクセス状況')

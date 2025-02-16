@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'apps.access_security.apps.AccessSecurityConfig',
     'apps.user_properties.apps.UserPropertiesConfig',
     ## ADD APPS
+    'apps.llmchat.apps.LlmChatConfig',
     'apps.vrmchat.apps.VrmChatConfig',
     'apps.third_party.gcloud.stt_tts.apps.ThirdPartyGcloudSstTtsConfig',
 

@@ -23,7 +23,7 @@ type NavbarProps = {
 
 
 // Navbar ▽
-export function Navbar({isUseSidebar, vrmChatInitial, pageSize, navbarBgColor}: NavbarProps): ReactElement {
+export function Navbar({isUseSidebar, llmChatInitial, vrmChatInitial, pageSize, navbarBgColor}: NavbarProps): ReactElement {
   const [isNavVisible, setIsNavVisible] = useState<boolean>(true);
   const [lastScrollY, setLastScrollY]   = useState<number>(0);
 
@@ -88,6 +88,7 @@ export function Navbar({isUseSidebar, vrmChatInitial, pageSize, navbarBgColor}: 
             <MobileMenu setIsNavVisible = {setIsNavVisible}/>
           ) : (
             <MobileMenuSidever setIsNavVisible = {setIsNavVisible}
+                               llmChatInitial  = {llmChatInitial}
                                vrmChatInitial  = {vrmChatInitial}
                                pageSize        = {pageSize} />
           )}

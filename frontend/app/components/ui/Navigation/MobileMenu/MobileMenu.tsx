@@ -64,9 +64,9 @@ export function MobileMenu({ setIsNavVisible }: MobileMenuProps): ReactElement {
     <>
       <Button variant   = 'ghost'
               size      = 'icon'
-              className = 'md:hidden'
+              className = 'md:hidden [&_svg]:size-6'
               onClick   = {() => setIsMobileMenuOpen(true)}>
-        <Menu className='size-6' />
+        <Menu />
         <span className='sr-only'>Toggle menu</span>
       </Button>
 
@@ -95,8 +95,8 @@ export function MobileMenu({ setIsNavVisible }: MobileMenuProps): ReactElement {
                               'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                               '[&>svg]:text-foreground hover:[&>svg]:text-sidebar-accent-foreground',)}
                             onClick={(e) => handleCategoryClick(e, item.key)}>
-                      {item.icon && <item.icon className='size-4'/>}{item.label}
-                      <ChevronRight className='size-4 text-foreground' />
+                      {item.icon && <item.icon />}{item.label}
+                      <ChevronRight className='text-foreground' />
                     </Button>
                   ) : (
                     // No SubCategorie
@@ -107,7 +107,7 @@ export function MobileMenu({ setIsNavVisible }: MobileMenuProps): ReactElement {
                             'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                             '[&>svg]:text-foreground hover:[&>svg]:text-sidebar-accent-foreground',)}
                           onClick={() => setIsMobileMenuOpen(false)} >
-                      {item.icon && <item.icon className='size-4' />}{item.label}
+                      {item.icon && <item.icon />}{item.label}
                     </Link>
                   )}
                 </li>
@@ -138,7 +138,7 @@ export function MobileMenu({ setIsNavVisible }: MobileMenuProps): ReactElement {
                               'text-sm font-normal text-foreground',
                               'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                               '[&>svg]:text-foreground hover:[&>svg]:text-sidebar-accent-foreground',)}>
-                      {item.icon && <item.icon className='size-4' />}{item.label}
+                      {item.icon && <item.icon />}{item.label}
                     </Button>
                   );
                 };
@@ -156,7 +156,7 @@ export function MobileMenu({ setIsNavVisible }: MobileMenuProps): ReactElement {
                               'text-sm font-normal text-foreground',
                               'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                               '[&>svg]:text-foreground hover:[&>svg]:text-sidebar-accent-foreground',)}>
-                      {item.icon && <item.icon className='size-4' />}{item.label}
+                      {item.icon && <item.icon />}{item.label}
                     </Button>
                   );
                 };
@@ -169,7 +169,7 @@ export function MobileMenu({ setIsNavVisible }: MobileMenuProps): ReactElement {
                           'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                           '[&>svg]:text-foreground hover:[&>svg]:text-sidebar-accent-foreground',)}
                         onClick={() => setIsMobileMenuOpen(false)} >
-                    {item.icon && <item.icon className='size-4' />}{item.label}
+                    {item.icon && <item.icon />}{item.label}
                   </Link>
                 );
               })}
@@ -201,7 +201,7 @@ export function MobileMenu({ setIsNavVisible }: MobileMenuProps): ReactElement {
                     'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                     '[&>svg]:text-foreground/60 hover:[&>svg]:text-sidebar-accent-foreground',)}
                   onClick = {handleGoBack} >
-            <ChevronLeft className='size-4' />back
+            <ChevronLeft />back
           </Button>
           <div className='space-y-4 pt-4'>
             <SubCategoryList activeKey           = {activeCategory}

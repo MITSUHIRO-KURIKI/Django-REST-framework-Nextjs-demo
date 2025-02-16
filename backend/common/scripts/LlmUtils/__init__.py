@@ -4,5 +4,5 @@ from .create_messages import (
 )
 from .TextHermlessUtil import text_modify_fnc
 from .TokenUtils import (
-    decompression, calc_token, is_tokens_less_than_settings
+    calc_token, is_tokens_less_than_settings,
 )

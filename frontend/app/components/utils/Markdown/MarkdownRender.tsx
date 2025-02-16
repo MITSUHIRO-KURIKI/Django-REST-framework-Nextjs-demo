@@ -1,7 +1,10 @@
+// next
+import { useTheme } from 'next-themes';
 // react
 import { type ReactElement } from 'react';
 // shadcn
 import { cn } from '@/app/components/lib/shadcn';
+import { Button } from '@/app/components/ui/shadcn/button';
 import { Badge } from '@/app/components/ui/shadcn/badge';
 // icon
 import { Copy } from 'lucide-react';
@@ -16,7 +19,7 @@ import rehypeKatex from 'rehype-katex';
 import rehypeExternalLinks from 'rehype-external-links';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { a11yDark as PrismStyle } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { a11yOneLight, a11yDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 // features
 import { defaultUrlTransform } from '@/features/utils';
 // hooks
@@ -26,14 +29,21 @@ import { MermaidDraw } from './MermaidDraw';
 
 // type
 type MarkdownRenderProps = {
-  markdownString: string;
-  className?:     string;
+  markdownString:     string;
+  isStreamingRender?: boolean; // true の場合には mermaid などのストリーム非対応を処理しない
+  isUseCopyButton?:   boolean;
+  className?:         string;
 };
 
 // MarkdownRender ▽
-export function MarkdownRender({markdownString, className,}:MarkdownRenderProps): ReactElement{
+export function MarkdownRender({
+  markdownString,
+  isStreamingRender = false,
+  isUseCopyButton   = true,
+  className,}:MarkdownRenderProps): ReactElement{
 
-  const handleStringCopy = useStringCopy();
+  const { resolvedTheme } = useTheme();
+  const handleStringCopy  = useStringCopy();
 
   return (
     <>
@@ -102,65 +112,95 @@ export function MarkdownRender({markdownString, className,}:MarkdownRenderProps)
                         )}
                         alt={alt ?? 'image'}
                         {...props} />
-                )
+                );
               },
               code({ className, children }) {
-                const language = (/language-(\w+)/.exec(className || '') || ['', ''])[1]
+                const language = (/language-(\w+)/.exec(className || '') || ['', ''])[1];
                 // Mermaid
                 if (language === 'mermaid') {
-                  return <MermaidDraw code={String(children)} />;
-                };
-                if (language || String(children).length >= 50) {
-                  return (
-                    <div className='relative'>
-                      {language && (
-                        <Badge  variant   = 'secondary'
-                                className = 'absolute right-0 top-0 px-2 text-xs font-thin'>
-                          {language}
-                        </Badge>
-                      )}
-                      <SyntaxHighlighter language = {language}
-                                          style    = {PrismStyle}
-                                          wrapLongLines
-                                          customStyle  = {{ textShadow: 'none', }}
-                                          codeTagProps = {{
-                                          style: {
-                                            textShadow: 'none',
-                                            whiteSpace: 'pre-wrap',
-                                            lineHeight: '1.1',}
-                                          }} >
-                        {String(children)}
-                      </SyntaxHighlighter>
-                    </div>
-                  )
-                } else {
-                  return (
-                    <div className='relative'>
-                      <Badge  variant   = 'secondary'
-                              className = 'absolute right-0 top-0 px-2 text-xs font-thin'>
-                        Text
-                      </Badge>
-                      <pre style={{
-                            color:        'rgb(248, 248, 242)',
-                            background:   'rgb(43, 43, 43)',
-                            fontFamily:   'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
-                            textAlign:    'left',
-                            whiteSpace:   'pre',
-                            wordSpacing:  'normal',
-                            wordBreak:    'normal',
-                            overflowWrap: 'normal',
-                            lineHeight:   '1.5',
-                            tabSize:      4,
-                            hyphens:      'none',
-                            padding:      '1em',
-                            margin:       '0.5em 0',
-                            overflow:     'auto',
-                            borderRadius: '0.3em',
-                            textShadow:   'none',}}>
-                          {children}
-                        </pre>
+                  if (isStreamingRender) {
+                    return children;
+                  } else {
+                    const copyMermaidCode = String(children)+'\n\n* You can try the mermaid code here: https://mermaid.live/';
+                    return (
+                      <div className='relative'>
+                        <MermaidDraw code={String(children)} />
+                        {/* Copy Button */}
+                        <Button variant   = 'ghost'
+                                size      = 'fit'
+                                className = {cn(
+                                  'flex items-center rounded-md z-dropdown',
+                                  'absolute bottom-1 right-1 text-xs',
+                                  'opacity-20 hover:opacity-100',
+                                )}
+                                onClick = {() => handleStringCopy(copyMermaidCode)}>
+                          <Copy />
+                        </Button>
                       </div>
                     );
+                  };
+                // ある程度長めのコードは SyntaxHighlighter を使う
+                } else if (language || String(children).length >= 50) {
+                  const languageDisplay = language || 'plaintext';
+                  const PrismStyle      = resolvedTheme === 'dark' ? a11yDark : a11yOneLight;
+                  return (
+                    <div className='relative'>
+                      {languageDisplay && (
+                        <Badge  variant   = 'secondary'
+                                className = 'absolute right-0 top-0 px-2 text-xs font-thin'>
+                          {languageDisplay.toUpperCase()}
+                        </Badge>
+                      )}
+                      <SyntaxHighlighter
+                        language     = {language}
+                        PreTag       = 'div'
+                        style        = {PrismStyle}
+                        customStyle  = {{
+                          textShadow: 'none',
+                          padding:    '1rem 0.5rem',
+                        }}
+                        codeTagProps = {{
+                          style: {
+                            textShadow: 'none',
+                            whiteSpace: 'pre-wrap',
+                            lineHeight: '1.1',}
+                        }}
+                        wrapLongLines
+                        showLineNumbers
+                        lineNumberStyle = {{
+                          width:        '0px', // fit
+                          marginRight:  '0.75rem',
+                          paddingRight: '0.5rem',
+                          borderRight:  '1px solid #999999',
+                          textAlign:    'right',
+                        }} >
+                        {String(children).replace(/\n+$/, '')}
+                      </SyntaxHighlighter>
+
+                      {/* Copy Button */}
+                      <Button variant   = 'ghost'
+                              size      = 'fit'
+                              className = {cn(
+                                'flex items-center rounded-md z-dropdown',
+                                'absolute bottom-1 right-1 text-xs',
+                                'opacity-20 hover:opacity-100',
+                              )}
+                              onClick = {() => handleStringCopy(String(children))}>
+                        <Copy />
+                      </Button>
+
+                    </div>
+                  );
+                } else {
+                  // 'short text' などの単語レベル
+                  return (
+                    <span className = 'font-thin bg-muted'
+                          style     = {{
+                            fontFamily: 'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
+                          }}>
+                      {children}
+                    </span>
+                  );
                 };
               },
             }}>
@@ -168,15 +208,19 @@ export function MarkdownRender({markdownString, className,}:MarkdownRenderProps)
         </ReactMarkdown>
       </span>
       {/* Copy Button */}
-      <button className = {cn(
-                'flex items-center rounded-md z-tooltip',
-                'mt-2 px-1 py-1 text-xs',
-                'opacity-50 hover:opacity-100',
-                'hover:bg-secondary',
-              )}
-              onClick = {() => handleStringCopy(markdownString)}>
-        <Copy className='size-4' />
-      </button>
+      {isUseCopyButton && (
+        <Button variant   = 'ghost'
+                size      = 'fit'
+                className = {cn(
+                  'flex items-center rounded-md z-dropdown',
+                  'mt-2 px-1 py-1 text-xs',
+                  'opacity-50 hover:opacity-100',
+                  'bg-transparent hover:bg-transparent',
+                )}
+                onClick = {() => handleStringCopy(markdownString)}>
+          <Copy />
+        </Button>
+      )}
     </>
   );
 };

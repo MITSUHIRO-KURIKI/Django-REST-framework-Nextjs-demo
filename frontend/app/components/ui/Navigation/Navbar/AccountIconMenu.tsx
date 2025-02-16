@@ -29,8 +29,10 @@ export function AccountIconMenu(): ReactElement {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant='ghost' size='icon' className='rounded-full'>
-          <User className='size-6' />
+        <Button variant   = 'ghost'
+                size      = 'icon'
+                className = '[&_svg]:size-6'>
+          <User />
           <span className='sr-only'>User menu</span>
         </Button>
       </DropdownMenuTrigger>
@@ -55,7 +57,7 @@ export function AccountIconMenu(): ReactElement {
                             '[&>svg]:text-foreground hover:[&>svg]:text-sidebar-accent-foreground',
                             'focus-visible:ring-0',
                             'cursor-pointer',)}>
-                    {item.icon && <item.icon className='size-4' />}{item.label}
+                    {item.icon && <item.icon />}{item.label}
                   </Button>
                 ) : ( (item.key === 'settings') ? (
                   <Button variant   = 'ghost'
@@ -68,7 +70,7 @@ export function AccountIconMenu(): ReactElement {
                             '[&>svg]:text-foreground hover:[&>svg]:text-sidebar-accent-foreground',
                             'focus-visible:ring-0',
                             'cursor-pointer',)}>
-                    {item.icon && <item.icon className='size-4' />}{item.label}
+                    {item.icon && <item.icon />}{item.label}
                   </Button>
                 ) : (
                   <Link key       = {item.key}
@@ -79,7 +81,7 @@ export function AccountIconMenu(): ReactElement {
                           'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                           '[&>svg]:text-foreground hover:[&>svg]:text-sidebar-accent-foreground',
                           'cursor-pointer',)}>
-                    {item.icon && <item.icon className='size-4' />}{item.label}
+                    {item.icon && <item.icon />}{item.label}
                   </Link>
                 ))}
               </DropdownMenuItem>

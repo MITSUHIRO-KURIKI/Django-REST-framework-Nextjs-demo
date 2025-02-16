@@ -15,8 +15,7 @@ import { useEffect, type ReactNode, type ReactElement} from 'react';
 // paths
 import { pagesPath } from '@/features/paths/frontend';
 // features
-import { sanitizeRedirectUrl } from '@/features/utils';
-import { UrlToString } from '@/features/utils';
+import { UrlToString, sanitizeRedirectUrl } from '@/features/utils';
 // components
 import { showToast } from '@/app/components/utils';
 // import

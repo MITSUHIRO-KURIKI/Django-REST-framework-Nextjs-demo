@@ -16,7 +16,7 @@ import { MicOff, Loader2 } from 'lucide-react';
 // components
 import { MarkdownRender } from '@/app/components/utils';
 // include
-import { SheetRoomSettings } from './RoomSettingsSheet';
+import { RoomSettingsSheet } from './RoomSettings';
 // type
 import type { ClientUIProps } from '../ClientContext';
 
@@ -34,8 +34,7 @@ export function ClientUI({
   toggleRecognition,
   width,
   height,
-  containerRef,
-}: ClientUIProps): ReactElement{
+  containerRef,}: ClientUIProps): ReactElement{
 
   return ( 
     <div className='relative size-full'>
@@ -47,7 +46,8 @@ export function ClientUI({
             `w-[${width}px] h-[${height}px]`)} />
 
       {/* ルーム設定 */}
-      <SheetRoomSettings roomId={roomId} />
+      <RoomSettingsSheet roomId    = {roomId}
+                         className = 'absolute right-0 [&_svg]:size-6' />
 
       {/* 会話テキスト */}
       <Card className={cn(

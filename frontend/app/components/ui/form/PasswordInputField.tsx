@@ -17,13 +17,14 @@ import { Eye, EyeOff } from 'lucide-react';
 type PasswordInputFieldProps = ComponentPropsWithoutRef<typeof Input>;
 
 export function PasswordInputField({className, ...props}:PasswordInputFieldProps): ReactElement {
+
   const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className='relative'> 
       <Input {...props}
              type      = {showPassword ? 'text' : 'password'}
-             className = {className} />
+             className = {cn('pr-8', className)} />
       <Button variant   = 'ghost'
               size      = 'fit'
               type      = 'button'
@@ -34,7 +35,7 @@ export function PasswordInputField({className, ...props}:PasswordInputFieldProps
               )}
               tabIndex  = {-1}
               onClick   = {() => setShowPassword((prev) => !prev)}>
-        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+        {showPassword ? <EyeOff /> : <Eye />}
       </Button>
     </div>
   );

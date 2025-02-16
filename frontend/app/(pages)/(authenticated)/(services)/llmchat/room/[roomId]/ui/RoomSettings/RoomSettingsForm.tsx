@@ -15,7 +15,7 @@ import {
   roomSettingsFormSchema,
   type ModelNameChoices,
   type RoomSettingsFormInputType,
-} from '@/features/api/vrmchat/room_settings';
+} from '@/features/api/llmchat/room_settings';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -23,12 +23,14 @@ import {
   FormField,
   FormLabel,
   FormControl,
+  FormDescription,
   FormItem,
   FormMessage,
 } from '@/app/components/ui/shadcn/form';
 // shadcn
 import { cn } from '@/app/components/lib/shadcn';
 import { Button } from '@/app/components/ui/shadcn/button';
+import { Label } from '@/app/components/ui/shadcn/label';
 import { Alert, AlertDescription } from '@/app/components/ui/shadcn/alert';
 import {
   Command,
@@ -48,22 +50,25 @@ import { Textarea } from '@/app/components/ui/shadcn/textarea';
 // icons
 import { Loader2, Check, ChevronsUpDown } from 'lucide-react';
 // components
-import { showToast } from '@/app/components/utils';
-import { OverlaySpinner } from '@/app/components/utils';
+import { showToast, CropperDialog, OverlaySpinner } from '@/app/components/utils';
 // import
-import { VrmChatRoomParams } from '../page';
+import { LlmChatRoomParams } from '../../page';
+
 
 // type
-export type RoomSettingsFormProps = Pick<VrmChatRoomParams, 'roomId'> & {
-  setSheetOpen: Dispatch<SetStateAction<boolean>>;
+type RoomSettingsFormProps = Pick<LlmChatRoomParams, 'roomId'> & {
+  roomAiIconUrl:    string;
+  setRoomAiIconUrl: Dispatch<SetStateAction<string>>;
+  setSheetOpen:     Dispatch<SetStateAction<boolean>>;
 };
 
 // RoomSettingsForm ▽
-export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps): ReactElement {
+export function RoomSettingsForm({ roomId, roomAiIconUrl, setRoomAiIconUrl, setSheetOpen }: RoomSettingsFormProps): ReactElement {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSending, setIsSending] = useState<boolean>(false);
   const [errorMsg, setErrorMsg]   = useState<string>('');
   const [modelNameChoices, setModelNameChoices] = useState<ModelNameChoices[]>([]);
+  const [aiIconPreviewUrl, setAiIconPreviewUrl] = useState<string>(roomAiIconUrl);
 
   // ++++++++++
   // form
@@ -71,6 +76,7 @@ export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps
   const form = useForm<RoomSettingsFormInputType>({
     resolver: zodResolver(roomSettingsFormSchema),
     defaultValues: {
+      ai_icon:            null,
       model_name:         0,
       system_sentence:    '',
       assistant_sentence: '',
@@ -96,6 +102,7 @@ export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps
         if (item) {
           setModelNameChoices(item.modelNameChoices);
           form.reset({
+            ai_icon:            item.aiIcon ?? '',
             model_name:         item.modelName,
             system_sentence:    item.systemSentence ?? '',
             assistant_sentence: item.assistantSentence ?? '',
@@ -126,13 +133,33 @@ export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps
     setIsSending(true);
     setErrorMsg('');
     try {
+      // multipart/form-data 用 ▽
+      const formData = new FormData();
+      formData.append('model_name',         data.model_name.toString());
+      formData.append('system_sentence',    data.system_sentence);
+      formData.append('assistant_sentence', data.assistant_sentence);
+      formData.append('history_len',        data.history_len.toString());
+      formData.append('max_tokens',         data.max_tokens.toString());
+      formData.append('temperature',        data.temperature.toString());
+      formData.append('top_p',              data.top_p.toString());
+      formData.append('presence_penalty',   data.presence_penalty.toString());
+      formData.append('frequency_penalty',  data.frequency_penalty.toString());
+      formData.append('comment',            data.comment);
+      if (data.ai_icon instanceof File) {
+        formData.append('ai_icon', data.ai_icon);
+      };
+      // multipart/form-data 用 △
       const result = await patchRoomSettings({
         roomId:   roomId,
-        formData: data,
+        formData: formData,
       });
       showToast(result?.toastType, result?.toastMessage, {duration: 5000});
       if (result.ok) {
-        //
+        // aiIconUrl の更新
+        const aiIconUrl = result.data?.aiIcon
+                            ? (process.env.NEXT_PUBLIC_BACKEND_URL as string) + result.data?.aiIcon
+                            : '/app/llmchat/ai_icon/default/ai.png';
+        setRoomAiIconUrl(aiIconUrl);
       } else {
         setErrorMsg(result?.message ?? '');
       };
@@ -144,6 +171,17 @@ export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps
       setIsSending(false);
       setSheetOpen(false);
     };
+  };
+
+  // CropperDialog からファイル受け取り
+  const handleCropped = (croppedFile: File) => {
+    form.setValue('ai_icon', croppedFile);
+    setAiIconPreviewUrl(URL.createObjectURL(croppedFile));
+  };
+  // clear
+  const handleClear = () => {
+    form.setValue('ai_icon', null);
+    setAiIconPreviewUrl(roomAiIconUrl);
   };
   // ++++++++++
 
@@ -161,6 +199,35 @@ export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps
       {/* Form */}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
+
+          {/* ai_icon (Preview) */}
+          <div className='flex flex-col gap-2'>
+            <Label className='text-left text-sm font-semibold text-foreground/80'>
+              AIアバター画像
+            </Label>
+            <div className='relative mx-auto size-[200px] overflow-hidden rounded-full border select-none'>
+              <img src       = {aiIconPreviewUrl}
+                   alt       = 'icon preview'
+                   className = 'size-[200px] object-cover' />
+            </div>
+          </div>
+          {/* ai_icon (CropperDialog) */}
+          <div className='flex flex-col gap-1 w-[80%] mx-auto my-2'>
+            <div className='flex w-full items-center gap-2'>
+              <CropperDialog onCropped = {handleCropped}
+                             className = 'flex-1 border-muted-foreground' />
+              <Button variant   = 'outline'
+                      type      = 'button'
+                      className = 'bg-secondary'
+                      onClick   = {handleClear}>
+                clear
+              </Button>
+            </div>
+            <FormDescription className='text-xs text-muted-foreground'>
+              200 (px) x 200 (px) にリサイズされます
+            </FormDescription>
+          </div>
+
           {/* model_name (Select) */}
           <FormField control = {form.control}
                      name    = 'model_name'
@@ -369,7 +436,7 @@ export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps
           <Button type      = 'submit'
                   className = 'w-full'
                   disabled  = {isSending}>
-            {isSending ? <Loader2 className='size-4 animate-spin' /> : '設定を更新'}
+            {isSending ? <Loader2 className='animate-spin' /> : '設定を更新'}
           </Button>
         </form>
       </Form>

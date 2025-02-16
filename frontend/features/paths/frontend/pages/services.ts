@@ -16,6 +16,18 @@ export const servicesPath = {
       hash:     args?.hash,
     }),
   },
+  llmChatRoom: {
+    $url: (args?: {_roomId: string} & UrlConfig) => {
+      const roomId = args?._roomId ?? '';
+      return {
+        pathname: `/llmchat/room/${roomId}` as const,
+        query: {
+          ...args?.query,
+        },
+        hash: args?.hash,
+      };
+    },
+  },
   vrmChat: {
     $url: (args?: UrlConfig) => ({
       pathname: '/vrmchat' as const,

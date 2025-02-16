@@ -302,6 +302,8 @@ export function WebSocketCoreProvider({ WebsocketUrl, WebsocketId, children,}: W
       };
       const { cmd, ok, data } = serverMessage;
       // 共通処理 ▽
+      // receiverMessage
+      if (cmd === 'receiverMessage') return;
       // setIsWebSocketWaiting=false セット
       // wsClose
       if (cmd === 'wsClose') {

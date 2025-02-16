@@ -1,7 +1,5 @@
 'use client'
 
-// next
-import { useRouter, usePathname } from 'next/navigation';
 // react
 import {
   useState,
@@ -27,45 +25,41 @@ import { Label } from '@/app/components/ui/shadcn/label';
 import {
   Loader2,
 } from 'lucide-react';
-// features
-import { deleteRoom } from '@/features/api/vrmchat';
 // components
 import { showToast } from '@/app/components/utils';
-// include
-import { type SubItem } from '../data';
+
 
 // type
 type DeleteCheckDialogDialogProps = {
-  setVrmChatItems:         Dispatch<SetStateAction<SubItem[]>>;
-  isVrmChatRoomSending:    boolean;
-  setIsVrmChatRoomSending: Dispatch<SetStateAction<boolean>>;
+  onDelete:                (roomId: string) => Promise<void>;
+  isSending:               boolean;
+  setIsSending:            Dispatch<SetStateAction<boolean>>;
   deleteRoomTargetRoomId:  string;
-  deleteRoomModalOpen:     boolean;
-  setDeleteRoomModalOpen:  Dispatch<SetStateAction<boolean>>;
+  modalOpen:               boolean;
+  setModalOpen:            Dispatch<SetStateAction<boolean>>;
 };
 
 // DeleteCheckDialog ▽
 export function DeleteCheckDialog({
-    setVrmChatItems,
-    isVrmChatRoomSending,
-    setIsVrmChatRoomSending,
-    deleteRoomTargetRoomId,
-    deleteRoomModalOpen,
-    setDeleteRoomModalOpen, }: DeleteCheckDialogDialogProps): ReactElement {
-
-  const router                                      = useRouter();
-  const pathname                                    = usePathname();
+  onDelete,
+  isSending,
+  setIsSending,
+  deleteRoomTargetRoomId,
+  modalOpen,
+  setModalOpen, }: DeleteCheckDialogDialogProps): ReactElement {
 
   const [safetyCheckInput, setSafetyCheckInput] = useState<string>('');
   const [errorMsg, setErrorMsg]                 = useState<string>('');
+
+  // 初期化
   useEffect(() => {
-    if (deleteRoomModalOpen) {
+    if (modalOpen) {
       setSafetyCheckInput('')
       setErrorMsg('')
     };
-  }, [deleteRoomModalOpen])
+  }, [setModalOpen])
 
-  const handleDeleteVrmChatRoom = async (): Promise<void> => {
+  const handleDeleteRoom = async (): Promise<void> => {
     if (!deleteRoomTargetRoomId) return;
 
     // SafetyCheck
@@ -76,36 +70,25 @@ export function DeleteCheckDialog({
     };
 
     // 多重送信防止
-    if (isVrmChatRoomSending) return;
+    if (isSending) return;
 
-    setIsVrmChatRoomSending(true);
+    setIsSending(true);
     setErrorMsg('');
     try {
-      const result = await deleteRoom(deleteRoomTargetRoomId);
-      if (result.ok) {
-        // メニューから削除
-        setVrmChatItems((prev) => prev.filter((item) => item.key !== deleteRoomTargetRoomId));
-        // deleteRoomTargetRoomId が現在のパスに含まれていたらリダイレクト
-        const currentRoomId = pathname.split('/').pop();
-        if (currentRoomId === deleteRoomTargetRoomId) {
-          router.push('/vrmchat');
-        };
-      } else {
-        showToast('error', 'error');
-      };
+      await onDelete(deleteRoomTargetRoomId)
+      // モーダルを閉じる
+      setModalOpen(false);
     } catch {
       showToast('error', 'error');
     } finally {
-      // モーダルを閉じる
-      setDeleteRoomModalOpen(false);
       // 多重送信防止
-      setIsVrmChatRoomSending(false);
+      setIsSending(false);
     };
   };
 
   return (
-      <Dialog open         = {deleteRoomModalOpen}
-              onOpenChange = {setDeleteRoomModalOpen}>
+      <Dialog open         = {modalOpen}
+              onOpenChange = {setModalOpen}>
         <DialogContent className='bg-sidebar'>
         <DialogHeader>
           <DialogTitle>
@@ -138,13 +121,13 @@ export function DeleteCheckDialog({
           <DialogFooter className = 'flex !justify-between'>
             <Button variant   = 'destructive'
                     className = 'order-2 mt-2 sm:order-1'
-                    onClick   = {handleDeleteVrmChatRoom}
-                    disabled  = {isVrmChatRoomSending} >
-              {isVrmChatRoomSending ? (<Loader2 className='size-4 animate-spin' />) : ('削除する')}
+                    onClick   = {handleDeleteRoom}
+                    disabled  = {isSending} >
+              {isSending ? (<Loader2 className='animate-spin' />) : ('削除する')}
             </Button>
             <Button variant   = 'outline'
                     className = 'order-1 mt-2 sm:order-2'
-                    onClick   = {() => setDeleteRoomModalOpen(false)}>
+                    onClick   = {() => setModalOpen(false)}>
               キャンセル
             </Button>
           </DialogFooter>

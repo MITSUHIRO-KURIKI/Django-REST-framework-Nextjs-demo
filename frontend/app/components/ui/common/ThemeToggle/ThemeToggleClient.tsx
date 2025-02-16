@@ -3,13 +3,14 @@
 // react
 import { type ReactElement } from 'react';
 // shadcn
-import { cn } from '@/app/components/lib/shadcn';
 import { Label } from '@/app/components/ui/shadcn/label';
 import { ToggleGroup, ToggleGroupItem } from '@/app/components/ui/shadcn/toggle-group'
 // icons
 import { Moon, Sun, Computer } from 'lucide-react';
 // lib
 import { useTheme } from 'next-themes';
+
+
 // ThemeToggleClient
 export function ThemeToggleClient(): ReactElement {
 

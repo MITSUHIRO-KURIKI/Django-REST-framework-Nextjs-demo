@@ -136,7 +136,7 @@ export function ReceptionSettingForm({ userReceptionSettingData }: {userReceptio
           <Button type      = 'submit'
                   className = 'mt-6 w-full'
                   disabled  = {isSending}>
-            {isSending ? <Loader2 className='size-4 animate-spin' /> : '設定を更新'}
+            {isSending ? <Loader2 className='animate-spin' /> : '設定を更新'}
           </Button>
         </form>
       </Form>

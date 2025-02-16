@@ -234,7 +234,7 @@ export function SignupForm({
           <Button type      = 'submit'
                   className = 'w-full'
                   disabled  = {isSending}>
-            {isSending ? <Loader2 className='size-4 animate-spin' /> : '新規登録'}
+            {isSending ? <Loader2 className='animate-spin' /> : '新規登録'}
           </Button>
         </div>
       </form>

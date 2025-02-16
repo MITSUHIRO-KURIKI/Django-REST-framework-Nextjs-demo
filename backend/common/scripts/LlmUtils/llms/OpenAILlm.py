@@ -1,7 +1,7 @@
 from rest_framework.exceptions import ValidationError
 import openai
 import asyncio
-from typing import Dict, Tuple, Union
+from typing import Dict, Tuple, Union, AsyncGenerator
 
 class OpenAILlm:
 
@@ -99,3 +99,37 @@ class OpenAILlm:
             return return_responce, usage_dict
 
         return return_responce
+
+    async def async_get_stream_response(self,
+                                 messages:list = [],
+                                 *,
+                                 asyncio_sleep:float = 0.01,
+                                 timeout:int         = 60,
+                                 ) -> AsyncGenerator[str, None]:
+
+        if not messages or messages == []:
+            return
+
+        def sync_call():
+            return self.client.chat.completions.create(
+                        model             = self.model_name,
+                        messages          = messages,
+                        temperature       = self.temperature,
+                        max_tokens        = self.max_tokens,
+                        top_p             = self.top_p,
+                        frequency_penalty = self.frequency_penalty,
+                        presence_penalty  = self.presence_penalty,
+                        stream            = True,
+                        timeout           = timeout,)
+
+        response = await asyncio.to_thread(sync_call)
+
+        for res in response:
+            try:
+                content = res.choices[0].delta.content
+                if content == None:
+                    content = ''
+            except:
+                content = ''
+            yield content
+            await asyncio.sleep(asyncio_sleep)

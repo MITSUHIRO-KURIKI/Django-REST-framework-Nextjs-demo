@@ -123,8 +123,7 @@ class RoomSettingsAdmin(ExportMixin, admin.ModelAdmin):
 
     # 一覧画面
     list_display_ = ('room_id',
-                     'character_limit_room_name',
-                     'model_name',)
+                     'character_limit_room_name',)
     list_filter   = []
     list_display       = list_display_
     list_display_links = list_display_
@@ -152,6 +151,8 @@ class RoomSettingsAdmin(ExportMixin, admin.ModelAdmin):
         ('ルーム情報', {'fields': (
             'room_id',
             'room_name',
+            )}),
+        ('モデル', {'fields': (
             'model_name',
             )}),
         ('プロンプト', {'fields': (
@@ -217,6 +218,7 @@ class MessageResource(ModelResource):
                   'message_id',
                   'user_message',
                   'llm_response',
+                  'user_settings',
                   'tokens_info_dict',
                   'history_list',
                   'is_active',
@@ -280,6 +282,7 @@ class MessageAdmin(ExportMixin, admin.ModelAdmin):
             'history_list',
             )}),
         ('その他', {'fields': (
+            'user_settings',
             'tokens_info_dict',
             )}),
     )

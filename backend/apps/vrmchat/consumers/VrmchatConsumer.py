@@ -37,7 +37,7 @@ class VrmchatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
 
         self.room_id    = self.scope['url_route']['kwargs']['room_id']
-        self.group_name = f'vrmchat_room_{self.room_id}'
+        self.group_name = f'room_{self.room_id}'
 
         # ユーザの取得と初期化 ▽
         user_id = jwt_auth_get_id(self.scope['cookies'])
@@ -299,8 +299,10 @@ class VrmchatConsumer(AsyncWebsocketConsumer):
                     if check_result:
                         # -------------------------
                         # メイン処理(cmd分岐) ▽
-                        if data_json['cmd'] == 'VRMMessage':
-                            await self._receive_user_message(data_json['data']['message'], is_possible_compress)
+                        if data_json['cmd'] == 'SendUserMessage':
+                            await self._receive_user_message(data_json['data']['message'],
+                                                             None,
+                                                             is_possible_compress)
                         # ... 他のコマンドあればここで分岐処理させる
                         # メイン処理(cmd分岐) △
                         # -------------------------
@@ -347,15 +349,20 @@ class VrmchatConsumer(AsyncWebsocketConsumer):
     ####################
     # _receive_user_message ▽
     ####################
-    async def _receive_user_message(self, user_message:str, is_possible_compress:bool):
-        
+    async def _receive_user_message(self, user_message:str, message_id:str, is_possible_compress:bool):
+
         # RoomSettings の取得
         data_dict = await get_room_settings(self.room_id)
         # model_name の変換 (model_name_int でこの後 llmの切り替えするので保持)
-        model_name_int = data_dict['model_name']
+        model_name_int          = data_dict['model_name']
         data_dict['model_name'] = MODEL_NAME_CHOICES_DICT[model_name_int]
         # user_message の投入
         data_dict['user_message'] = user_message
+        # message_id 設定
+        if message_id:
+            data_dict['message_id'] = message_id
+        else:
+            data_dict['message_id'] = generate_uuid_hex()
 
         # ルームに紐づくヒストリーメッセージ時の取得▽
         history_list, history_text = await get_history(self.room_id, data_dict['history_len'])
@@ -366,12 +373,14 @@ class VrmchatConsumer(AsyncWebsocketConsumer):
         # 入力のバリデーション▽
         ## 何も質問されてないときに返すテキスト▽
         if data_dict['user_message'].replace(' ','').replace('　','') == '':
-            message_data = {
-                'cmd':  'VRMMessage',
+            error_message = ''
+            message_data  = {
+                'cmd':  'SendUserMessage',
                 'status': 200,
                 'ok':     True,
                 'data': {
-                    'aiMessage': '',
+                    'messageId':   data_dict['message_id'],
+                    'llmResponse': error_message,
                 },
             }
             await self._self_send_message(message_data, is_send_bytes_data=is_possible_compress)
@@ -385,11 +394,12 @@ class VrmchatConsumer(AsyncWebsocketConsumer):
                     max_tokens = int(SEND_MAX_TOKENS)):
             error_message = f'入力文字数が設定値を超えたみたいです。\n過去の会話、システムメッセージなども含めて最大トークンは{SEND_MAX_TOKENS}に設定されています。'
             message_data = {
-                'cmd':  'VRMMessage',
+                'cmd':  'SendUserMessage',
                 'status': 200,
                 'ok':     True,
                 'data': {
-                    'aiMessage': error_message,
+                    'messageId':   data_dict['message_id'],
+                    'llmResponse': error_message,
                 },
             }
             await self._self_send_message(message_data, is_send_bytes_data=is_possible_compress)
@@ -425,20 +435,20 @@ class VrmchatConsumer(AsyncWebsocketConsumer):
                                 top_p             = data_dict['top_p'],
                                 frequency_penalty = data_dict['frequency_penalty'],
                                 presence_penalty  = data_dict['presence_penalty'],)
-            llm_answer = await llm.async_get_response(messages)
+            llm_response = await llm.async_get_response(messages)
             message_data = {
-                'cmd':  'VRMMessage',
+                'cmd':  'SendUserMessage',
                 'status': 200,
                 'ok':     True,
                 'data': {
-                    'aiMessage': llm_answer,
+                    'messageId':   data_dict['message_id'],
+                    'llmResponse': llm_response,
                 },
             }
             await self._self_send_message(message_data, is_send_bytes_data=is_possible_compress)
 
             # 結果の処理
-            data_dict['llm_response'] = llm_answer
-            data_dict['message_id']   = generate_uuid_hex()
+            data_dict['llm_response'] = llm_response
             tokens_info_dict = {
                 'sent_tokens': calc_token(sentence = data_dict['user_message']+ \
                                                      data_dict['system_sentence'] if data_dict['system_sentence'] else ''+ \
@@ -451,8 +461,6 @@ class VrmchatConsumer(AsyncWebsocketConsumer):
             
             # メッセージの保存
             await sync_save_message_models(self.room_id, data_dict)
-            if settings.DEBUG:
-                print(f'data_dict: {data_dict}')
 
             # ルーム名チェック
             is_replace, room_name = await replace_room_name_check(self.room_id, data_dict['user_message'])
@@ -483,7 +491,7 @@ class VrmchatConsumer(AsyncWebsocketConsumer):
 
     ####################
     # _socket_access_get_channel_name
-    # access_id から channel_name を特定して _target_channel_name_send_message でメッセージを送信
+    # - access_id から channel_name を特定して _target_channel_name_send_message でメッセージを送信
     ####################
     @database_sync_to_async
     def _socket_access_get_channel_name(self, stage_id:str, access_id:str):

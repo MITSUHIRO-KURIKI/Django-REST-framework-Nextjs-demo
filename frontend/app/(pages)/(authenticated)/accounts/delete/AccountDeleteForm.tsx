@@ -101,7 +101,7 @@ export function AccountDeleteForm(): ReactElement {
               className = 'mt-4 w-full '
               onClick   = {handleAccountDelete}
               disabled  = {isSending} >
-        {isSending ? (<Loader2 className='size-4 animate-spin' />) : ('アカウントを削除する')}
+        {isSending ? (<Loader2 className='animate-spin' />) : ('アカウントを削除する')}
       </Button>
     </>
   );

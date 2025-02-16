@@ -15,7 +15,6 @@ class AccountDeleteViewSet(APIView):
     def delete(self, request, *args, **kwargs):
         # データは残してログイン不可とする
         # 削除後に再度その人が登録する場合に備えてメールをダミーに変更
-        print(request)
         try:
             user           = request.user
             user.is_active = False

@@ -1,4 +1,4 @@
 export type UserProfileResponseData = {
   displayName: string;
-  userIcon:    string; // URL
+  userIcon:    string | null; // URL
 };

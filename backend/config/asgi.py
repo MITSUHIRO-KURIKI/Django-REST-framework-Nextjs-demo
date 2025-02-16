@@ -8,6 +8,7 @@ django_asgi_app = get_asgi_application()
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
+from apps.llmchat.routing import llmchat_websocket_urlpatterns
 from apps.vrmchat.routing import vrmchat_websocket_urlpatterns
 from apps.third_party.gcloud.stt_tts.routing import third_party_gcloud_stt_tts_websocket_urlpatterns
 
@@ -19,6 +20,7 @@ application = ProtocolTypeRouter({
     'websocket': AllowedHostsOriginValidator(
         AuthMiddlewareStack(
             URLRouter([
+                *llmchat_websocket_urlpatterns,
                 *vrmchat_websocket_urlpatterns,
                 *third_party_gcloud_stt_tts_websocket_urlpatterns,
             ])

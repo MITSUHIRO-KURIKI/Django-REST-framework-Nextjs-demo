@@ -52,7 +52,7 @@ export type SidebarContextValue = {
 
 
 // SidebarContextProvider ▽
-export function SidebarContextProvider({vrmChatInitial, pageSize, children}: SidebarContentWrapperProps): ReactElement {
+export function SidebarContextProvider({llmChatInitial, vrmChatInitial, pageSize, children}: SidebarContentWrapperProps): ReactElement {
 
   const [sidebarInsetTitle, setSidebarInsetTitle]       = useState<string>('');
   const [sidebarInsetSubTitle, setSidebarInsetSubTitle] = useState<string>('');
@@ -67,11 +67,13 @@ export function SidebarContextProvider({vrmChatInitial, pageSize, children}: Sid
   return (
     <SidebarProvider className='min-h-[calc(100svh_-_var(--navbar-height))]'>
 
-      <Sidebar vrmChatInitial = {vrmChatInitial}
-               pageSize       = {pageSize}
-               variant        = 'inset'
-               collapsible    = 'offcanvas'
-               className      = {cn(
+      <Sidebar llmChatInitial       = {llmChatInitial}
+               vrmChatInitial       = {vrmChatInitial}
+               pageSize             = {pageSize}
+               setSidebarInsetTitle = {setSidebarInsetTitle}
+               variant              = 'inset'
+               collapsible          = 'offcanvas'
+               className            = {cn(
                 'invisible-scrollbar',
                 'hidden md:flex',)} />
 
@@ -87,8 +89,8 @@ export function SidebarContextProvider({vrmChatInitial, pageSize, children}: Sid
           'bg-background/30 dark:bg-background/30',
           'backdrop-blur-sm backdrop-filter',
           'gap-2 border-b',)}>
-          <div className='flex items-center gap-2 px-4'>
-            <SidebarTrigger className='-ml-1 hidden md:block' />
+          <div className='flex items-center gap-2 pl-2 pr-4'>
+            <SidebarTrigger className='-ml-1 justify-center hidden md:flex' />
             <Separator orientation='vertical' className='mr-2 hidden h-4 md:block' />
             <Breadcrumb>
               <BreadcrumbList>

@@ -3,7 +3,7 @@
 
 // next
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 // react
 import {
   useState,
@@ -17,28 +17,34 @@ import { pagesPath } from '@/features/paths/frontend';
 // shadcn/ui
 import { cn } from '@/app/components/lib/shadcn';
 import { Button } from '@/app/components/ui/shadcn/button';
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from '@/app/components/ui/shadcn/dropdown-menu';
 // icons
 import {
   Menu,
   ChevronRight,
   ChevronLeft,
-  Loader2,
   AudioLines,
-  MessageCircleMore,
   Layers,
-  MoreVertical,
-  Pencil,
-  Trash2,
 } from 'lucide-react';
 // features
+import {
+  createRoom                  as llmChatCreateRoom,
+  getRoomSettingsRoomNameList as getLlmChatRoomSettingsRoomNameList,
+} from '@/features/api/llmchat';
+import {
+  createRoom                  as vrmChatCreateRoom,
+  getRoomSettingsRoomNameList as getVrmChatRoomSettingsRoomNameList,
+} from '@/features/api/vrmchat';
+import {
+  patchRoomSettingsRoomNameChange  as patchLlmChatRoomSettingsRoomNameChange,
+  roomSettingsRoomNameChangeSchema as llmChatRoomSettingsRoomNameChangeSchema,
+  deleteRoom                       as llmChatDeleteRoom,
+} from '@/features/api/llmchat';
+import {
+  patchRoomSettingsRoomNameChange  as patchVrmChatRoomSettingsRoomNameChange,
+  roomSettingsRoomNameChangeSchema as vrmChatRoomSettingsRoomNameChangeSchema,
+  deleteRoom                       as vrmChatDeleteRoom,
+} from '@/features/api/vrmchat';
 import { UrlToString } from '@/features/utils';
-import { createRoom, getRoomSettingsRoomNameList } from '@/features/api/vrmchat';
 // components
 import { ThemeToggle, Loader } from '@/app/components/ui/common';
 import { showToast } from '@/app/components/utils';
@@ -47,40 +53,66 @@ import { MobileMenuBase } from './MobileMenuBase';
 import { AccountSettingsModal } from '../AccountSettingsModal';
 import { RoomNameChangeDialog, DeleteCheckDialog } from '../utils';
 import { AccountMenuItems, type SubItem, type LoadItemDataProps } from '../data';
-
+import { LlmChat, VrmChat } from './SubCategoryPage';
+// type
+import { SubCategoryPage } from './type.d';
 
 // type
 type MobileMenuProps = {
-  setIsNavVisible: Dispatch<SetStateAction<boolean>>;
-  pageSize?:       number;
+  setIsNavVisible:      Dispatch<SetStateAction<boolean>>;
+  pageSize?:            number;
 } & LoadItemDataProps;
+export type SubCategoryPageProps = {
+  setIsMobileMenuOpen:     Dispatch<SetStateAction<boolean>>;
+  isSending:               boolean;
+  items:                   SubItem[];
+  handleLoadMoreItems:     (e: MouseEvent<HTMLElement>) => Promise<void>;
+  handleCreateItem:        (e: MouseEvent<HTMLElement>) => Promise<void>;
+  handleItemNameEditModal: (e: MouseEvent<HTMLElement>, roomId: string, currentName: string) => void;
+  handleDeleteItemModal:   (e: MouseEvent<HTMLElement>, roomId: string) => void;
+};
+
 
 // MobileMenuSidever ▽
-export function MobileMenuSidever({ setIsNavVisible, vrmChatInitial, pageSize }: MobileMenuProps): ReactElement {
+export function MobileMenuSidever({
+  llmChatInitial,
+  vrmChatInitial,
+  setIsNavVisible,
+  pageSize, }: MobileMenuProps): ReactElement {
 
   // accountMenu
   const accountMenuItems = AccountMenuItems();
   // モバイルメニュー
-  const [isSubCategoryOpen, setIsSubCategoryOpen]   = useState<boolean>(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen]     = useState<boolean>(false);
-  const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
-  const [overlayActive, setOverlayActive]           = useState<boolean>(false);
+  const [currentSubCategoryPage, setCurrentSubCategoryPage] = useState<SubCategoryPage>(null);
+  const [isSubCategoryOpen, setIsSubCategoryOpen]           = useState<boolean>(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen]             = useState<boolean>(false);
+  const [isAccountModalOpen, setIsAccountModalOpen]         = useState(false);
+  const [overlayActive, setOverlayActive]                   = useState<boolean>(false);
 
   // バックエンド問い合わせ
-  const router                                                  = useRouter();
-  const [vrmChatItems, setVrmChatItems]                         = useState<SubItem[]>(vrmChatInitial ?? []);
-  const [vrmChatPage, setVrmChatPage]                           = useState<number>(1);
-  const [editRoomName, setEditRoomName]                         = useState<string>('');
-  const [editRoomNametargetRoomId, setEditRoomNameTargetRoomId] = useState<string>('');
-  const [editRoomNameModalOpen, setEditRoomNameModalOpen]       = useState<boolean>(false);
-  const [deleteRoomTargetRoomId, setDeleteRoomTargetRoomId]     = useState<string>('');
-  const [deleteRoomModalOpen, setDeleteRoomModalOpen]           = useState<boolean>(false);
-  const [isVrmChatRoomSending, setIsVrmChatRoomSending]         = useState<boolean>(false);
+  const router   = useRouter();
+  const pathname = usePathname();
+
+  const [isSending, setIsSending]       = useState<boolean>(false);
+  const [llmChatItems, setLlmChatItems] = useState<SubItem[]>(llmChatInitial ?? []);
+  const [vrmChatItems, setVrmChatItems] = useState<SubItem[]>(vrmChatInitial ?? []);
+  const [llmChatPage, setLlmChatPage]   = useState<number>(1);
+  const [vrmChatPage, setVrmChatPage]   = useState<number>(1);
+
+  const [editRoomName, setEditRoomName]                                 = useState<string>('');
+  const [editRoomNametargetRoomId, setEditRoomNameTargetRoomId]         = useState<string>('');
+  const [llmChatEditRoomNameModalOpen, setLlmChatEditRoomNameModalOpen] = useState<boolean>(false);
+  const [vrmChatEditRoomNameModalOpen, setVrmChatEditRoomNameModalOpen] = useState<boolean>(false);
+
+  const [deleteRoomTargetRoomId, setDeleteRoomTargetRoomId]         = useState<string>('');
+  const [llmChatDeleteRoomModalOpen, setLlmChatDeleteRoomModalOpen] = useState<boolean>(false);
+  const [vrmChatDeleteRoomModalOpen, setVrmChatDeleteRoomModalOpen] = useState<boolean>(false);
 
   // handleVrmChatCategoryClick
-  const handleVrmChatCategoryClick = (e: MouseEvent<HTMLElement>): void => {
+  const handleVrmChatCategoryClick = (e: MouseEvent<HTMLElement>, subCategoryPageName: SubCategoryPage): void => {
     e.preventDefault();
     e.stopPropagation();
+    setCurrentSubCategoryPage(subCategoryPageName);
     setIsSubCategoryOpen(true);
   };
   // handleGoBack
@@ -89,19 +121,74 @@ export function MobileMenuSidever({ setIsNavVisible, vrmChatInitial, pageSize }:
     e.stopPropagation();
     setIsSubCategoryOpen(false);
   };
+  // - handleRoomNameEditModal
+  const handleRoomNameEditModal = (e: MouseEvent<HTMLElement>, roomId: string, currentName: string): void => {
+    e.stopPropagation();
+    setEditRoomName(currentName);
+    setEditRoomNameTargetRoomId(roomId);
+    if (currentSubCategoryPage === 'llmChat') {
+      setLlmChatEditRoomNameModalOpen(true);
+    } else if (currentSubCategoryPage === 'vrmChat') {
+      setVrmChatEditRoomNameModalOpen(true);
+    };
+  };
+  // - VrmChatRoom (DeleteRoom)
+  const handleDeleteRoomModal = (e: MouseEvent<HTMLElement>, roomId: string): void => {
+    e.stopPropagation();
+    setDeleteRoomTargetRoomId(roomId);
+    if (currentSubCategoryPage === 'llmChat') {
+      setLlmChatDeleteRoomModalOpen(true);
+    } else if (currentSubCategoryPage === 'vrmChat') {
+      setVrmChatDeleteRoomModalOpen(true);
+    };
+  };
 
   // handles
+  // - LlmChatRoom (Create)
+  const handleCreateLlmChatRoom = async (e: MouseEvent<HTMLElement>): Promise<void> => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // 多重送信防止
+    if (isSending) return;
+
+    setIsSending(true);
+    try {
+      const result = await llmChatCreateRoom();
+      if (result.ok && result.data) {
+        const roomId = result.data
+        const newItem = [{
+          key:   roomId,
+          label: 'NewChatRoom',
+          href:  roomId,
+        }]
+        // メニューに追加
+        setLlmChatItems((prev) => [...newItem, ...prev]);
+        // 新しい部屋にリダイレクト
+        router.push(UrlToString(pagesPath.servicesPath.llmChatRoom.$url())+'/'+roomId);
+        // メニュー閉じる
+        setIsMobileMenuOpen(false);
+      } else {
+        showToast('error', 'error');
+      };
+    } catch {
+      showToast('error', 'error');
+    } finally {
+      // 多重送信防止
+      setIsSending(false);
+    };
+  };
   // - VrmChatRoom (Create)
   const handleCreateVrmChatRoom = async (e: MouseEvent<HTMLElement>): Promise<void> => {
     e.preventDefault();
     e.stopPropagation();
 
     // 多重送信防止
-    if (isVrmChatRoomSending) return;
+    if (isSending) return;
 
-    setIsVrmChatRoomSending(true);
+    setIsSending(true);
     try {
-      const result = await createRoom();
+      const result = await vrmChatCreateRoom();
       if (result.ok && result.data) {
         const roomId = result.data
         const newItem = [{
@@ -122,7 +209,32 @@ export function MobileMenuSidever({ setIsNavVisible, vrmChatInitial, pageSize }:
       showToast('error', 'error');
     } finally {
       // 多重送信防止
-      setIsVrmChatRoomSending(false);
+      setIsSending(false);
+    };
+  };
+  // - LlmChatRoom (MoreLoad)
+  const handleLoadMoreLlmChatRoom = async (e: MouseEvent<HTMLElement>): Promise<void> => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // 多重送信防止
+    if (isSending) return;
+
+    setIsSending(true);
+    try {
+      const nextPage = llmChatPage + 1;
+      const result   = await getLlmChatRoomSettingsRoomNameList(nextPage, pageSize ?? 0);
+      if (result.ok && result.data) {
+        setLlmChatItems([...(result.data ?? [])]);
+        setLlmChatPage(nextPage);
+      } else {
+        //
+      };
+    } catch {
+      //
+    } finally {
+      // 多重送信防止
+      setIsSending(false);
     };
   };
   // - VrmChatRoom (MoreLoad)
@@ -131,12 +243,12 @@ export function MobileMenuSidever({ setIsNavVisible, vrmChatInitial, pageSize }:
     e.stopPropagation();
 
     // 多重送信防止
-    if (isVrmChatRoomSending) return;
+    if (isSending) return;
 
-    setIsVrmChatRoomSending(true);
+    setIsSending(true);
     try {
       const nextPage = vrmChatPage + 1;
-      const result   = await getRoomSettingsRoomNameList(nextPage, pageSize ?? 0);
+      const result   = await getVrmChatRoomSettingsRoomNameList(nextPage, pageSize ?? 0);
       if (result.ok && result.data) {
         setVrmChatItems([...(result.data ?? [])]);
         setVrmChatPage(nextPage);
@@ -147,30 +259,94 @@ export function MobileMenuSidever({ setIsNavVisible, vrmChatInitial, pageSize }:
       //
     } finally {
       // 多重送信防止
-      setIsVrmChatRoomSending(false);
+      setIsSending(false);
     };
   };
-  // - VrmChatRoom (EditRoomName)
-  const handleRoomNameEditModal = (e: MouseEvent<HTMLElement>, roomId: string, currentName: string): void => {
-    e.stopPropagation();
-    setEditRoomName(currentName);
-    setEditRoomNameTargetRoomId(roomId);
-    setEditRoomNameModalOpen(true);
+
+  // - handleSubmitLlmChatRoomNameChange
+  const handleSubmitLlmChatRoomNameChange = async (roomId: string, newRoomName: string) => {
+    const result = await patchLlmChatRoomSettingsRoomNameChange({
+      roomId:   roomId,
+      formData: {
+        room_name: newRoomName,
+      },
+    });
+    if (result.ok) {
+      // メニューに追加
+      setLlmChatItems((prev) =>
+        prev.map((item) =>
+          item.key === roomId
+            ? { ...item, label: newRoomName }
+            : item
+        )
+      );
+    } else {
+      throw new Error('failed');
+    };
   };
-  // - VrmChatRoom (DeleteRoom)
-  const handleDeleteRoomModal = (e: MouseEvent<HTMLElement>, roomId: string): void => {
-    e.stopPropagation();
-    setDeleteRoomTargetRoomId(roomId);
-    setDeleteRoomModalOpen(true);
+  // - handleSubmitVrmChatRoomNameChange
+  const handleSubmitVrmChatRoomNameChange = async (roomId: string, newRoomName: string) => {
+    const result = await patchVrmChatRoomSettingsRoomNameChange({
+      roomId:   roomId,
+      formData: {
+        room_name: newRoomName,
+      },
+    });
+    if (result.ok) {
+      // メニューに追加
+      setVrmChatItems((prev) =>
+        prev.map((item) =>
+          item.key === roomId
+            ? { ...item, label: newRoomName }
+            : item
+        )
+      );
+    } else {
+      throw new Error('failed');
+    };
+  };
+  // - handleSubmitLlmChatRoomDelete
+  const handleSubmitLlmChatRoomDelete = async (roomId: string) => {
+    const result = await llmChatDeleteRoom(roomId);
+    if (result.ok) {
+      // メニューから削除
+      setLlmChatItems((prev) => prev.filter((item) => item.key !== deleteRoomTargetRoomId));
+      // deleteRoomTargetRoomId が現在のパスに含まれていたらリダイレクト
+      const currentRoomId = pathname.split('/').pop();
+      if (currentRoomId === deleteRoomTargetRoomId) {
+        router.push(
+          UrlToString(pagesPath.servicesPath.llmChat.$url())
+        );
+      };
+    } else {
+      throw new Error('failed');
+    };
+  };
+  // - handleSubmitVrmChatRoomDelete
+  const handleSubmitVrmChatRoomDelete = async (roomId: string) => {
+    const result = await vrmChatDeleteRoom(roomId);
+    if (result.ok) {
+      // メニューから削除
+      setVrmChatItems((prev) => prev.filter((item) => item.key !== deleteRoomTargetRoomId));
+      // deleteRoomTargetRoomId が現在のパスに含まれていたらリダイレクト
+      const currentRoomId = pathname.split('/').pop();
+      if (currentRoomId === deleteRoomTargetRoomId) {
+        router.push(
+          UrlToString(pagesPath.servicesPath.vrmChat.$url())
+        );
+      };
+    } else {
+      throw new Error('failed');
+    };
   };
 
   return (
     <>
       <Button variant   = 'ghost'
               size      = 'icon'
-              className = 'md:hidden'
+              className = 'md:hidden [&_svg]:size-6'
               onClick   = {() => setIsMobileMenuOpen(true)}>
-        <Menu className='size-6' />
+        <Menu />
         <span className='sr-only'>Toggle menu</span>
       </Button>
 
@@ -198,15 +374,17 @@ export function MobileMenuSidever({ setIsNavVisible, vrmChatInitial, pageSize }:
               </Link>
 
               {/* LLM Chat */}
-              <Link href      = '#'
-                    className = {cn(
-                      'gap-2 flex w-full h-8 justify-start items-center rounded',
-                      'text-sm font-normal text-foreground [&>svg]:text-sidebar-accent-foreground',
-                      'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground select-none',
-                      '[&>svg]:text-foreground hover:[&>svg]:text-sidebar-accent-foreground',)}
-                    onClick={() => setIsMobileMenuOpen(false)} >
-                <MessageCircleMore className='size-4' />LLM Chat(未作成)
-              </Link>
+              <Button variant   = 'link'
+                      size      = 'fit'
+                      className = {cn(
+                        'w-full h-8 justify-start rounded',
+                        'text-sm font-normal text-foreground',
+                        'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                        '[&>svg]:text-foreground hover:[&>svg]:text-sidebar-accent-foreground',)}
+                      onClick={(e: MouseEvent<HTMLElement>) => handleVrmChatCategoryClick(e, 'llmChat')}>
+                  <AudioLines />LLM Chat
+                  <ChevronRight className='text-foreground' />
+              </Button>
 
               {/* VRM Chat */}
               <Button variant   = 'link'
@@ -216,9 +394,9 @@ export function MobileMenuSidever({ setIsNavVisible, vrmChatInitial, pageSize }:
                         'text-sm font-normal text-foreground',
                         'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                         '[&>svg]:text-foreground hover:[&>svg]:text-sidebar-accent-foreground',)}
-                      onClick={(e: MouseEvent<HTMLElement>) => handleVrmChatCategoryClick(e)}>
-                  <AudioLines className='size-4' />VRM Chat
-                  <ChevronRight className='size-4 text-foreground' />
+                      onClick={(e: MouseEvent<HTMLElement>) => handleVrmChatCategoryClick(e, 'vrmChat')}>
+                  <AudioLines />VRM Chat
+                  <ChevronRight className='text-foreground' />
               </Button>
             </ul>
 
@@ -246,7 +424,7 @@ export function MobileMenuSidever({ setIsNavVisible, vrmChatInitial, pageSize }:
                               'text-sm font-normal text-foreground',
                               'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                               '[&>svg]:text-foreground hover:[&>svg]:text-sidebar-accent-foreground',)}>
-                      {item.icon && <item.icon className='size-4' />}{item.label}
+                      {item.icon && <item.icon />}{item.label}
                     </Button>
                   );
                 };
@@ -264,7 +442,7 @@ export function MobileMenuSidever({ setIsNavVisible, vrmChatInitial, pageSize }:
                               'text-sm font-normal text-foreground',
                               'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                               '[&>svg]:text-foreground hover:[&>svg]:text-sidebar-accent-foreground',)}>
-                      {item.icon && <item.icon className='size-4' />}{item.label}
+                      {item.icon && <item.icon />}{item.label}
                     </Button>
                   );
                 };
@@ -277,7 +455,7 @@ export function MobileMenuSidever({ setIsNavVisible, vrmChatInitial, pageSize }:
                           'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                           '[&>svg]:text-foreground hover:[&>svg]:text-sidebar-accent-foreground',)}
                         onClick={() => setIsMobileMenuOpen(false)} >
-                    {item.icon && <item.icon className='size-4' />}{item.label}
+                    {item.icon && <item.icon />}{item.label}
                   </Link>
                 );
               })}
@@ -309,64 +487,29 @@ export function MobileMenuSidever({ setIsNavVisible, vrmChatInitial, pageSize }:
                       'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                       '[&>svg]:text-foreground/60 hover:[&>svg]:text-sidebar-accent-foreground',)}
                     onClick = {(e: MouseEvent<HTMLElement>,) => handleGoBack(e)}>
-              <ChevronLeft className='size-4' />
+              <ChevronLeft />
               <span>back</span>
             </Button>
             <div className='space-y-4 pt-4'>
               {/* サブカテゴリ ▽ */}
-              <div className={cn(
-                'flex gap-2 mb-2 justify-start items-center',
-                'text-xs font-light text-foreground select-none',
-                '[&>svg]:text-foreground',)}>
-                VRM Chat
-              </div>
-              <Button size      = 'sm'
-                      className = 'absolute right-4 top-4 text-xs'
-                      disabled  = {isVrmChatRoomSending}
-                      onClick   = {handleCreateVrmChatRoom}>
-                {isVrmChatRoomSending ? <Loader2 className='size-4 animate-spin' /> : '新しい会話を始める'}
-              </Button>
-              <ul className='ml-2 w-full space-y-2 pr-8'>
-                { vrmChatItems.map((subItem) => (
-                  <li key={subItem.key}>
-                    <div className='flex w-full items-center justify-between'>
-                      <Link href      = {UrlToString(pagesPath.servicesPath.vrmChatRoom.$url({_roomId:subItem.href}))}
-                            className = {cn(
-                              'flex w-full h-8 justify-start items-center rounded',
-                              'text-sm font-normal text-foreground select-none',
-                              'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',)}
-                            onClick={() => setIsMobileMenuOpen(false)} >
-                        {subItem.label}
-                      </Link>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant='ghost' size='icon'>
-                              <MoreVertical className='size-4' />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align='end'>
-                            <DropdownMenuItem onClick = {(e: MouseEvent<HTMLElement>,) => {handleRoomNameEditModal(e, subItem.key, subItem.label);}} >
-                              <Pencil />タイトル変更
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className = {cn(
-                              'text-destructive',
-                              'hover:bg-destructive hover:text-destructive-foreground',
-                              'focus:bg-destructive focus:text-destructive-foreground',)}
-                                              onClick = {(e: MouseEvent<HTMLElement>,) => {handleDeleteRoomModal(e, subItem.key);}} >
-                              <Trash2 />削除する
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-              <Button variant   = 'ghost'
-                      className = 'mt-3 text-xs text-foreground/60'
-                      disabled  = {isVrmChatRoomSending}
-                      onClick   = {handleLoadMoreVrmChatRoom}>
-                      {isVrmChatRoomSending ? <Loader2 className='size-4 animate-spin' /> : 'もっと見る'}
-              </Button>
+                {currentSubCategoryPage === 'llmChat'
+                  && <LlmChat setIsMobileMenuOpen     = {setIsMobileMenuOpen}
+                              isSending               = {isSending}            
+                              items                   = {llmChatItems}
+                              handleLoadMoreItems     = {handleLoadMoreLlmChatRoom}
+                              handleCreateItem        = {handleCreateLlmChatRoom}
+                              handleItemNameEditModal = {handleRoomNameEditModal}
+                              handleDeleteItemModal   = {handleDeleteRoomModal} />}
+                {currentSubCategoryPage === 'vrmChat'
+                  && <VrmChat setIsMobileMenuOpen     = {setIsMobileMenuOpen}
+                              isSending               = {isSending}
+                              items                   = {vrmChatItems}
+                              handleLoadMoreItems     = {handleLoadMoreVrmChatRoom}
+                              handleCreateItem        = {handleCreateVrmChatRoom}
+                              handleItemNameEditModal = {handleRoomNameEditModal}
+                              handleDeleteItemModal   = {handleDeleteRoomModal} />}
+                {!currentSubCategoryPage
+                  && <></>}
               {/* サブカテゴリ △ */}
           </div>
         </div>
@@ -377,21 +520,37 @@ export function MobileMenuSidever({ setIsNavVisible, vrmChatInitial, pageSize }:
                             onOpenChange = {setIsAccountModalOpen} />
 
       {/* RoomNameChangeDialog */}
-      <RoomNameChangeDialog setVrmChatItems          = {setVrmChatItems}
-                            isVrmChatRoomSending     = {isVrmChatRoomSending}
-                            setIsVrmChatRoomSending  = {setIsVrmChatRoomSending}
+      <RoomNameChangeDialog onSubmit                 = {handleSubmitLlmChatRoomNameChange}
+                            isSending                = {isSending}
+                            setIsSending             = {setIsSending}
+                            roomNameSchema           = {llmChatRoomSettingsRoomNameChangeSchema}
                             editRoomName             = {editRoomName}
                             setEditRoomName          = {setEditRoomName}
                             editRoomNametargetRoomId = {editRoomNametargetRoomId}
-                            editRoomNameModalOpen    = {editRoomNameModalOpen}
-                            setEditRoomNameModalOpen = {setEditRoomNameModalOpen}/>
+                            modalOpen                = {llmChatEditRoomNameModalOpen}
+                            setModalOpen             = {setLlmChatEditRoomNameModalOpen} />
+      <RoomNameChangeDialog onSubmit                 = {handleSubmitVrmChatRoomNameChange}
+                            isSending                = {isSending}
+                            setIsSending             = {setIsSending}
+                            roomNameSchema           = {vrmChatRoomSettingsRoomNameChangeSchema}
+                            editRoomName             = {editRoomName}
+                            setEditRoomName          = {setEditRoomName}
+                            editRoomNametargetRoomId = {editRoomNametargetRoomId}
+                            modalOpen                = {vrmChatEditRoomNameModalOpen}
+                            setModalOpen             = {setVrmChatEditRoomNameModalOpen} />
       {/* DeleteCheckDialog */}
-      <DeleteCheckDialog setVrmChatItems         = {setVrmChatItems}
-                         isVrmChatRoomSending    = {isVrmChatRoomSending}
-                         setIsVrmChatRoomSending = {setIsVrmChatRoomSending}
-                         deleteRoomTargetRoomId  = {deleteRoomTargetRoomId}
-                         deleteRoomModalOpen     = {deleteRoomModalOpen}
-                         setDeleteRoomModalOpen  = {setDeleteRoomModalOpen}/>
+      <DeleteCheckDialog onDelete               = {handleSubmitLlmChatRoomDelete}
+                         isSending              = {isSending}
+                         setIsSending           = {setIsSending}
+                         deleteRoomTargetRoomId = {deleteRoomTargetRoomId}
+                         modalOpen              = {llmChatDeleteRoomModalOpen}
+                         setModalOpen           = {setLlmChatDeleteRoomModalOpen}/>
+      <DeleteCheckDialog onDelete               = {handleSubmitVrmChatRoomDelete}
+                         isSending              = {isSending}
+                         setIsSending           = {setIsSending}
+                         deleteRoomTargetRoomId = {deleteRoomTargetRoomId}
+                         modalOpen              = {vrmChatDeleteRoomModalOpen}
+                         setModalOpen           = {setVrmChatDeleteRoomModalOpen}/>
     </>
   );
 };

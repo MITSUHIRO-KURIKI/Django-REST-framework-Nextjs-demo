@@ -18,6 +18,9 @@ urlpatterns = [
     # user_properties
     path('backendapi/user_properties/',    include('api.user_properties.v1.urls')),
     path('backendapi/v1/user_properties/', include('api.user_properties.v1.urls')),
+    # llmchat
+    path('backendapi/llmchat/',    include('api.llmchat.v1.urls')),
+    path('backendapi/v1/llmchat/', include('api.llmchat.v1.urls')),
     # vrmchat
     path('backendapi/vrmchat/',    include('api.vrmchat.v1.urls')),
     path('backendapi/v1/vrmchat/', include('api.vrmchat.v1.urls')),

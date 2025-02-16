@@ -25,9 +25,9 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'frequent':   '30/second',
-        'standard':   '10/second',
-        'limited':    '1/second', 
+        'frequent':   '100/second',
+        'standard':   '50/second',
+        'limited':    '5/second', 
         'restricted': '20/hour',
         'critical':   '5/day',
         'anon': f"{env.get_value('REST_ANON_THROTTLE_RATES_PER_MIN',int)}/minute",

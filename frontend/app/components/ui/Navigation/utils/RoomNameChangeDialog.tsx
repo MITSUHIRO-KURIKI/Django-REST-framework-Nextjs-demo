@@ -22,39 +22,44 @@ import { Button } from '@/app/components/ui/shadcn/button';
 import { Input } from '@/app/components/ui/shadcn/input';
 import { Label } from '@/app/components/ui/shadcn/label';
 // icons
-import {
-  Loader2,
-} from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 // features
 import { sanitizeDOMPurify } from '@/features/utils';
-import { patchRoomSettingsRoomNameChange, roomSettingsRoomNameChangeSchema } from '@/features/api/vrmchat';
 // components
 import { showToast } from '@/app/components/utils';
-// include
-import { type SubItem } from '../data';
+// type
+import {
+  roomSettingsRoomNameChangeSchema as vrmChatRoomSettingsRoomNameChangeSchema,
+} from '@/features/api/vrmchat';
+import {
+  roomSettingsRoomNameChangeSchema as llmChatRoomSettingsRoomNameChangeSchema,
+} from '@/features/api/llmchat';
+
 
 // type
 type RoomNameChangeDialogProps = {
-  setVrmChatItems:          Dispatch<SetStateAction<SubItem[]>>;
-  isVrmChatRoomSending:     boolean;
-  setIsVrmChatRoomSending:  Dispatch<SetStateAction<boolean>>;
+  onSubmit:                 (roomId: string, editRoomName: string) => Promise<void>;
+  isSending:                boolean;
+  setIsSending:             Dispatch<SetStateAction<boolean>>;
+  roomNameSchema:           typeof llmChatRoomSettingsRoomNameChangeSchema | typeof vrmChatRoomSettingsRoomNameChangeSchema;
   editRoomName:             string;
   setEditRoomName:          Dispatch<SetStateAction<string>>;
   editRoomNametargetRoomId: string;
-  editRoomNameModalOpen:    boolean;
-  setEditRoomNameModalOpen: Dispatch<SetStateAction<boolean>>;
+  modalOpen:                boolean;
+  setModalOpen:             Dispatch<SetStateAction<boolean>>;
 };
 
 // RoomNameChangeDialog ▽
 export function RoomNameChangeDialog({
-    setVrmChatItems,
-    isVrmChatRoomSending,
-    setIsVrmChatRoomSending,
-    editRoomName,
-    setEditRoomName,
-    editRoomNametargetRoomId,
-    editRoomNameModalOpen,
-    setEditRoomNameModalOpen, }: RoomNameChangeDialogProps): ReactElement {
+  isSending,
+  onSubmit,
+  setIsSending,
+  roomNameSchema,
+  editRoomName,
+  setEditRoomName,
+  editRoomNametargetRoomId,
+  modalOpen,
+  setModalOpen, }: RoomNameChangeDialogProps): ReactElement {
 
   const [errorMsg, setErrorMsg] = useState<string>('');
 
@@ -62,7 +67,7 @@ export function RoomNameChangeDialog({
     if (!editRoomName || !editRoomNametargetRoomId) return;
 
     // valid
-    const result = roomSettingsRoomNameChangeSchema.safeParse({room_name: editRoomName,});
+    const result = roomNameSchema.safeParse({room_name: editRoomName,});
     if (!result.success) {
       showToast('error', 'error');
       setErrorMsg(result.error.errors[0].message);
@@ -70,41 +75,24 @@ export function RoomNameChangeDialog({
     };
 
     // 多重送信防止
-    if (isVrmChatRoomSending) return;
+    if (isSending) return;
 
-    setIsVrmChatRoomSending(true);
+    setIsSending(true);
     try {
-      const result = await patchRoomSettingsRoomNameChange({
-        roomId:   editRoomNametargetRoomId,
-        formData: {
-          room_name: sanitizeDOMPurify(editRoomName),
-        },
-      });
-      if (result.ok) {
-        setVrmChatItems((prev) =>
-          prev.map((item) => {
-            if (item.key === editRoomNametargetRoomId) {
-              return { ...item, label: editRoomName };
-            };
-            return item;
-          })
-        );
-      } else {
-        showToast('error', 'error');
-      };
+      await onSubmit(editRoomNametargetRoomId, sanitizeDOMPurify(editRoomName));
+      // モーダルを閉じる
+      setModalOpen(false);
     } catch {
       showToast('error', 'error');
     } finally {
-      // モーダルを閉じる
-      setEditRoomNameModalOpen(false);
       // 多重送信防止
-      setIsVrmChatRoomSending(false);
+      setIsSending(false);
     };
   };
 
   return (
-    <Dialog open         = {editRoomNameModalOpen}
-            onOpenChange = {setEditRoomNameModalOpen}>
+    <Dialog open         = {modalOpen}
+            onOpenChange = {setModalOpen}>
       <DialogContent className='bg-sidebar'>
         <DialogHeader>
           <DialogTitle className='sr-only'>
@@ -135,12 +123,12 @@ export function RoomNameChangeDialog({
                required />
 
         <DialogFooter>
-          <Button variant='outline' onClick={() => setEditRoomNameModalOpen(false)}>
+          <Button variant='outline' onClick={() => setModalOpen(false)}>
             キャンセル
           </Button>
           <Button onClick  = {handleSubmitRoomName}
-                  disabled = {isVrmChatRoomSending} >
-            {isVrmChatRoomSending ? (<Loader2 className='size-4 animate-spin' />) : ('変更')}
+                  disabled = {isSending} >
+            {isSending ? (<Loader2 className='animate-spin' />) : ('変更')}
           </Button>
         </DialogFooter>
       </DialogContent>

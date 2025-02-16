@@ -8,5 +8,5 @@ export function Loader(): ReactElement {
     <div className='inset-0 flex items-center justify-center'>
       <Loader2 className='size-8 animate-spin' />
     </div>
-  )
+  );
 };

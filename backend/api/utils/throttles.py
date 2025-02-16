@@ -1,9 +1,9 @@
 from rest_framework.throttling import UserRateThrottle
 
 # settings.api.Rest
-# -> 'frequent':   '30/second',
-# -> 'standard':   '10/second',
-# -> 'limited':    '1/second', 
+# -> 'frequent':   '100/second',
+# -> 'standard':   '50/second',
+# -> 'limited':    '5/second', 
 # -> 'restricted': '20/hour',
 # -> 'critical':   '5/day',
 

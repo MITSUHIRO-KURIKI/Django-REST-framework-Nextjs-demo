@@ -27,7 +27,7 @@ type PatchRoomSettingsRoomNameChangeRequest = {
   formData: RoomSettingsRoomNameChangeInputType;
 };
 type PatchRoomSettingsResponse = DefaultResponse & {
-  data?: RoomSettingsResponseData[];
+  data?: RoomSettingsResponseData;
 };
   
 // patchRoomSettings
@@ -49,7 +49,7 @@ export async function patchRoomSettings(params: PatchRoomSettingsRequest): Promi
     );
 
     //  Axios は 2xx 以外で catch に飛ぶ
-    const data:RoomSettingsResponseData[] = res.data;
+    const data:RoomSettingsResponseData = res.data;
     const response: PatchRoomSettingsResponse = {
       ok:           true,
       status:       res.status,

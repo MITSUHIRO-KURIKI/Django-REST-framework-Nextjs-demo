@@ -34,7 +34,7 @@ class Room(models.Model):
                     on_delete    = models.CASCADE, # [Memo] CASCADE:親削除子削除, SET_DEFAULT/SET_NULL:親削除子保持
                     blank        = False,
                     null         = False,
-                    related_name = 'related_room_model_create_user',
+                    related_name = 'related_vrmchat_room_model_create_user',
                     help_text    = _('紐づくアカウントID'),)
     is_active = models.BooleanField(
                     verbose_name = _('ルームが有効'),
@@ -54,7 +54,7 @@ class Room(models.Model):
 
     class Meta:
         app_label    = 'vrmchat'
-        db_table     = 'room_model'
+        db_table     = 'vrmchat_room_model'
         verbose_name = verbose_name_plural = _('01_ルーム情報')
 
 # パラメータのデフォルト値で参照
@@ -68,7 +68,7 @@ class RoomSettings(models.Model):
                     on_delete    = models.CASCADE, # [Memo] CASCADE:親削除子削除, SET_DEFAULT/SET_NULL:親削除子保持
                     blank        = False,
                     null         = False,
-                    related_name = 'related_room_settings_model_room_id',
+                    related_name = 'related_vrmchat_room_settings_model_room_id',
                     help_text    = '紐づくルームID',)
     room_name = models.CharField(
                     verbose_name = _('ルーム名'),
@@ -153,15 +153,12 @@ class RoomSettings(models.Model):
                     help_text    = _('半角英数字 256文字以下'),)
     version = AutoIncVersionField()
 
-    def __str__(self):
-        return self.room_id
-
     def get_absolute_url(self):
         return self
 
     class Meta:
         app_label    = 'vrmchat'
-        db_table     = 'room_settings_model'
+        db_table     = 'vrmchat_room_settings_model'
         verbose_name = verbose_name_plural = _('02_ルーム設定')
 
 # Room 作成と同時に RoomSettings を作成

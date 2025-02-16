@@ -225,7 +225,7 @@ export function PasswordResetConfilmForm({
           <Button type      = 'submit'
                   className = 'w-full'
                   disabled  = {isSending}>
-            {isSending ? <Loader2 className='size-4 animate-spin' /> : 'パスワード再設定'}
+            {isSending ? <Loader2 className='animate-spin' /> : 'パスワード再設定'}
           </Button>
         </div>
       </form>

@@ -79,11 +79,24 @@ def get_history(room_id:str,
 @database_sync_to_async
 def sync_save_message_models(room_id:str, data_dict:dict):
     try:
+        user_settings = {
+            k: v
+            for k, v in data_dict.items()
+            if (    k.lower() != 'message_id'
+                and k.lower() != 'user_message'
+                and k.lower() != 'llm_response'
+                and k.lower() != 'tokens_info_dict'
+                and k.lower() != 'history_list'
+                and k.lower() != 'history_text'
+            )
+        }
+
         Message.objects.create(
                 room_id          = Room.objects.get(room_id=room_id),
                 message_id       = data_dict['message_id'],
                 user_message     = data_dict['user_message'],
                 llm_response     = text_modify_fnc(data_dict['llm_response']),
+                user_settings    = user_settings,
                 tokens_info_dict = data_dict['tokens_info_dict'],
                 history_list     = data_dict['history_list'],)
     except Exception as e:

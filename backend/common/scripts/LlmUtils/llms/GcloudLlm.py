@@ -3,7 +3,7 @@ from rest_framework.exceptions import ValidationError
 from google import genai
 from google.genai import types
 import asyncio
-from typing import Dict, Tuple, Union
+from typing import Dict, Tuple, Union, AsyncGenerator
 from ..create_messages import convert_messages_for_gemini
 
 class GcloudLlm:
@@ -64,7 +64,7 @@ class GcloudLlm:
                         model              = self.model_name,
                         contents           = contents,
                         # system_instruction = system_instruction if system_instruction else None,
-                        config             = self.generate_content_config)
+                        config             = self.generate_content_config,)
         
         return_responce = response.candidates[0].content.parts[0].text
 
@@ -95,7 +95,7 @@ class GcloudLlm:
                         model              = self.model_name,
                         contents           = contents,
                         # system_instruction = system_instruction if system_instruction else None,
-                        config             = self.generate_content_config)
+                        config             = self.generate_content_config,)
 
         response        = await asyncio.to_thread(sync_call)
         return_responce = response.candidates[0].content.parts[0].text
@@ -109,3 +109,34 @@ class GcloudLlm:
             return return_responce, usage_dict
 
         return return_responce
+
+    async def async_get_stream_response(self,
+                                 messages:list = [],
+                                 *,
+                                 asyncio_sleep:float = 0.01,
+                                 timeout:int         = 60,
+                                 ) -> AsyncGenerator[str, None]:
+
+        if not messages or messages == []:
+            return
+
+        system_instruction, contents = convert_messages_for_gemini(messages)
+
+        def sync_call():
+            return self.client.models.generate_content_stream(
+                        model              = self.model_name,
+                        contents           = contents,
+                        # system_instruction = system_instruction if system_instruction else None,
+                        config             = self.generate_content_config,)
+
+        response = await asyncio.to_thread(sync_call)
+
+        for res in response:
+            try:
+                content = res.text
+                if content == None:
+                    content = ''
+            except:
+                content = ''
+            yield content
+            await asyncio.sleep(asyncio_sleep)

@@ -16,7 +16,7 @@ class Message(models.Model):
                     on_delete    = models.CASCADE, # [Memo] CASCADE:親削除子削除, SET_DEFAULT/SET_NULL:親削除子保持
                     blank        = False,
                     null         = False,
-                    related_name = 'related_message_model_room_id',
+                    related_name = 'related_vrmchat_message_model_room_id',
                     help_text    = _('紐づくルームID'),)
     message_id  = models.SlugField(
                     verbose_name   = _('メッセージID'),
@@ -33,6 +33,12 @@ class Message(models.Model):
                     unique       = False,)
     llm_response = models.TextField(
                     verbose_name = _('LLM回答'),
+                    default      = None,
+                    blank        = True,
+                    null         = True,
+                    unique       = False,)
+    user_settings = models.TextField(
+                    verbose_name = _('ユーザのLLM設定'),
                     default      = None,
                     blank        = True,
                     null         = True,
@@ -67,5 +73,5 @@ class Message(models.Model):
 
     class Meta:
         app_label    = 'vrmchat'
-        db_table     = 'message_model'
+        db_table     = 'vrmchat_message_model'
         verbose_name = verbose_name_plural = _('10_メッセージ一覧')

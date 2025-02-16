@@ -12,5 +12,6 @@ export type Item = {
   sub?:  SubItem[];
 };
 export type LoadItemDataProps = {
+  llmChatInitial?: SubItem[] | undefined;
   vrmChatInitial?: SubItem[] | undefined;
 };
