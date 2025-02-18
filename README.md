@@ -39,6 +39,7 @@ $ gcloud auth application-default login
 ```
 $ docker-compose up -d --build
 ```
+-> [http://localhost:3000/](http://localhost:3000/ "localhost:3000")
 * 開発時
 ```
 $ docker-compose -f docker-compose.dev.yml up -d --build
