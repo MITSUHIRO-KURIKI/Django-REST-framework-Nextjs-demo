@@ -39,11 +39,15 @@ $ gcloud auth application-default login
 
 
 ## 実行
+> [!NOTE]
+> DefaultAdminユーザー (以下でログインできます)  
+>   - <sup>Email: admin★admin.com (★→@)</sup>  
+>   - <sup>Password: defaultPwd123</sup>
 ```
 $ docker-compose up -d --build
-```
--> :coffee:
--> [http://localhost:3000/](http://localhost:3000/ "localhost:3000")
+```  
+-> :coffee:  
+-> [http://localhost:3000/](http://localhost:3000/ "localhost:3000")  
 * 開発時
 ```
 $ docker-compose -f docker-compose.dev.yml up -d --build
