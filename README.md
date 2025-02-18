@@ -9,7 +9,7 @@
 
 ## 設置
 
-#### backend > .envファイルへの各種クラウドサービス情報の記載
+#### 1. backend > .envファイルへの各種クラウドサービス情報の記載
 ###### AZURE_SPEECH_SERVICE の設定 (VRMでの音声会話に使用)
 ```
 AZURE_SPEECH_SERVICES_SUBSCRIPTION_KEY='*** YOUR AZURE_SPEECH_SERVICES_SUBSCRIPTION_KEY ***'  
@@ -30,9 +30,12 @@ GCLOUD_LOCATION_NAME='*** YOUR GCLOUD_LOCATION_NAME ***'
 $ gcloud config set project <--YOUR PROJECT_ID-->
 $ gcloud auth application-default login
 ```
-#### frontend > public > services > vrmchat > vrm へダウンロードした3Dモデル(.vrm)を格納します  
+#### 2. frontend > public > services > vrmchat > vrm へダウンロードした3Dモデル(.vrm)を格納します  
 <sup>3Dモデル(.vrm)はお好きなものをおいてください。モデルサイズ等に応じて、 frontend > providers > VrmCoreProvider > VrmCoreProvider.tsx のカメラ位置等を修正ください。</sup>  
 <sup>サンプルイメージに使用したのは[つくよみちゃん公式3Dモデル タイプA](https://tyc.rei-yumesaki.net/material/avatar/3d-a/ "つくよみちゃん公式3Dモデル タイプA")「①通常版（VRM）」です。</sup>
+
+#### 3. frontend > public > fonts > NotoSansJP へダウンロードしたサブセットフォント(.woff/.woff2)を格納します  
+<sup>例: [ixkaito/NotoSansJP-subset/subset-min/](https://github.com/ixkaito/NotoSansJP-subset/tree/master/subset-min "ixkaito/NotoSansJP-subset/subset-min/")</sup>
 
 
 ## 実行
