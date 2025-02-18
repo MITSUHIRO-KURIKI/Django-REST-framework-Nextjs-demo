@@ -109,10 +109,13 @@ export function WebSocketCoreProvider({ WebsocketUrl, WebsocketId, children,}: W
   // WebSocket 接続 / 再接続
   // --------------------
   // setUpWebSocketListeners: WebSocket イベントリスナー
-  const setUpWebSocketListeners = useCallback((ws: WebSocket) => {
+  const setUpWebSocketListeners = useCallback((ws: WebSocket, isReconnect?: boolean) => {
     // open
     ws.addEventListener('open', () => {
       setIsWebSocketWaiting(false);
+      if (isReconnect) {
+        ws.send(JSON.stringify({ cmd: 'Reconnect' }));
+      };
       showToast('success', 'Connected', {position: 'bottom-right', duration: 3000,});
     });
     // message
@@ -137,7 +140,7 @@ export function WebSocketCoreProvider({ WebsocketUrl, WebsocketId, children,}: W
   }, []);
 
   // connectWebSocket: 新規接続
-  const connectWebSocket = useCallback(async (): Promise<void> => {
+  const connectWebSocket = useCallback(async ({ isReconnect = false }:{isReconnect?: boolean} = {}): Promise<void> => {
     try {
       // 既存ソケットが CONNECTING or OPEN なら一旦閉じる
       if (socketRef.current) {
@@ -151,7 +154,7 @@ export function WebSocketCoreProvider({ WebsocketUrl, WebsocketId, children,}: W
       const backendDomain = process.env.NEXT_PUBLIC_BACKEND_DOMAIN;
       const wsUrl         = `${wsProtocol}://${backendDomain}/${WebsocketUrl}${WebsocketId}`;
       const newSocket     = new WebSocket(wsUrl);
-      setUpWebSocketListeners(newSocket);
+      setUpWebSocketListeners(newSocket, isReconnect);
       socketRef.current = newSocket;
       console.log('connectWebSocket OK'); // Debug
     } catch {
@@ -177,7 +180,7 @@ export function WebSocketCoreProvider({ WebsocketUrl, WebsocketId, children,}: W
     // 再接続
     showToast('info', '自動的に再接続を試みます', {position: 'bottom-right', duration: 3000,});
     setIsWebSocketWaiting(false);
-    await connectWebSocket();
+    await connectWebSocket({ isReconnect: true });
     // Debug
     console.log('reConnectWebSocket');
   }, [connectWebSocket]);

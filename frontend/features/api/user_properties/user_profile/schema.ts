@@ -8,7 +8,7 @@ export const userProfileFormSchema = z.object({
     if (val.length < min) {
       ctx.addIssue({
         code:    z.ZodIssueCode.custom,
-        message: `ルーム名を入力してください`,
+        message: 'ユーザーネームを入力してください',
       });
     };
     if (val.length > max) {

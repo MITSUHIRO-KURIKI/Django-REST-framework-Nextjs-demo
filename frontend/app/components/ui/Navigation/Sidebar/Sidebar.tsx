@@ -60,8 +60,10 @@ import { showToast } from '@/app/components/utils';
 import { NavigationItems, type SubItem, type LoadItemDataProps } from '../data';
 import { RoomNameChangeDialog, DeleteCheckDialog } from '../utils';
 import { LlmChat, VrmChat } from './MenuContent';
+import { Author } from './Author';
 // type
 import type { ModalType } from './type.d';
+
 
 // type
 type SidebarBodyProps = {
@@ -395,9 +397,9 @@ export function SidebarBody({
             );
           })}
         </SidebarContent>
-        <p className='font-mono text-xs text-slate-400 select-none'>&copy; 2024 K.Mitsuhiro</p>
+        <Author />
       </SidebarFooter>
-      <SidebarRail className='hover:after:bg-transpant' />
+      <SidebarRail className='hover:after:bg-transparent' />
 
       {/* RoomNameChangeDialog */}
       <RoomNameChangeDialog onSubmit                 = {handleSubmitLlmChatRoomNameChange}

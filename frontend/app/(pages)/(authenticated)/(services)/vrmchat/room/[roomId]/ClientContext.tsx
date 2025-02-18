@@ -89,7 +89,6 @@ export function ClientContext({ roomId, roomTitle }: VrmChatRoomParams): ReactEl
 
   // 送信 (isStopRecognition 変化で発火)
   useEffect(() => {
-    if (!stContext) return;
     // isStopRecognition=true で送信
     if (isStopRecognition) {
       // 受信メッセージの初期化
@@ -107,7 +106,7 @@ export function ClientContext({ roomId, roomTitle }: VrmChatRoomParams): ReactEl
   useEffect(() => {
     // serverMessage が来た際のみ独自ロジックで処理を行う
     if (!wsContext || !serverMessage) return;
-    customReceiveLogic({
+    void customReceiveLogic({
       contextValue: wsContext,
       payload:      { cmd, status, ok, message, data },
       setReceivedMessages,
@@ -131,14 +130,14 @@ export function ClientContext({ roomId, roomTitle }: VrmChatRoomParams): ReactEl
   // Sidebar タイトルセット ▽
   useEffect(() => {
     setSidebarInsetTitle(roomTitle);
-    setSidebarInsetSubTitle('LLM Chat');
-  }, [roomTitle]);
+    setSidebarInsetSubTitle('VRM Chat');
+  }, [roomTitle, setSidebarInsetTitle, setSidebarInsetSubTitle]);
   // Sidebar タイトルセット △
 
   // WebSocketCoreContext last ▽
   if (!wsContext || !stContext || !vrmContext) {
     showToast('error', 'error', { position: 'bottom-right', duration: 3000 });
-    return <p className='text-xs font-thin text-muted-foreground select-none'>Sorry, not available</p>;
+    return <p className='select-none text-xs font-thin text-muted-foreground'>Sorry, not available</p>;
   };
   // WebSocketCoreContext last △
 

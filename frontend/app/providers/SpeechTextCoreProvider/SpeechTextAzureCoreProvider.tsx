@@ -319,7 +319,7 @@ export function SpeechTextAzureCoreProvider({
     } catch {
       showToast('warning', 'tts error 5', {position: 'bottom-right', duration: 3000});
     };
-  }, [synthesizerRef.current, audioContextRef.current, speechAnalyser, speechDataArray ]);
+  }, [synthesizerCheckAndSetup, synthesizerRef.current, audioContextRef.current, speechAnalyser, speechDataArray ]);
   /**
    * ==========
    * STT/TTS △

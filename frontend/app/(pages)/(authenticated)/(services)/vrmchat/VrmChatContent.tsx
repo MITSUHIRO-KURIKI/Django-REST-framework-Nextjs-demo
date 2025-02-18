@@ -17,10 +17,12 @@ export function VrmChatContent(): ReactElement {
   const sbarContext = useContext(SidebarContext);
   const {
     setSidebarInsetTitle,
+    setSidebarInsetSubTitle,
   } = sbarContext as SidebarContextValue;
   useEffect(() => {
     setSidebarInsetTitle('VRM Chat Home');
-  }, [setSidebarInsetTitle]);
+    setSidebarInsetSubTitle('');
+  }, [setSidebarInsetTitle, setSidebarInsetSubTitle]);
   // Sidebar タイトルセット △
 
   // リダイレクト時メッセージ処理

@@ -5,8 +5,11 @@ services:
   frontend:
     build:
       context: frontend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     tty: true                             # 本番環境では不要
+    volumes:
+      - ./frontend:/frontend
+      - /frontend/node_modules            # ホストの `node_modules` をコンテナと分離
     ports:
       - 3000:3000                         # frontapps
       - 6006:6006                         # Storybook
@@ -21,10 +24,13 @@ services:
   backend:
     build:
       context: backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     depends_on:
       - postgres
     tty: true                             # 本番環境では不要
+    volumes:
+      - ./backend:/backend
+      - /backend/__pycache__              # `__pycache__` の分離
     ports:
       - 8000:8000
     environment:
@@ -63,4 +69,4 @@ networks:
       driver: default
       config:
         - subnet: 172.20.0.0/16
-          gateway: 172.20.0.1   # 172.16.0.0～172.31.255.255
+          gateway: 172.20.0.1              # 172.16.0.0～172.31.255.255

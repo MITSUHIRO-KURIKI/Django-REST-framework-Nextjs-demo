@@ -16,8 +16,6 @@ python manage.py migrate llmchat
 python manage.py migrate vrmchat
 python manage.py migrate
 
-# createsuperuser の実行
-python manage.py createsuperuser
-
+# Gcloud 使用の際にはクライアント認証が必要
 # gcloud config set project <--YOUR PROJECT_ID-->
 # gcloud auth application-default login

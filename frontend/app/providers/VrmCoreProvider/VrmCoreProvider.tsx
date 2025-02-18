@@ -158,7 +158,6 @@ export function VrmCoreProvider({url, children, options,}: VrmCoreProviderProps)
     light.castShadow = lightCastShadow;                         // 影の計算を無効化
     scene.add(light);
   }, [
-    url,
     currentVrm,
     width,
     height,
@@ -250,7 +249,7 @@ export function VrmCoreProvider({url, children, options,}: VrmCoreProviderProps)
       };
     };
     requestAnimationFrame(renderLoop);
-  }, [url, clock, currentVrm, interval]);
+  }, [clock, currentVrm, interval]);
 
   // マウント時の初期処理
   useEffect(() => {
@@ -319,7 +318,7 @@ export function VrmCoreProvider({url, children, options,}: VrmCoreProviderProps)
     height,
     maxRatio,
     containerRef,
-  }), [url, currentVrm, width, height]);
+  }), [currentVrm, width, height, maxRatio]);
 
   return (
     <VrmCoreContext.Provider value={contextValue}>

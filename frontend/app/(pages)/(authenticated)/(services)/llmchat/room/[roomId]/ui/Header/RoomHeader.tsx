@@ -43,9 +43,9 @@ export function RoomHeader({
   // チャットメッセージ入力用
   const [inputValue, setInputValue] = useState('');
   // テキストエリアを参照し、入力に応じて高さを自動調整
-  const textareaRef        = useRef<HTMLTextAreaElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // 
+  // handleTextareaReSize
   const handleTextareaReSize = (e: ChangeEvent<HTMLTextAreaElement>) => {
     // 一度 height を auto にしてから scrollHeight を設定
     if (textareaRef.current) {
@@ -60,7 +60,7 @@ export function RoomHeader({
     if (!inputValue.trim()) return;
     setSendMessages(inputValue);
     setIsWsSend(true);
-    // 
+    // インプットの初期化
     setInputValue('');
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
@@ -75,7 +75,7 @@ export function RoomHeader({
           'bg-background/30 dark:bg-background/30',
           'backdrop-blur-sm backdrop-filter',)}>
 
-      <div className='flex justify-center w-full'>
+      <div className='flex w-full justify-center'>
         <div className={cn(
                 'flex flex-col pr-1',
                 'w-[100%] md:w-[90%] lg:w-[80%] max-w-[1000px]',
@@ -139,7 +139,7 @@ export function RoomHeader({
         </div>
       </div>
 
-      <div className='text-[8px] text-center text-gray-500'>
+      <div className='text-center text-[8px] text-gray-500'>
         生成AIの回答は必ずしも正しいとは限りません。重要な情報は確認をお願いします。
       </div>
     </div>

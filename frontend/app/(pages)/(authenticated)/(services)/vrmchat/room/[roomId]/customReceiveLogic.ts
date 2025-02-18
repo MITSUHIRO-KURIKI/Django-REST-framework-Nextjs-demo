@@ -42,8 +42,8 @@ export async function customReceiveLogic({
   textToSpeech,
   setSidebarInsetTitle,}: CustomReceiveLogicProps): Promise<void> {
 
-  const { setIsWebSocketWaiting } = contextValue;
-  const { cmd, ok, data }         = payload;
+  const { setIsWebSocketWaiting }  = contextValue;
+  const { cmd, ok, message, data } = payload;
 
   try {
     // SendUserMessage
@@ -66,8 +66,22 @@ export async function customReceiveLogic({
       } else {
         //
       };
+    // 共通コマンド ▽
+    // Reconnect
+    } else if (cmd === 'Reconnect') {
+      // 特になにもしない
+    // Error
+    } else if (cmd === 'Error') {
+      if (message) {
+        showToast('error', sanitizeDOMPurify(String(message)), {position: 'bottom-right', duration: 3000});
+      };
+      // 多重送信管理フラグを解除
+      setIsWebSocketWaiting(false);
+    // 共通コマンド △
     // end
     };
+  } catch {
+    showToast('error', 'receive error', {position: 'bottom-right', duration: 3000});
   } finally {
     // 多重送信管理フラグを解除
     setIsWebSocketWaiting(false);

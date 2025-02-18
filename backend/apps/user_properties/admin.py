@@ -4,6 +4,7 @@ from import_export.admin import ExportMixin
 from import_export.resources import ModelResource
 from .models import UserProfile, UserReceptionSetting
 
+
 class UserProfileResource(ModelResource):
     class Meta:
         model  = UserProfile

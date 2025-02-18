@@ -84,12 +84,12 @@ export function PasswordResetContent(): ReactElement {
               <div className='text-center text-sm'>
               { !isSuccess ? (
                 <Link href={pagesPath.authPath.login.$url()}
-                      className='hover:underline hover:underline-offset-4 select-none'>
+                      className='select-none hover:underline hover:underline-offset-4'>
                    ログインページに戻る
                 </Link>
               ) : (
                 <Link href={pagesPath.$url()}
-                      className='hover:underline hover:underline-offset-4 select-none'>
+                      className='select-none hover:underline hover:underline-offset-4'>
                    ホームに戻る
                 </Link>
               )}

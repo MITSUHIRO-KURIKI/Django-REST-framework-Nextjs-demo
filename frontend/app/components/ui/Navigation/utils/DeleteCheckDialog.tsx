@@ -57,7 +57,7 @@ export function DeleteCheckDialog({
       setSafetyCheckInput('')
       setErrorMsg('')
     };
-  }, [setModalOpen])
+  }, [modalOpen, setModalOpen])
 
   const handleDeleteRoom = async (): Promise<void> => {
     if (!deleteRoomTargetRoomId) return;
@@ -101,11 +101,11 @@ export function DeleteCheckDialog({
 
         <div className = 'my-2'>
           { errorMsg ? (
-            <p className = 'mb-2 text-sm text-destructive select-none'>
+            <p className = 'mb-2 select-none text-sm text-destructive'>
               {errorMsg}
             </p>
           ) : (
-            <p className = 'mb-2 text-sm select-none'>
+            <p className = 'mb-2 select-none text-sm'>
               「delete」と入力してください
             </p>
           )}

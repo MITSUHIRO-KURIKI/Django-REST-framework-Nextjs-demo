@@ -2,6 +2,7 @@
 export const zIndex = {
   backToTop:          '49',
   dropdown:           '1000',
+  badge:              '1010',
   sticky:             '1020',
   fixed:              '1030',
   offcanvasBackdrop:  '1040',
@@ -13,6 +14,7 @@ export const zIndex = {
   tooltip:            '1080',
   toast:              '1090',
   dropdown2:          '2000',
+  badge2:             '2010',
   sticky2:            '2020',
   fixed2:             '2030',
   offcanvasBackdrop2: '2040',

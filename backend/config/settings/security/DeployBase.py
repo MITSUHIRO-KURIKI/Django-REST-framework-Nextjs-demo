@@ -1,6 +1,5 @@
 # https://qiita.com/juchilian/items/3afa2d679fb88bd70aff
 import os
-from django.conf import settings
 
 if os.environ.get('DJANGO_ENV', 'development') == 'production':
     # SECURE_HSTS_SECONDS            = 31536000 # 無知にいじると危険なのでコメントアウト

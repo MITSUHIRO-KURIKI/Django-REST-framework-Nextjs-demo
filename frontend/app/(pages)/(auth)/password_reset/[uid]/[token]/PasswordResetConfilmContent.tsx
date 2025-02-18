@@ -87,7 +87,7 @@ export function PasswordResetConfilmContent({ uid, token }: PasswordResetConfilm
               {/* Foot */}
               <div className='text-center text-sm'>
                 <Link href={pagesPath.authPath.login.$url()}
-                      className='hover:underline hover:underline-offset-4 select-none'>
+                      className='select-none hover:underline hover:underline-offset-4'>
                   ログインページに戻る
                 </Link>
               </div>

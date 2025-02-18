@@ -102,9 +102,11 @@ export function ClientContext({ roomId, roomTitle, roomAiIconData, InitMessageLi
     void customReceiveLogic({
       contextValue: wsContext,
       payload:      { cmd, status, ok, message, data },
+      roomId,
       setIsWsSend,
       setReceiveMessageListData,
       setMessageListData,
+      setSidebarInsetTitle,
     });
   }, [serverMessage]);
 
@@ -112,13 +114,13 @@ export function ClientContext({ roomId, roomTitle, roomAiIconData, InitMessageLi
   useEffect(() => {
     setSidebarInsetTitle(roomTitle);
     setSidebarInsetSubTitle('LLM Chat');
-  }, [roomTitle]);
+  }, [roomTitle, setSidebarInsetTitle, setSidebarInsetSubTitle]);
   // Sidebar タイトルセット △
 
   // WebSocketCoreContext last ▽
   if (!wsContext) {
     showToast('error', 'error', { position: 'bottom-right', duration: 3000 });
-    return <p className='text-xs font-thin text-muted-foreground select-none'>Sorry, not available</p>;
+    return <p className='select-none text-xs font-thin text-muted-foreground'>Sorry, not available</p>;
   };
   // WebSocketCoreContext last △
   return (
@@ -133,5 +135,5 @@ export function ClientContext({ roomId, roomTitle, roomAiIconData, InitMessageLi
       userIconData           = {userIconData}
       roomAiIconData         = {roomAiIconData} />
   );
-}
+};
 // ClientContext △

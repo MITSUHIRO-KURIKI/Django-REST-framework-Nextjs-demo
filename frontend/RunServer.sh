@@ -1,3 +1,3 @@
 # runserver の実行
-# yarn dev
-yarn start
+yarn dev
+# yarn start

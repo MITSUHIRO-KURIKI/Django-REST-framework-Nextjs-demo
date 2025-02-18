@@ -45,7 +45,7 @@ export function Navbar({isUseSidebar, llmChatInitial, vrmChatInitial, pageSize, 
   return (
     <nav className={cn(
       'fixed z-fixed top-0 left-0 w-full h-[var(--navbar-height)]',
-      'transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]',
+      'transition-transform duration-300',"ease-[cubic-bezier(0.32,0.72,0,1)]",
       'backdrop-blur-sm backdrop-filter',
       navbarBgColor ? navbarBgColor : 'bg-background/30 dark:bg-background/30',
       !isUseSidebar && 'border-b border-border',
@@ -65,8 +65,8 @@ export function Navbar({isUseSidebar, llmChatInitial, vrmChatInitial, pageSize, 
         {/* NavigationMenu */}
         { !isUseSidebar && (
           <div className={cn(
-            'flex-none invisible max-w-0 hidden flex items-center justify-center',
-            'md:visible')}>
+            'flex-none max-w-0 flex items-center justify-center',
+            'invisible md:visible')}>
             <NavigationMenu />
           </div>
         )}

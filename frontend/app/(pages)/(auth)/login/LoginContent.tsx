@@ -87,7 +87,7 @@ export function LoginContent(): ReactElement {
               {/* Foot */}
               <div className='text-center text-sm'>
                 <Link href      = {pagesPath.authPath.signup.$url()}
-                      className = 'hover:underline hover:underline-offset-4 select-none'>
+                      className = 'select-none hover:underline hover:underline-offset-4'>
                   新規登録はこちら
                 </Link>
               </div>

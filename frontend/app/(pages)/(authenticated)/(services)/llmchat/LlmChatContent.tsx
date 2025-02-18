@@ -16,10 +16,12 @@ export function LlmChatContent(): ReactElement {
   const sbarContext = useContext(SidebarContext);
   const {
     setSidebarInsetTitle,
+    setSidebarInsetSubTitle,
   } = sbarContext as SidebarContextValue;
   useEffect(() => {
     setSidebarInsetTitle('LLM Chat Home');
-  }, [setSidebarInsetTitle]);
+    setSidebarInsetSubTitle('');
+  }, [setSidebarInsetTitle, setSidebarInsetSubTitle]);
   // Sidebar タイトルセット △
 
   // リダイレクト時メッセージ処理

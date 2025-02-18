@@ -119,7 +119,7 @@ export function UserProfileEditForm({userProfileData,}: {userProfileData: UserPr
             <Label className='text-left text-sm font-semibold text-foreground/80'>
               プロフィール画像
             </Label>
-            <div className='relative mx-auto size-[200px] overflow-hidden rounded-full border select-none'>
+            <div className='relative mx-auto size-[200px] select-none overflow-hidden rounded-full border'>
               <img src       = {userIconPreviewUrl}
                    alt       = 'icon preview'
                    className = 'size-[200px] object-cover' />

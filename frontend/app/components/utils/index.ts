@@ -1,3 +1,4 @@
+export { MarkdownEditModal, MarkdownEditorClient } from './BlockNote';
 export { CropperDialog } from './Cropper';
 export { MarkdownRender } from './Markdown';
 export { isDialogOpenInDOM } from './isDialogOpenInDOM';

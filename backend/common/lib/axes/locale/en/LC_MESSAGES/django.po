@@ -2,13 +2,13 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# 
+#
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-10 10:30+0000\n"
+"POT-Creation-Date: 2025-02-18 12:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,6 +25,10 @@ msgstr ""
 #: common/lib/axes/admin.py:27 common/lib/axes/admin.py:77
 #: common/lib/axes/admin.py:125
 msgid "Meta Data"
+msgstr ""
+
+#: common/lib/axes/apps.py:15
+msgid "98_認証ログ"
 msgstr ""
 
 #: common/lib/axes/conf.py:108

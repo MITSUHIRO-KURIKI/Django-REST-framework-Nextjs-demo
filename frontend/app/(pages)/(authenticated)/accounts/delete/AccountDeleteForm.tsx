@@ -69,21 +69,21 @@ export function AccountDeleteForm(): ReactElement {
       {/* OverlaySpinner */}
       <OverlaySpinner isActivate={isSending} />
 
-      <Label className='block mb-4 text-lg font-bold'>アカウントの削除</Label>
+      <Label className='mb-4 block text-lg font-bold'>アカウントの削除</Label>
 
       <Alert variant='destructive'>
         <AlertDescription className='flex items-center'>
-          <CircleAlert className='size-6 mr-2' /><p>この操作は取り消せません。</p>
+          <CircleAlert className='mr-2 size-6' /><p>この操作は取り消せません。</p>
         </AlertDescription>
       </Alert>
 
       <div className = 'my-6'>
           { errorMsg ? (
-            <p className = 'mb-2 text-sm text-destructive select-none'>
+            <p className = 'mb-2 select-none text-sm text-destructive'>
               {errorMsg}
             </p>
           ) : (
-            <p className = 'mb-2 text-sm select-none'>
+            <p className = 'mb-2 select-none text-sm'>
               「delete」と入力してください
             </p>
           )}

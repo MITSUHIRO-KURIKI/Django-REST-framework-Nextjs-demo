@@ -40,5 +40,5 @@ ENV DJANGO_SUPERUSER_PASSWORD="defaultPwd123"
 CMD ["/bin/sh", "-c", "\
     ./ProjectSetup.sh && \
     python manage.py createsuperuser --noinput || true && \
-    python manage.py runserver 0.0.0.0:8000 \
+    tail -f /dev/null \
     "]

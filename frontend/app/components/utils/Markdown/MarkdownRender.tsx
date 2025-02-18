@@ -19,13 +19,17 @@ import rehypeKatex from 'rehype-katex';
 import rehypeExternalLinks from 'rehype-external-links';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { a11yOneLight, a11yDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import {
+  coy      as PrismStyleLight,
+  a11yDark as PrismStyleDark,
+} from 'react-syntax-highlighter/dist/esm/styles/prism';
 // features
 import { defaultUrlTransform } from '@/features/utils';
 // hooks
 import { useStringCopy } from '@/app/hooks';
 // include
 import { MermaidDraw } from './MermaidDraw';
+
 
 // type
 type MarkdownRenderProps = {
@@ -105,6 +109,7 @@ export function MarkdownRender({
             components = {{
               img({ alt, ...props }) {
                 return (
+                  /* eslint-disable-next-line react-hooks/exhaustive-deps */
                   <img className={cn(
                           'max-w-30 max-h-30',
                           'object-scale-down rounded-lg',
@@ -142,12 +147,15 @@ export function MarkdownRender({
                 // ある程度長めのコードは SyntaxHighlighter を使う
                 } else if (language || String(children).length >= 50) {
                   const languageDisplay = language || 'plaintext';
-                  const PrismStyle      = resolvedTheme === 'dark' ? a11yDark : a11yOneLight;
+                  const PrismStyle      = resolvedTheme === 'dark' ? PrismStyleDark : PrismStyleLight;
                   return (
                     <div className='relative'>
                       {languageDisplay && (
                         <Badge  variant   = 'secondary'
-                                className = 'absolute right-0 top-0 px-2 text-xs font-thin'>
+                                className = {cn(
+                                  'absolute right-0 top-0 px-2',
+                                  'text-xs font-thin',
+                                )}>
                           {languageDisplay.toUpperCase()}
                         </Badge>
                       )}
@@ -194,7 +202,7 @@ export function MarkdownRender({
                 } else {
                   // 'short text' などの単語レベル
                   return (
-                    <span className = 'font-thin bg-muted'
+                    <span className = 'bg-muted font-thin'
                           style     = {{
                             fontFamily: 'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
                           }}>

@@ -144,7 +144,7 @@ export function SignupForm({
         <AlertTitle>仮登録を受け付けました。</AlertTitle>
         <AlertDescription>送付されたメールから認証を完了してください。</AlertDescription>
       </Alert>
-      <p className='text-xs leading-none text-muted-foreground select-none'>
+      <p className='select-none text-xs leading-none text-muted-foreground'>
         ※メールが届かない場合、入力したメールアドレスが間違っている可能性があります。お手数ですが、再度、登録をやり直してください。
       </p>
     </div>

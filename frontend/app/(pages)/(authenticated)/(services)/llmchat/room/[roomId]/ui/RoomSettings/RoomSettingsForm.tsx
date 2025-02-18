@@ -123,7 +123,7 @@ export function RoomSettingsForm({ roomId, roomAiIconUrl, setRoomAiIconUrl, setS
     } finally {
       setIsLoading(false);
     };
-  })(); }, [form.reset, roomId]);
+  })(); }, [form, roomId]);
   // - onSubmit
   const onSubmit: SubmitHandler<RoomSettingsFormInputType> = async (data) => {
 
@@ -205,14 +205,14 @@ export function RoomSettingsForm({ roomId, roomAiIconUrl, setRoomAiIconUrl, setS
             <Label className='text-left text-sm font-semibold text-foreground/80'>
               AIアバター画像
             </Label>
-            <div className='relative mx-auto size-[200px] overflow-hidden rounded-full border select-none'>
+            <div className='relative mx-auto size-[200px] select-none overflow-hidden rounded-full border'>
               <img src       = {aiIconPreviewUrl}
                    alt       = 'icon preview'
                    className = 'size-[200px] object-cover' />
             </div>
           </div>
           {/* ai_icon (CropperDialog) */}
-          <div className='flex flex-col gap-1 w-[80%] mx-auto my-2'>
+          <div className='mx-auto my-2 flex w-4/5 flex-col gap-1'>
             <div className='flex w-full items-center gap-2'>
               <CropperDialog onCropped = {handleCropped}
                              className = 'flex-1 border-muted-foreground' />
@@ -337,7 +337,7 @@ export function RoomSettingsForm({ roomId, roomAiIconUrl, setRoomAiIconUrl, setS
                 <Slider value = {[field.value]}
                         id    = 'max_tokens'
                         min   = {50}
-                        max   = {2048}
+                        max   = {8192}
                         step  = {1}
                         onValueChange = {(val) => field.onChange(val[0])}/>
               </FormControl>

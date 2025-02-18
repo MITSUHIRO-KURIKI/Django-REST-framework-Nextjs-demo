@@ -106,7 +106,7 @@ export function PasswordResetForm({
         <AlertTitle>パスワード再設定のメールを送信しました。</AlertTitle>
         <AlertDescription>送付されたメールからパスワードの再設定を行ってください。</AlertDescription>
       </Alert>
-      <p className='text-xs leading-none text-muted-foreground select-none'>
+      <p className='select-none text-xs leading-none text-muted-foreground'>
         ※メールが届かない場合、入力したメールアドレスが間違っている可能性があります。お手数ですが、再度、パスワード再設定をやり直してください。
       </p>
     </div>

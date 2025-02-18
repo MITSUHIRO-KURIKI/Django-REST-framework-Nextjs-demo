@@ -279,9 +279,19 @@ class VrmchatConsumer(AsyncWebsocketConsumer):
                 try:
                     if text_data:
                         data_json = json.loads(text_data) if text_data else None
-                        # ping だけは何も返さない
+                        # ping は何も返さない
                         if data_json['cmd'] == 'ping':
                             return
+                        # Reconnect はユーザにのみ通知
+                        elif data_json['cmd'] == 'Reconnect':
+                            message_data = {
+                                'cmd':     'Reconnect',
+                                'status':  200,
+                                'ok':      True,
+                                'message': None,
+                                'data':    None,
+                            }
+                            return await self._self_send_message(message_data, is_send_bytes_data=False)
                     elif bytes_data:
                         data_json = json.loads(brotli.decompress(bytes_data).decode('utf-8')) if bytes_data else None
                         is_possible_compress = True
@@ -337,10 +347,10 @@ class VrmchatConsumer(AsyncWebsocketConsumer):
         except Exception as e:
             print(e)
             message_data = {
-                'cmd':     'receiverMessage',
+                'cmd':     'Error',
                 'status':  500,
                 'ok':      False,
-                'message': 'receiveFin',
+                'message': 'server process Error',
                 'data':    None,
             }
             await self._self_send_message(message_data, is_send_bytes_data=is_possible_compress)
@@ -351,129 +361,141 @@ class VrmchatConsumer(AsyncWebsocketConsumer):
     ####################
     async def _receive_user_message(self, user_message:str, message_id:str, is_possible_compress:bool):
 
-        # RoomSettings の取得
-        data_dict = await get_room_settings(self.room_id)
-        # model_name の変換 (model_name_int でこの後 llmの切り替えするので保持)
-        model_name_int          = data_dict['model_name']
-        data_dict['model_name'] = MODEL_NAME_CHOICES_DICT[model_name_int]
-        # user_message の投入
-        data_dict['user_message'] = user_message
-        # message_id 設定
-        if message_id:
-            data_dict['message_id'] = message_id
-        else:
-            data_dict['message_id'] = generate_uuid_hex()
+        try:
+            # RoomSettings の取得
+            data_dict = await get_room_settings(self.room_id)
+            # model_name の変換 (model_name_int でこの後 llmの切り替えするので保持)
+            model_name_int          = data_dict['model_name']
+            data_dict['model_name'] = MODEL_NAME_CHOICES_DICT[model_name_int]
+            # user_message の投入
+            data_dict['user_message'] = user_message
+            # message_id 設定
+            if message_id:
+                data_dict['message_id'] = message_id
+            else:
+                data_dict['message_id'] = generate_uuid_hex()
 
-        # ルームに紐づくヒストリーメッセージ時の取得▽
-        history_list, history_text = await get_history(self.room_id, data_dict['history_len'])
-        data_dict['history_list'] = history_list
-        data_dict['history_text'] = history_text
-        # ルームに紐づくヒストリーメッセージ時の取得△
+            # ルームに紐づくヒストリーメッセージ時の取得▽
+            history_list, history_text = await get_history(self.room_id, data_dict['history_len'])
+            data_dict['history_list'] = history_list
+            data_dict['history_text'] = history_text
+            # ルームに紐づくヒストリーメッセージ時の取得△
 
-        # 入力のバリデーション▽
-        ## 何も質問されてないときに返すテキスト▽
-        if data_dict['user_message'].replace(' ','').replace('　','') == '':
-            error_message = ''
-            message_data  = {
-                'cmd':  'SendUserMessage',
-                'status': 200,
-                'ok':     True,
-                'data': {
-                    'messageId':   data_dict['message_id'],
-                    'llmResponse': error_message,
-                },
-            }
-            await self._self_send_message(message_data, is_send_bytes_data=is_possible_compress)
-        ## 何も質問されてないときに返すテキスト△
-        ## メッセージのトークンが設定値を超えた場合の処理▽
-        elif not is_tokens_less_than_settings(
-                    sentence   = data_dict['user_message']+ \
-                                 data_dict['system_sentence'] if data_dict['system_sentence'] else ''+ \
-                                 data_dict['assistant_sentence'] if data_dict['assistant_sentence'] else ''+ \
-                                 data_dict['history_text'] if data_dict['history_text'] else '',
-                    max_tokens = int(SEND_MAX_TOKENS)):
-            error_message = f'入力文字数が設定値を超えたみたいです。\n過去の会話、システムメッセージなども含めて最大トークンは{SEND_MAX_TOKENS}に設定されています。'
-            message_data = {
-                'cmd':  'SendUserMessage',
-                'status': 200,
-                'ok':     True,
-                'data': {
-                    'messageId':   data_dict['message_id'],
-                    'llmResponse': error_message,
-                },
-            }
-            await self._self_send_message(message_data, is_send_bytes_data=is_possible_compress)
-        ## メッセージのトークンが設定値を超えた場合の処理△
-        # 入力のバリデーション△
-
-        # メイン処理
-        else:
-            # プロンプトの作成
-            formatted_prompt = await self._create_prompt(data_dict['user_message'])
-
-            # メッセージの作成
-            messages = create_messages(formatted_prompt,
-                                       data_dict['system_sentence'],
-                                       data_dict['assistant_sentence'],
-                                       data_dict['history_list'])
-            # llm
-            # model_name_int の大きさで切り替え
-            if model_name_int < 100:
-                llm = OpenAILlm(api_key           = settings.OPENAI_API_KEY,
-                                model_name        = data_dict['model_name'],
-                                temperature       = data_dict['temperature'],
-                                max_tokens        = data_dict['max_tokens'],
-                                top_p             = data_dict['top_p'],
-                                frequency_penalty = data_dict['frequency_penalty'],
-                                presence_penalty  = data_dict['presence_penalty'],)
-            elif 100 <= model_name_int:
-                llm = GcloudLlm(project_name      = settings.GCLOUD_PROJECT_NAME,
-                                location_name     = settings.GCLOUD_LOCATION_NAME,
-                                model_name        = data_dict['model_name'],
-                                temperature       = data_dict['temperature'],
-                                max_tokens        = data_dict['max_tokens'],
-                                top_p             = data_dict['top_p'],
-                                frequency_penalty = data_dict['frequency_penalty'],
-                                presence_penalty  = data_dict['presence_penalty'],)
-            llm_response = await llm.async_get_response(messages)
-            message_data = {
-                'cmd':  'SendUserMessage',
-                'status': 200,
-                'ok':     True,
-                'data': {
-                    'messageId':   data_dict['message_id'],
-                    'llmResponse': llm_response,
-                },
-            }
-            await self._self_send_message(message_data, is_send_bytes_data=is_possible_compress)
-
-            # 結果の処理
-            data_dict['llm_response'] = llm_response
-            tokens_info_dict = {
-                'sent_tokens': calc_token(sentence = data_dict['user_message']+ \
-                                                     data_dict['system_sentence'] if data_dict['system_sentence'] else ''+ \
-                                                     data_dict['assistant_sentence'] if data_dict['assistant_sentence'] else ''+ \
-                                                     data_dict['history_text'] if data_dict['history_text'] else '',
-                                          model_name = data_dict['model_name']),
-                'generated_tokens': calc_token(sentence = data_dict['llm_response'],),
-            }
-            data_dict['tokens_info_dict'] = tokens_info_dict
-            
-            # メッセージの保存
-            await sync_save_message_models(self.room_id, data_dict)
-
-            # ルーム名チェック
-            is_replace, room_name = await replace_room_name_check(self.room_id, data_dict['user_message'])
-            if is_replace:
-                message_data = {
-                    'cmd':  'ChangeRoomName',
+            # 入力のバリデーション▽
+            ## 何も質問されてないときに返すテキスト▽
+            if data_dict['user_message'].replace(' ','').replace('　','') == '':
+                error_message = ''
+                message_data  = {
+                    'cmd':  'SendUserMessage',
                     'status': 200,
                     'ok':     True,
                     'data': {
-                        'roomName': room_name,
+                        'messageId':   data_dict['message_id'],
+                        'llmResponse': error_message,
                     },
                 }
                 await self._self_send_message(message_data, is_send_bytes_data=is_possible_compress)
+            ## 何も質問されてないときに返すテキスト△
+            ## メッセージのトークンが設定値を超えた場合の処理▽
+            elif not is_tokens_less_than_settings(
+                        sentence   = data_dict['user_message']+ \
+                                    data_dict['system_sentence'] if data_dict['system_sentence'] else ''+ \
+                                    data_dict['assistant_sentence'] if data_dict['assistant_sentence'] else ''+ \
+                                    data_dict['history_text'] if data_dict['history_text'] else '',
+                        max_tokens = int(SEND_MAX_TOKENS)):
+                error_message = f'入力文字数が設定値を超えたみたいです。\n過去の会話、システムメッセージなども含めて最大トークンは{SEND_MAX_TOKENS}に設定されています。'
+                message_data = {
+                    'cmd':  'SendUserMessage',
+                    'status': 200,
+                    'ok':     True,
+                    'data': {
+                        'messageId':   data_dict['message_id'],
+                        'llmResponse': error_message,
+                    },
+                }
+                await self._self_send_message(message_data, is_send_bytes_data=is_possible_compress)
+            ## メッセージのトークンが設定値を超えた場合の処理△
+            # 入力のバリデーション△
+
+            # メイン処理
+            else:
+                # プロンプトの作成
+                formatted_prompt = await self._create_prompt(data_dict['user_message'])
+
+                # メッセージの作成
+                messages = create_messages(formatted_prompt,
+                                        data_dict['system_sentence'],
+                                        data_dict['assistant_sentence'],
+                                        data_dict['history_list'])
+                # llm
+                # model_name_int の大きさで切り替え
+                if model_name_int < 100:
+                    llm = OpenAILlm(api_key           = settings.OPENAI_API_KEY,
+                                    model_name        = data_dict['model_name'],
+                                    temperature       = data_dict['temperature'],
+                                    max_tokens        = data_dict['max_tokens'],
+                                    top_p             = data_dict['top_p'],
+                                    frequency_penalty = data_dict['frequency_penalty'],
+                                    presence_penalty  = data_dict['presence_penalty'],)
+                elif 100 <= model_name_int:
+                    llm = GcloudLlm(project_name      = settings.GCLOUD_PROJECT_NAME,
+                                    location_name     = settings.GCLOUD_LOCATION_NAME,
+                                    model_name        = data_dict['model_name'],
+                                    temperature       = data_dict['temperature'],
+                                    max_tokens        = data_dict['max_tokens'],
+                                    top_p             = data_dict['top_p'],
+                                    frequency_penalty = data_dict['frequency_penalty'],
+                                    presence_penalty  = data_dict['presence_penalty'],)
+                llm_response = await llm.async_get_response(messages)
+                message_data = {
+                    'cmd':  'SendUserMessage',
+                    'status': 200,
+                    'ok':     True,
+                    'data': {
+                        'messageId':   data_dict['message_id'],
+                        'llmResponse': llm_response,
+                    },
+                }
+                await self._self_send_message(message_data, is_send_bytes_data=is_possible_compress)
+
+                # 結果の処理
+                data_dict['llm_response'] = llm_response
+                tokens_info_dict = {
+                    'sent_tokens': calc_token(sentence = data_dict['user_message']+ \
+                                                        data_dict['system_sentence'] if data_dict['system_sentence'] else ''+ \
+                                                        data_dict['assistant_sentence'] if data_dict['assistant_sentence'] else ''+ \
+                                                        data_dict['history_text'] if data_dict['history_text'] else '',
+                                            model_name = data_dict['model_name']),
+                    'generated_tokens': calc_token(sentence = data_dict['llm_response'],),
+                }
+                data_dict['tokens_info_dict'] = tokens_info_dict
+                
+                # メッセージの保存
+                await sync_save_message_models(self.room_id, data_dict)
+
+                # ルーム名チェック
+                is_replace, room_name = await replace_room_name_check(self.room_id, data_dict['user_message'])
+                if is_replace:
+                    message_data = {
+                        'cmd':  'ChangeRoomName',
+                        'status': 200,
+                        'ok':     True,
+                        'data': {
+                            'roomName': room_name,
+                        },
+                    }
+                    await self._self_send_message(message_data, is_send_bytes_data=is_possible_compress)
+        except Exception as e:
+            print(e)
+            message_data = {
+                'cmd':     'Error',
+                'status':  500,
+                'ok':      False,
+                'message': 'server process Error',
+                'data':    None,
+            }
+            await self._self_send_message(message_data, is_send_bytes_data=is_possible_compress)
+        return None
     ####################
     # _receive_user_message △
     ####################

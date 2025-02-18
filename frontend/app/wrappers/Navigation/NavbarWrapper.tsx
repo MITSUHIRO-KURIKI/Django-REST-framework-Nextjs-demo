@@ -19,7 +19,7 @@ export function NavbarWrapper({ wrapName, className, children }:NavigationWrappe
             'origin-top',
             'absolute top-[var(--navbar-height)] w-full h-[calc(100svh_-_var(--navbar-height))] min-h-[calc(100svh_-_var(--navbar-height))]',
             'transform transition-transform',
-            'duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]',
+            'duration-300', "ease-[cubic-bezier(0.32,0.72,0,1)]",
             className,)}>
         {children}
       </div>

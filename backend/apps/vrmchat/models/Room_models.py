@@ -14,10 +14,10 @@ from ..settings import (
     DEFAULT_ROOM_NAME, MAX_LEN_ROOM_NAME,
 )
 
-MODEL_NAME_CHOICES_TUPLE = MODEL_NAME_CHOICES()
-
 User = get_user_model()
 
+
+MODEL_NAME_CHOICES_TUPLE = MODEL_NAME_CHOICES()
 
 class Room(models.Model):
 

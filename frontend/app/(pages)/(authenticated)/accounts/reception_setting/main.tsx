@@ -43,7 +43,7 @@ export function ReceptionSettingPage(): ReactElement {
   if (loading) return <Loading />;
   // データ未取得
   if (!data) {
-    return <p className='text-xs font-thin text-muted-foreground select-none'>情報が取得できませんでした</p>;
+    return <p className='select-none text-xs font-thin text-muted-foreground'>情報が取得できませんでした</p>;
   };
   return (
     <ReceptionSettingContent userReceptionSettingData={data}/>

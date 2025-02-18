@@ -1,7 +1,7 @@
 # Token
 # GPT-4 turbo: 128000, GPT-4 32K: 32768, GPT-4 8K: 8192, GPT-3.5: 4096
 MIN_TOKENS      = 50
-MAX_TOKENS      = 2048
+MAX_TOKENS      = 8192
 SEND_MAX_TOKENS = 8192
 
 # Process

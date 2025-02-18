@@ -78,7 +78,7 @@ export function MobileMenu({ setIsNavVisible }: MobileMenuProps): ReactElement {
         {/* メインカテゴリ画面 */}
         <div className={cn(
           'absolute top-0 left-0 size-full transition-transform',
-          'duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]',
+          'duration-500', "ease-[cubic-bezier(0.32,0.72,0,1)]",
           !isSubCategoryOpen ? 'translate-x-0' : '-translate-x-full',)}>
           <div>
             <ul className='w-full space-y-2 pr-8'>
@@ -191,7 +191,7 @@ export function MobileMenu({ setIsNavVisible }: MobileMenuProps): ReactElement {
         {/* サブカテゴリ画面 */}
         <div className={cn(
           'absolute top-0 left-0 size-full transition-transform',
-          'duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]',
+          'duration-500', "ease-[cubic-bezier(0.32,0.72,0,1)]",
           isSubCategoryOpen ? 'translate-x-0' : 'translate-x-full',)} >
           <Button variant   ='ghost'
                   size      = 'xs'

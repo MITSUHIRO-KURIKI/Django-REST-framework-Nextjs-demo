@@ -90,7 +90,7 @@ export function SidebarContextProvider({llmChatInitial, vrmChatInitial, pageSize
           'backdrop-blur-sm backdrop-filter',
           'gap-2 border-b',)}>
           <div className='flex items-center gap-2 pl-2 pr-4'>
-            <SidebarTrigger className='-ml-1 justify-center hidden md:flex' />
+            <SidebarTrigger className='-ml-1 hidden justify-center md:flex' />
             <Separator orientation='vertical' className='mr-2 hidden h-4 md:block' />
             <Breadcrumb>
               <BreadcrumbList>

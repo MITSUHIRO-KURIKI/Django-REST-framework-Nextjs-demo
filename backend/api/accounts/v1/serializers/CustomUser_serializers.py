@@ -9,7 +9,6 @@ from rest_framework.exceptions import ValidationError
 from djoser.conf import settings
 from djoser.serializers import (
     UserSerializer, UserCreateSerializer, UserCreatePasswordRetypeSerializer,
-    PasswordSerializer,
 )
 from common.lib.axes.utils import reset
 

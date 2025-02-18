@@ -67,14 +67,14 @@ export function ClientUI({
           <ScrollArea>
             { (!recognizedText?.length && !recognizingText && !receivedMessages?.length) ? (
               <>
-                <p className='text-foreground/60 select-none'>スペースキーを押している間、あなたの声を認識します。</p>
-                <p className='text-foreground/60 select-none'>右のマイクのアイコンをクリックしても認識を開始できます。</p>
+                <p className='select-none text-foreground/60'>スペースキーを押している間、あなたの声を認識します。</p>
+                <p className='select-none text-foreground/60'>右のマイクのアイコンをクリックしても認識を開始できます。</p>
               </>
               
             ) : ( (!isStopRecognition || isWebSocketWaiting) ? (
               <>
-                <span className='text-foreground select-none'>{recognizedText}</span>
-                <span className='text-foreground/60 select-none'>{recognizingText}</span>
+                <span className='select-none text-foreground'>{recognizedText}</span>
+                <span className='select-none text-foreground/60'>{recognizingText}</span>
               </>
             ) : ( (receivedMessages) ? (
               <MarkdownRender markdownString={receivedMessages}/>

@@ -14,6 +14,7 @@ class OpenAILlm:
                  top_p:float             = 1.0,
                  frequency_penalty:float = 0.0,
                  presence_penalty:float  = 0.0,):
+
         # Verify the input is valid.
         if not api_key:
             raise ValidationError({'api_key': 'Please set api_key.'})

@@ -65,7 +65,7 @@ export function ActivateContent({ uid, token }: ActivationParams): ReactElement 
         setIsLoading(false);
       });
     };
-  }, [csrfToken]);
+  }, [csrfToken, uid, token]);
 
   return (
     <div className='grid lg:grid-cols-1'>
@@ -132,7 +132,7 @@ export function ActivateContent({ uid, token }: ActivationParams): ReactElement 
                           から再度仮登録を行ってください。
                         </AlertDescription>
                       </Alert>
-                      <p className='text-xs leading-none text-muted-foreground select-none'>
+                      <p className='select-none text-xs leading-none text-muted-foreground'>
                         エラーが続く場合にはお問い合わせページよりお問い合わせください。
                       </p>
                     </>
@@ -143,12 +143,12 @@ export function ActivateContent({ uid, token }: ActivationParams): ReactElement 
               <div className='text-center text-sm'>
                 { isSuccess ? (
                   <Link href={pagesPath.authPath.login.$url()}
-                        className='hover:underline hover:underline-offset-4 select-none'>
+                        className='select-none hover:underline hover:underline-offset-4'>
                     ログインページ
                   </Link>
                 ) : (
                   <Link href      = {pagesPath.authPath.signup.$url()}
-                        className = 'hover:underline hover:underline-offset-4 select-none'>
+                        className = 'select-none hover:underline hover:underline-offset-4'>
                     新規登録ページ
                   </Link>
                 )}

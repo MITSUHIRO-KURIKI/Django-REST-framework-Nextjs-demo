@@ -76,10 +76,12 @@ export function SpeechTextGcloudCoreProvider({
   // WebSocket 接続 / 再接続
   // --------------------
   // setUpWebSocketListeners: WebSocket イベントリスナー
-  const setUpWebSocketListeners = useCallback((ws: WebSocket) => {
+  const setUpWebSocketListeners = useCallback((ws: WebSocket, isReconnect?: boolean) => {
     // open
     ws.addEventListener('open', () => {
-      //
+      if (isReconnect) {
+        ws.send(JSON.stringify({ cmd: 'Reconnect' }));
+      };
     });
     // message
     ws.addEventListener('message', (event: MessageEvent) => {
@@ -93,7 +95,7 @@ export function SpeechTextGcloudCoreProvider({
     });
     // error
     ws.addEventListener('error', () => {
-      showToast('error', 'Connection error', {position: 'bottom-right', duration: 3000,});
+      showToast('error', 'gclodud socket Connection error', {position: 'bottom-right', duration: 3000,});
       if (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN) {
         ws.close();
       };
@@ -101,7 +103,7 @@ export function SpeechTextGcloudCoreProvider({
   }, []);
 
   // connectWebSocket: 新規接続
-  const connectWebSocket = useCallback(async (): Promise<void> => {
+  const connectWebSocket = useCallback(async ({ isReconnect = false }:{isReconnect?: boolean} = {}): Promise<void> => {
     try {
       // 既存ソケットが CONNECTING or OPEN なら一旦閉じる
       if (socketRef.current) {
@@ -116,7 +118,7 @@ export function SpeechTextGcloudCoreProvider({
       const wsUrl          = `${wsProtocol}://${backendDomain}/${thirdPartyPath.gcloud.ws_stt_tts}`;
       const newSocket      = new WebSocket(wsUrl);
       newSocket.binaryType = 'arraybuffer'; // バイナリを扱う宣言
-      setUpWebSocketListeners(newSocket);
+      setUpWebSocketListeners(newSocket, isReconnect);
       socketRef.current = newSocket;
       console.log('gcloud connectWebSocket OK');    // Debug
     } catch {
@@ -140,7 +142,7 @@ export function SpeechTextGcloudCoreProvider({
     // 一度クローズして再接続
     ws.close();
     // 再接続
-    await connectWebSocket();
+    await connectWebSocket({ isReconnect: true });
     // Debug
     console.log('gcloud reConnectWebSocket');
   }, [connectWebSocket]);

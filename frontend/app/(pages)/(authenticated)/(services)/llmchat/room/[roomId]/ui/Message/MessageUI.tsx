@@ -1,7 +1,7 @@
 // react
 import React from 'react';
 // include
-import { MemoHistoryMessageItem, MemoReceiveMessageItem } from './MemoBubble';
+import { MemoHistoryMessageItem, MemoReceiveMessageItem } from './MessageItem';
 // type
 import { MessageProps } from '../ClientUI';
 

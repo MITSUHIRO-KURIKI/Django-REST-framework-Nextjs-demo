@@ -23,7 +23,7 @@ export const roomSettingsFormSchema = z.object({
     };
   }),
   history_len:        z.coerce.number().min(0).max(30),
-  max_tokens:         z.coerce.number().min(1).max(2048),
+  max_tokens:         z.coerce.number().min(1).max(8192),
   temperature:        z.coerce.number().min(0).max(2),
   top_p:              z.coerce.number().min(0).max(1),
   presence_penalty:   z.coerce.number().min(-2).max(2),

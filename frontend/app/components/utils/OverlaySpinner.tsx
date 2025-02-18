@@ -37,7 +37,7 @@ export function OverlaySpinner({ isActivate }: { isActivate: boolean }): ReactEl
       'fixed inset-0 z-[9999] flex items-center justify-center',
       'bg-black bg-opacity-50 cursor-wait',
       'transition-opacity',
-      'duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]',
+      'duration-300', "ease-[cubic-bezier(0.32,0.72,0,1)]",
       isActivate ? 'opacity-100' : 'opacity-0',)}>
       <Loader />
     </div>

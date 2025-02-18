@@ -1,11 +1,7 @@
-from django.urls import include, path
-from rest_framework_simplejwt.views import (
-    TokenVerifyView, TokenBlacklistView,
-)
+from django.urls import path
 from .viewsets import (
     CustomTokenObtainPairViewSet, CustomTokenRefreshViewSet,
     CustomTokenBlacklistViewSet, CustomTokenVerifyViewSet,
-    CSRFTokenViewSet,
 )
 
 app_name = 'api.token.v1'

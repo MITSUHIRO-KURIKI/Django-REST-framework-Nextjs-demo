@@ -116,7 +116,7 @@ export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps
     } finally {
       setIsLoading(false);
     };
-  })(); }, [form.reset, roomId]);
+  })(); }, [form, roomId]);
   // - onSubmit
   const onSubmit: SubmitHandler<RoomSettingsFormInputType> = async (data) => {
 
@@ -270,7 +270,7 @@ export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps
                 <Slider value = {[field.value]}
                         id    = 'max_tokens'
                         min   = {50}
-                        max   = {2048}
+                        max   = {8192}
                         step  = {1}
                         onValueChange = {(val) => field.onChange(val[0])}/>
               </FormControl>

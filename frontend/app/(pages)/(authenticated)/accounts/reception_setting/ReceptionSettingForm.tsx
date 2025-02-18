@@ -89,13 +89,13 @@ export function ReceptionSettingForm({ userReceptionSettingData }: {userReceptio
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
 
-          <Label className='block mb-4 text-lg font-bold'>お知らせの受信設定</Label>
+          <Label className='mb-4 block text-lg font-bold'>お知らせの受信設定</Label>
 
           {/* is_receive_all (Switch) */}
           <FormField control = {form.control}
                      name    = 'is_receive_all'
                      render  = {({ field }) => (
-              <FormItem className='space-y-0 my-2 flex items-center space-x-2'>
+              <FormItem className='my-2 flex items-center space-x-2 space-y-0'>
                 <FormLabel htmlFor='is_receive_all'>すべてのメールを受信する</FormLabel>
                 <FormControl>
                   <Switch id              = 'is_receive_all'
@@ -116,7 +116,7 @@ export function ReceptionSettingForm({ userReceptionSettingData }: {userReceptio
           <FormField control = {form.control}
                      name    = 'is_receive_important_only'
                      render  = {({ field }) => (
-              <FormItem className='space-y-0 my-2 flex items-center space-x-2'>
+              <FormItem className='my-2 flex items-center space-x-2 space-y-0'>
                 <FormLabel htmlFor='is_receive_important_only'>重要なメールのみ受信する</FormLabel>
                 <FormControl>
                   <Switch id              = 'is_receive_important_only'
