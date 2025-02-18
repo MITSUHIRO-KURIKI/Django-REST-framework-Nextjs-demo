@@ -42,6 +42,7 @@ $ gcloud auth application-default login
 ```
 $ docker-compose up -d --build
 ```
+-> :coffee:
 -> [http://localhost:3000/](http://localhost:3000/ "localhost:3000")
 * 開発時
 ```
