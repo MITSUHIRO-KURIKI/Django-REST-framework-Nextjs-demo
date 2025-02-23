@@ -25,13 +25,11 @@ type ActivationRequest = {
 
 
 // activation
-export async function activation(params: ActivationRequest): Promise<DefaultResponse> {
+export async function activation({ formData, csrfToken }: ActivationRequest): Promise<DefaultResponse> {
 
   const responseDefaultErrMsg = '認証エラー';
 
   try{
-    const { formData, csrfToken } = params;
-
     // CSRFチェック ▽
     const cookieStore = await cookies();
     const allCookies  = cookieStore.getAll();

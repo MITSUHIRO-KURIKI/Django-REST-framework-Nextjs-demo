@@ -11,6 +11,7 @@ export {
   roomSettingsFormSchema,
   roomSettingsRoomNameChangeSchema,
   type ModelNameChoices,
+  type RoomSettingsResponseData,
   type RoomSettingsRoomNameListResponseData,
   type RoomSettingsFormInputType,
   type RoomSettingsRoomNameChangeInputType,

@@ -44,8 +44,8 @@ export function ClientUI({
 
   // roomAiIconUrl
   // - null の時はフロントのデフォルト画像を表示
-  const aiIconUrl = roomAiIconData
-                      ? (process.env.NEXT_PUBLIC_BACKEND_URL as string) + roomAiIconData
+  const aiIconUrl = (roomAiIconData && process.env.NEXT_PUBLIC_BACKEND_MEDIA_URL)
+                      ? (new URL(process.env.NEXT_PUBLIC_BACKEND_MEDIA_URL).origin as string) + roomAiIconData
                       : '/app/llmchat/ai_icon/default/ai.png';
   const [roomAiIconUrl, setRoomAiIconUrl] = useState<string>(aiIconUrl);
 

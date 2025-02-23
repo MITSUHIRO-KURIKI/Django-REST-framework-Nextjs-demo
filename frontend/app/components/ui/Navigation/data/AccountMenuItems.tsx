@@ -13,21 +13,12 @@ import {
   LogOut,
   UserPlus,
   LogIn,
-  type LucideIcon,
 } from 'lucide-react';
-
 // type
-type AccountMenuItemsList = {
-  key:      'loading' | 'divided' | string;
-  label?:   string;
-  type?:    'link' | 'action';
-  href?:    string;
-  icon?:    LucideIcon;
-  onClick?: () => void;
-};
+import { ItemBase } from './type.d';
 
 // AccountMenuItems ▽
-export function AccountMenuItems(): AccountMenuItemsList[] {
+export function AccountMenuItems(): ItemBase[] {
   const { status } = useSession();
   switch (status) {
     case 'loading':

@@ -16,7 +16,7 @@ import {
   type ModelNameChoices,
   type RoomSettingsFormInputType,
 } from '@/features/api/vrmchat/room_settings';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Form,
@@ -26,6 +26,7 @@ import {
   FormItem,
   FormMessage,
 } from '@/app/components/ui/shadcn/form';
+import { useCommonSubmit } from '@/app/hooks';
 // shadcn
 import { cn } from '@/app/components/lib/shadcn';
 import { Button } from '@/app/components/ui/shadcn/button';
@@ -85,11 +86,9 @@ export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps
   });
   // - form data
   useEffect(() => {(async () => {
-
     setIsLoading(true);
-
     try {
-      const result = await getRoomSettings(roomId)
+      const result = await getRoomSettings({roomId: roomId})
       if (result.ok) {
         const item = result.data;
         // data -> form value
@@ -117,34 +116,23 @@ export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps
       setIsLoading(false);
     };
   })(); }, [form, roomId]);
-  // - onSubmit
-  const onSubmit: SubmitHandler<RoomSettingsFormInputType> = async (data) => {
-
-    // 多重送信防止
-    if (isSending) return;
-
-    setIsSending(true);
-    setErrorMsg('');
-    try {
-      const result = await patchRoomSettings({
+  // - useCommonSubmit
+  const handleSubmit = useCommonSubmit<RoomSettingsFormInputType>({
+    isSending,
+    setIsSending,
+    setErrorMsg,
+    submitFunction: async (data) => {
+      return await patchRoomSettings({
         roomId:   roomId,
         formData: data,
       });
-      showToast(result?.toastType, result?.toastMessage, {duration: 5000});
-      if (result.ok) {
-        //
-      } else {
-        setErrorMsg(result?.message ?? '');
-      };
-    } catch {
-      showToast('error', '更新に失敗しました');
-      setErrorMsg('更新に失敗しました');
-    } finally {
-      // 多重送信防止
-      setIsSending(false);
+    },
+    onSuccess: () => {
       setSheetOpen(false);
-    };
-  };
+    },
+    defaultExceptionToastMessage: '更新に失敗しました',
+    defaultErrorMessage:          '更新に失敗しました',
+  });
   // ++++++++++
 
   return (
@@ -160,7 +148,7 @@ export function RoomSettingsForm({ roomId, setSheetOpen }: RoomSettingsFormProps
       )}
       {/* Form */}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form onSubmit={form.handleSubmit(handleSubmit)}>
           {/* model_name (Select) */}
           <FormField control = {form.control}
                      name    = 'model_name'

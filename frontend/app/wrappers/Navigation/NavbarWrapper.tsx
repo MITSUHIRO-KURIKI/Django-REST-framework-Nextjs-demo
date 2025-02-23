@@ -3,7 +3,7 @@ import { type ReactElement } from 'react';
 // shadcn
 import { cn } from '@/app/components/lib/shadcn';
 // components
-import { Navbar } from '@/app/components/ui/Navigation';
+import { TopNavbar } from '@/app/components/ui/Navigation';
 // import
 import { NavigationWrapperProps } from './type.d';
 
@@ -13,7 +13,7 @@ export function NavbarWrapper({ wrapName, className, children }:NavigationWrappe
 
   return (
     <>
-      <Navbar isUseSidebar={isUseSidebar}/>
+      <TopNavbar isUseSidebar={isUseSidebar}/>
       <div id={ wrapName ?? 'navbarWrapContent'}
            className={cn(
             'origin-top',

@@ -13,19 +13,19 @@ import { AzureTokenResponse } from './type.d';
 
 // type
 type getTokenOrRefreshProps = {
-  setCookiePrefix?: string;
+  cookiePrefix?: string;
 };
 
 // getTokenOrRefresh
-export async function getTokenOrRefresh({setCookiePrefix=''}: getTokenOrRefreshProps={},): Promise<AzureTokenResponse> {
-  const speechToken = getCookie(`${setCookiePrefix}speech-token`);
+export async function getTokenOrRefresh({cookiePrefix=''}: getTokenOrRefreshProps={},): Promise<AzureTokenResponse> {
+  const speechToken = getCookie(`${cookiePrefix}speech-token`);
   if (!speechToken) {
     try {
       // 再取得
       const session: Session | null = await getAuthSession();
       const res = await BackendWithCredentialsApiClient.post(
         thirdPartyPath.azure.speech_services.get_or_refresh,
-        { setCookiePrefix: setCookiePrefix },
+        { cookiePrefix: cookiePrefix },
         { headers: {
           'Content-Type':  'application/json',
           'Authorization': `Bearer ${session?.user?.accessToken}`,

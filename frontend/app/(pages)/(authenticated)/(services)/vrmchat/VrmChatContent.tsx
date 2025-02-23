@@ -2,15 +2,22 @@
 
 // react
 import { useEffect, useContext, type ReactElement } from 'react';
+// pagesPath
+import { pagesPath } from '@/features/paths/frontend';
 // providers
 import {
   SidebarContext,
   type SidebarContextValue,
-} from '@/app/providers';
+} from '@/app/components/ui/Navigation';
 // hooks
 import { useRedirectErrorMessage } from '@/app/hooks/';
+// features
+import { UrlToString } from '@/features/utils';
+// components
+import { showToast } from '@/app/components/utils';
 
 
+// VrmChatContent
 export function VrmChatContent(): ReactElement {
 
   // Sidebar タイトルセット ▽
@@ -18,16 +25,24 @@ export function VrmChatContent(): ReactElement {
   const {
     setSidebarInsetTitle,
     setSidebarInsetSubTitle,
-  } = sbarContext as SidebarContextValue;
+    setSidebarInsetSubTitleUrl,
+  } = sbarContext as SidebarContextValue || {};
   useEffect(() => {
-    setSidebarInsetTitle('VRM Chat Home');
-    setSidebarInsetSubTitle('');
-  }, [setSidebarInsetTitle, setSidebarInsetSubTitle]);
+    if (setSidebarInsetTitle)       setSidebarInsetTitle('VRM Chat Home');
+    if (setSidebarInsetSubTitle)    setSidebarInsetSubTitle('');
+    if (setSidebarInsetSubTitleUrl) setSidebarInsetSubTitleUrl(UrlToString(pagesPath.servicesPath.vrmChat.$url()));
+  }, [setSidebarInsetTitle, setSidebarInsetSubTitle, setSidebarInsetSubTitleUrl]);
   // Sidebar タイトルセット △
 
   // リダイレクト時メッセージ処理
   useRedirectErrorMessage();
 
+  // SidebarContext last ▽
+  if (!sbarContext ) {
+    showToast('error', 'error', { position: 'bottom-right', duration: 3000 });
+    return <p className='select-none text-xs font-thin text-muted-foreground'>Sorry, not available</p>;
+  };
+  // SidebarContext last △
   return (
     <>
     <p>VRM Chatの紹介など</p>

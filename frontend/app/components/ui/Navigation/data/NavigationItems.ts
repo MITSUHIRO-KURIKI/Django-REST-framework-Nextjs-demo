@@ -4,17 +4,14 @@ import { pagesPath } from '@/features/paths/frontend';
 import { UrlToString } from '@/features/utils';
 // icons
 import {
-  Rocket,
-  Target,
-  StickyNote,
   Layers,
   MessageCircleMore,
   AudioLines,
   Send,
   MessageCircleQuestion,
 } from 'lucide-react';
-// import
-import { type Item } from './type.d';
+// type
+import type { Item } from './type.d';
 
 // type
 type NavigationProps = {
@@ -29,7 +26,6 @@ export const NavigationItems: NavigationProps = {
     {
       key:   'getStarted',
       label: 'Get Started',
-      icon:  Rocket,
       sub: [
         { key: 'dummy1', label: 'dummy', href: '#' },
         { key: 'dummy2', label: 'dummy', href: '#' },
@@ -42,7 +38,6 @@ export const NavigationItems: NavigationProps = {
     {
       key:   'products',
       label: 'Products',
-      icon:  Target,
       sub: [
         {
           key:   'dashBoard',
@@ -67,17 +62,15 @@ export const NavigationItems: NavigationProps = {
     {
       key:   'samplePage',
       label: 'Sample Page',
-      icon:  StickyNote,
       sub: [
         { key: 'colors',    label: 'Colors',     href: '/colors' },
         { key: 'scrollSpy', label: 'Scroll Spy', href: '/colors' },
       ],
     },
     {
-      key:   'singleMenuDummy',
-      label: 'Single Menu (Dummy)',
+      key:   'dummyLink',
+      label: 'Dummy Link',
       href:  '#',
-      icon:  StickyNote,
     },
   ],
   // SidebarFooter

@@ -1,0 +1,537 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-18 12:35+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: accounts/admin.py:68
+msgid "アカウント情報"
+msgstr ""
+
+#: accounts/admin.py:79
+msgid "ユーザ情報"
+msgstr ""
+
+#: accounts/admin.py:83
+msgid "認証情報"
+msgstr ""
+
+#: accounts/admin.py:89
+msgid "権限情報(管理者権限の設定のため操作注意)"
+msgstr ""
+
+#: accounts/admin.py:93
+msgid "その他"
+msgstr ""
+
+#: accounts/apps.py:9
+msgid "01_アカウント"
+msgstr ""
+
+#: accounts/axes_signals.py:9
+msgid "アカウントがロックされています"
+msgstr ""
+
+#: accounts/forms/Admin_form.py:19
+msgid "パスワード"
+msgstr ""
+
+#: accounts/forms/Admin_form.py:22
+msgid "パスワード(確認用)"
+msgstr ""
+
+#: accounts/forms/Admin_form.py:32
+msgid "パスワードが一致しません"
+msgstr ""
+
+#: accounts/models/CustomUser_models.py:27
+msgid "メールアドレスの入力は必須です"
+msgstr ""
+
+#: accounts/models/CustomUser_models.py:33
+msgid "無効なメールアドレス形式です"
+msgstr ""
+
+#: accounts/models/CustomUser_models.py:64
+#: accounts/models/CustomUser_models.py:66
+msgid "Superuser must have is_staff=True."
+msgstr ""
+
+#: accounts/models/CustomUser_models.py:73
+#: accounts/models/CustomUser_models.py:80
+msgid "アカウントID(自動付与)"
+msgstr ""
+
+#: accounts/models/CustomUser_models.py:79
+msgid "内部エラー: 申し訳ございません、もう一度登録をお試しください"
+msgstr ""
+
+#: accounts/models/CustomUser_models.py:82
+msgid "メールアドレス(Encrypted:Form使用不可)"
+msgstr ""
+
+#: accounts/models/CustomUser_models.py:87
+msgid "メールアドレス"
+msgstr ""
+
+#: accounts/models/CustomUser_models.py:91
+msgid "このメールアドレスは登録できません"
+msgstr ""
+
+#: accounts/models/CustomUser_models.py:92
+msgid "メールアドレス(ユニーク、255文字以下)"
+msgstr ""
+
+#: accounts/models/CustomUser_models.py:95
+msgid "ソーシャルログイン"
+msgstr ""
+
+#: accounts/models/CustomUser_models.py:98
+msgid "アカウントが有効"
+msgstr ""
+
+#: accounts/models/CustomUser_models.py:100
+msgid "無効の場合にはログイン不可になります"
+msgstr ""
+
+#: accounts/models/CustomUser_models.py:102
+msgid "ITスタッフ"
+msgstr ""
+
+#: accounts/models/CustomUser_models.py:104
+msgid "ITスタッフ権限(通常はチェックをつけない)"
+msgstr ""
+
+#: accounts/models/CustomUser_models.py:106
+msgid "IT管理者"
+msgstr ""
+
+#: accounts/models/CustomUser_models.py:108
+msgid "IT管理者権限(通常はチェックをつけない)"
+msgstr ""
+
+#: accounts/models/CustomUser_models.py:110
+msgid "パスワード更新日時"
+msgstr ""
+
+#: accounts/models/CustomUser_models.py:114
+msgid "管理者によるパスワード設定の場合には None がセットされます"
+msgstr ""
+
+#: accounts/models/CustomUser_models.py:116
+#: accounts/models/CustomUser_models.py:118
+#: apps/llmchat/models/Message_models.py:63
+#: apps/llmchat/models/Message_models.py:65
+#: apps/llmchat/models/Room_models.py:48 apps/llmchat/models/Room_models.py:50
+#: apps/vrmchat/models/Message_models.py:63
+#: apps/vrmchat/models/Message_models.py:65
+#: apps/vrmchat/models/Room_models.py:44 apps/vrmchat/models/Room_models.py:46
+msgid "作成日時"
+msgstr ""
+
+#: accounts/models/CustomUser_models.py:120
+#: accounts/models/CustomUser_models.py:124
+msgid "前回のログイン日時"
+msgstr ""
+
+#: accounts/models/CustomUser_models.py:178
+msgid "01_アカウント情報"
+msgstr ""
+
+#: api/token/v1/serializers/SimplejwtCustom_serializers.py:14
+msgid "Invalid request"
+msgstr ""
+
+#: apps/access_security/admin.py:46 apps/access_security/admin.py:133
+msgid "記録"
+msgstr ""
+
+#: apps/access_security/apps.py:8
+msgid "99_アクセスブロック"
+msgstr ""
+
+#: apps/access_security/models/AccessSecurity_models.py:89
+msgid "02_ブロックログ"
+msgstr ""
+
+#: apps/access_security/models/BlockIpList_models.py:33
+msgid "01_ブロックリスト"
+msgstr ""
+
+#: apps/llmchat/models/Message_models.py:14
+#: apps/llmchat/models/Room_models.py:29 apps/llmchat/models/Room_models.py:71
+#: apps/vrmchat/models/Message_models.py:14
+#: apps/vrmchat/models/Room_models.py:25 apps/vrmchat/models/Room_models.py:66
+msgid "ルームID"
+msgstr ""
+
+#: apps/llmchat/models/Message_models.py:20
+#: apps/vrmchat/models/Message_models.py:20
+msgid "紐づくルームID"
+msgstr ""
+
+#: apps/llmchat/models/Message_models.py:22
+#: apps/vrmchat/models/Message_models.py:22
+msgid "メッセージID"
+msgstr ""
+
+#: apps/llmchat/models/Message_models.py:29
+#: apps/vrmchat/models/Message_models.py:29
+msgid "ユーザメッセージ"
+msgstr ""
+
+#: apps/llmchat/models/Message_models.py:35
+#: apps/vrmchat/models/Message_models.py:35
+msgid "LLM回答"
+msgstr ""
+
+#: apps/llmchat/models/Message_models.py:41
+#: apps/vrmchat/models/Message_models.py:41
+msgid "ユーザのLLM設定"
+msgstr ""
+
+#: apps/llmchat/models/Message_models.py:47
+#: apps/vrmchat/models/Message_models.py:47
+msgid "トークン情報"
+msgstr ""
+
+#: apps/llmchat/models/Message_models.py:53
+#: apps/vrmchat/models/Message_models.py:53
+msgid "参照した過去の会話履歴"
+msgstr ""
+
+#: apps/llmchat/models/Message_models.py:59
+#: apps/vrmchat/models/Message_models.py:59
+msgid "メッセージが有効"
+msgstr ""
+
+#: apps/llmchat/models/Message_models.py:61
+#: apps/llmchat/models/Room_models.py:46
+#: apps/vrmchat/models/Message_models.py:61
+#: apps/vrmchat/models/Room_models.py:42
+msgid "無効の場合にはデータは保持されるがユーザには非表示"
+msgstr ""
+
+#: apps/llmchat/models/Message_models.py:77
+#: apps/vrmchat/models/Message_models.py:77
+msgid "10_メッセージ一覧"
+msgstr ""
+
+#: apps/llmchat/models/Room_models.py:37 apps/vrmchat/models/Room_models.py:33
+msgid "作成者"
+msgstr ""
+
+#: apps/llmchat/models/Room_models.py:42
+#: apps/llmchat/models/SocketAccess_models.py:38
+#: apps/user_properties/models/UserProfile_models.py:28
+#: apps/user_properties/models/UserSetting_models.py:19
+#: apps/vrmchat/models/Room_models.py:38
+#: apps/vrmchat/models/SocketAccess_models.py:38
+msgid "紐づくアカウントID"
+msgstr ""
+
+#: apps/llmchat/models/Room_models.py:44 apps/vrmchat/models/Room_models.py:40
+msgid "ルームが有効"
+msgstr ""
+
+#: apps/llmchat/models/Room_models.py:62 apps/vrmchat/models/Room_models.py:58
+msgid "01_ルーム情報"
+msgstr ""
+
+#: apps/llmchat/models/Room_models.py:79 apps/vrmchat/models/Room_models.py:74
+msgid "ルーム名"
+msgstr ""
+
+#: apps/llmchat/models/Room_models.py:85 apps/vrmchat/models/Room_models.py:80
+#, python-brace-format
+msgid "半角英数字 {MAX_LEN_ROOM_NAME}文字以下"
+msgstr ""
+
+#: apps/llmchat/models/Room_models.py:87
+msgid "AIアイコン"
+msgstr ""
+
+#: apps/llmchat/models/Room_models.py:92
+#, python-brace-format
+msgid ""
+"画像は {AI_ICON_RESIZE_HEIGHT} (px)x {AI_ICON_RESIZE_WIDTH} (px) にリサイズさ"
+"れます"
+msgstr ""
+
+#: apps/llmchat/models/Room_models.py:94 apps/vrmchat/models/Room_models.py:82
+msgid "使用モデル"
+msgstr ""
+
+#: apps/llmchat/models/Room_models.py:99 apps/vrmchat/models/Room_models.py:87
+msgid "会話の途中でも変更可能"
+msgstr ""
+
+#: apps/llmchat/models/Room_models.py:101 apps/vrmchat/models/Room_models.py:89
+msgid "システムメッセージ"
+msgstr ""
+
+#: apps/llmchat/models/Room_models.py:107 apps/vrmchat/models/Room_models.py:95
+#, python-brace-format
+msgid "最大{MAX_LEN_SYSTEM_SENTENCE}文字"
+msgstr ""
+
+#: apps/llmchat/models/Room_models.py:109 apps/vrmchat/models/Room_models.py:97
+msgid "アシスタントメッセージ"
+msgstr ""
+
+#: apps/llmchat/models/Room_models.py:115
+#: apps/vrmchat/models/Room_models.py:103
+#, python-brace-format
+msgid "最大{MAX_LEN_ASSISTANT_SENTENCE}文字"
+msgstr ""
+
+#: apps/llmchat/models/Room_models.py:122
+#: apps/vrmchat/models/Room_models.py:110
+#, python-brace-format
+msgid "ヒストリーに含める直近の会話数(最大{MAX_HISSTORY_N})"
+msgstr ""
+
+#: apps/llmchat/models/Room_models.py:129
+#: apps/vrmchat/models/Room_models.py:117
+#, python-brace-format
+msgid "生成されるトークンの最大長(最大{MAX_TOKENS})"
+msgstr ""
+
+#: apps/llmchat/models/Room_models.py:136
+#: apps/vrmchat/models/Room_models.py:124
+msgid "生成するテキストのランダム性(between 0 and 2)"
+msgstr ""
+
+#: apps/llmchat/models/Room_models.py:143
+#: apps/vrmchat/models/Room_models.py:131
+msgid "単語の選択性(between 0 and 1)"
+msgstr ""
+
+#: apps/llmchat/models/Room_models.py:150
+#: apps/vrmchat/models/Room_models.py:138
+msgid "既出単語への一定ペナルティ(between -2 and 2)"
+msgstr ""
+
+#: apps/llmchat/models/Room_models.py:157
+#: apps/vrmchat/models/Room_models.py:145
+msgid "既出単語の出現回数へのペナルティ(between -2 and 2)"
+msgstr ""
+
+#: apps/llmchat/models/Room_models.py:159
+#: apps/vrmchat/models/Room_models.py:147
+msgid "コメント/メモ"
+msgstr ""
+
+#: apps/llmchat/models/Room_models.py:165
+#: apps/vrmchat/models/Room_models.py:153
+msgid "半角英数字 256文字以下"
+msgstr ""
+
+#: apps/llmchat/models/Room_models.py:193
+#: apps/vrmchat/models/Room_models.py:162
+msgid "02_ルーム設定"
+msgstr ""
+
+#: apps/llmchat/models/SocketAccess_models.py:17
+#: apps/vrmchat/models/SocketAccess_models.py:17
+msgid "ステージID"
+msgstr ""
+
+#: apps/llmchat/models/SocketAccess_models.py:23
+#: apps/vrmchat/models/SocketAccess_models.py:23
+msgid "紐づくステージID"
+msgstr ""
+
+#: apps/llmchat/models/SocketAccess_models.py:25
+#: apps/vrmchat/models/SocketAccess_models.py:25
+msgid "アクセスID"
+msgstr ""
+
+#: apps/llmchat/models/SocketAccess_models.py:33
+#: apps/vrmchat/models/SocketAccess_models.py:33
+msgid "接続ユーザ"
+msgstr ""
+
+#: apps/llmchat/models/SocketAccess_models.py:40
+#: apps/vrmchat/models/SocketAccess_models.py:40
+msgid "ユーザ名"
+msgstr ""
+
+#: apps/llmchat/models/SocketAccess_models.py:46
+#: apps/vrmchat/models/SocketAccess_models.py:46
+msgid "半角英数字 25文字以内"
+msgstr ""
+
+#: apps/llmchat/models/SocketAccess_models.py:54
+#: apps/vrmchat/models/SocketAccess_models.py:54
+msgid "django-channels で生成される接続ごとにユニークなもの"
+msgstr ""
+
+#: apps/llmchat/models/SocketAccess_models.py:56
+#: apps/llmchat/models/SocketAccess_models.py:61
+#: apps/vrmchat/models/SocketAccess_models.py:56
+#: apps/vrmchat/models/SocketAccess_models.py:61
+msgid "リクエスト回数"
+msgstr ""
+
+#: apps/llmchat/models/SocketAccess_models.py:63
+#: apps/llmchat/models/SocketAccess_models.py:65
+#: apps/vrmchat/models/SocketAccess_models.py:63
+#: apps/vrmchat/models/SocketAccess_models.py:65
+msgid "最終リクエスト日時"
+msgstr ""
+
+#: apps/llmchat/models/SocketAccess_models.py:67
+#: apps/llmchat/models/SocketAccess_models.py:69
+#: apps/vrmchat/models/SocketAccess_models.py:67
+#: apps/vrmchat/models/SocketAccess_models.py:69
+msgid "アクセス日時"
+msgstr ""
+
+#: apps/llmchat/models/SocketAccess_models.py:81
+#: apps/vrmchat/models/SocketAccess_models.py:81
+msgid "40_Socketアクセス状況"
+msgstr ""
+
+#: apps/user_properties/models/UserProfile_models.py:30
+msgid "表示名"
+msgstr ""
+
+#: apps/user_properties/models/UserProfile_models.py:31
+msgid "未設定"
+msgstr ""
+
+#: apps/user_properties/models/UserProfile_models.py:37
+msgid "半角英数字 25文字以下"
+msgstr ""
+
+#: apps/user_properties/models/UserProfile_models.py:39
+msgid "プロフィール画像"
+msgstr ""
+
+#: apps/user_properties/models/UserProfile_models.py:44
+#, python-brace-format
+msgid ""
+"画像は {USER_ICON_RESIZE_HEIGHT} (px)x {USER_ICON_RESIZE_WIDTH} (px) にリサイ"
+"ズされます"
+msgstr ""
+
+#: apps/user_properties/models/UserSetting_models.py:21
+msgid "全ての案内を受信する"
+msgstr ""
+
+#: apps/user_properties/models/UserSetting_models.py:24
+msgid "重要な案内のみ受信する"
+msgstr ""
+
+#: config/settings/extra_settings/Language.py:6
+msgid "Japanese"
+msgstr ""
+
+#: config/settings/extra_settings/Language.py:7
+msgid "English"
+msgstr ""
+
+#: config/settings/extra_settings/PasswordValidation.py:9
+msgid "パスワードは(大小英字、数字)全てを組み合わせて設定してください"
+msgstr ""
+
+#: config/settings/extra_settings/PasswordValidation.py:19
+msgid "パスワードは英数字を組み合わせて設定してください"
+msgstr ""
+
+#: config/settings/security/AccessSecurityMiddleware.py:66
+msgid "アクセスが制限されています"
+msgstr ""
+
+#: config/settings/security/AccessSecurityMiddleware.py:89
+#: config/settings/security/AccessSecurityMiddleware.py:127
+msgid "リクエストの処理は絞られました"
+msgstr ""
+
+#: templates/accounts/cert_email/activation.html:5
+msgid "本登録を完了してください"
+msgstr ""
+
+#: templates/accounts/cert_email/activation.html:11
+#: templates/accounts/cert_email/activation.html:25
+msgid "仮登録を受け付けました"
+msgstr ""
+
+#: templates/accounts/cert_email/activation.html:12
+#: templates/accounts/cert_email/activation.html:28
+msgid "以下の認証URLにアクセスして、本登録を完了してください。"
+msgstr ""
+
+#: templates/accounts/cert_email/activation.html:15
+#: templates/accounts/cert_email/activation.html:33
+#: templates/accounts/cert_email/email_reset.html:15
+#: templates/accounts/cert_email/email_reset.html:32
+#: templates/accounts/cert_email/password_reset.html:15
+#: templates/accounts/cert_email/password_reset.html:32
+#, python-format
+msgid ""
+"※ 認証URLの有効期限は %(TOKEN_EXPIRED_MIN)s分 です。有効期限を過ぎると無効に"
+"なります。"
+msgstr ""
+
+#: templates/accounts/cert_email/confirmation.html:5
+msgid "へようこそ"
+msgstr ""
+
+#: templates/accounts/cert_email/confirmation.html:11
+#: templates/accounts/cert_email/confirmation.html:21
+msgid "本登録が完了しました"
+msgstr ""
+
+#: templates/accounts/cert_email/email_changed_confirmation.html:5
+#: templates/accounts/cert_email/email_changed_confirmation.html:11
+#: templates/accounts/cert_email/email_changed_confirmation.html:21
+msgid "メールアドレスの変更が完了しました"
+msgstr ""
+
+#: templates/accounts/cert_email/email_reset.html:5
+msgid "メールアドレスの認証"
+msgstr ""
+
+#: templates/accounts/cert_email/email_reset.html:11
+#: templates/accounts/cert_email/email_reset.html:25
+msgid "メールアドレスの変更を受け付けました"
+msgstr ""
+
+#: templates/accounts/cert_email/email_reset.html:12
+#: templates/accounts/cert_email/email_reset.html:28
+msgid ""
+"以下の認証URLにアクセスして、新しいメールアドレスの認証完了してください。"
+msgstr ""
+
+#: templates/accounts/cert_email/password_changed_confirmation.html:5
+#: templates/accounts/cert_email/password_changed_confirmation.html:11
+#: templates/accounts/cert_email/password_changed_confirmation.html:21
+msgid "パスワードが変更されました"
+msgstr ""
+
+#: templates/accounts/cert_email/password_reset.html:5
+#: templates/accounts/cert_email/password_reset.html:11
+#: templates/accounts/cert_email/password_reset.html:25
+msgid "パスワード再設定を受け付けました"
+msgstr ""
+
+#: templates/accounts/cert_email/password_reset.html:12
+#: templates/accounts/cert_email/password_reset.html:28
+msgid "以下の認証URLにアクセスして、新しいパスワードを設定してください。"
+msgstr ""

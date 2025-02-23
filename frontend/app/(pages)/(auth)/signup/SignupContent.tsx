@@ -101,9 +101,9 @@ export function SignupContent(): ReactElement {
       </div>
 
       <div className="relative hidden bg-muted lg:block">
-        <Image src={process.env.NEXT_PUBLIC_BACKEND_STATIC_URL+'/auth/signup/hero.jpeg'}
-               alt='Image'
-               className='object-cover object-right brightness-[0.9] dark:grayscale-[734]'
+        <Image src       = {process.env.NEXT_PUBLIC_BACKEND_STATIC_URL+'/auth/signup/hero.jpeg'}
+               alt       = 'Image'
+               className = 'object-cover object-right brightness-[0.9] dark:grayscale-[734]'
                fill />
       </div>
     </div>

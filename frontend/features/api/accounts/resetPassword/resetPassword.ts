@@ -21,13 +21,11 @@ type PasswordResetRequest = {
 };
 
 // resetPassword
-export async function resetPassword(params: PasswordResetRequest): Promise<DefaultResponse> {
+export async function resetPassword({ formData, csrfToken }: PasswordResetRequest): Promise<DefaultResponse> {
 
   const responseDefaultErrMsg = 'パスワード再設定に失敗しました';
 
   try {
-    const { formData, csrfToken } = params;
-
     // CSRFチェック ▽
     const cookieStore = await cookies();
     const allCookies  = cookieStore.getAll();

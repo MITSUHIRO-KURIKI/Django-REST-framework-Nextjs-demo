@@ -15,7 +15,7 @@ import type { DefaultResponse } from '@/features/api';
 
 
 // setPassword
-export async function setPassword(formData: SetPasswordFormInputType): Promise<DefaultResponse> {
+export async function setPassword({formData}: {formData: SetPasswordFormInputType}): Promise<DefaultResponse> {
 
   const responseDefaultErrMsg = 'パスワード変更に失敗しました';
 

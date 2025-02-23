@@ -16,7 +16,7 @@ import type {
   RoomSettingsRoomInitDataResponseItem,
   RoomSettingsRoomNameListResponseItem,
 } from './type.d';
-import type { SubItem } from '@/app/components/ui/Navigation/data';
+import type { ItemBase } from '@/app/components/ui/Navigation/data';
 import type { DefaultResponse } from '@/features/api';
 
 // type
@@ -27,11 +27,11 @@ type GetRoomSettingsRoomInitDataResponse = DefaultResponse & {
   data?: RoomSettingsRoomInitDataResponseItem;
 };
 type GetRoomSettingsRoomNameListResponse = DefaultResponse & {
-  data?: SubItem[];
+  data?: ItemBase[];
 };
 
 // getRoomSettings
-export async function getRoomSettings(roomId: string): Promise<GetRoomSettingsResponse> {
+export async function getRoomSettings({roomId}: {roomId: string}): Promise<GetRoomSettingsResponse> {
 
   const responseDefaultErrMsg = 'データ取得に失敗しました';
 
@@ -100,7 +100,7 @@ export async function getRoomSettings(roomId: string): Promise<GetRoomSettingsRe
 };
 
 // getRoomSettingsRoomName
-export async function getRoomSettingsRoomInitData(roomId: string): Promise<GetRoomSettingsRoomInitDataResponse> {
+export async function getRoomSettingsRoomInitData({roomId}: {roomId: string}): Promise<GetRoomSettingsRoomInitDataResponse> {
 
   const responseDefaultErrMsg = 'データ取得に失敗しました';
 
@@ -173,7 +173,7 @@ export async function getRoomSettingsRoomInitData(roomId: string): Promise<GetRo
 };
 
 // getRoomSettingsRoomNameList
-export async function getRoomSettingsRoomNameList(page: number, size:number): Promise<GetRoomSettingsRoomNameListResponse> {
+export async function getRoomSettingsRoomNameList({page, size}: {page: number, size:number}): Promise<GetRoomSettingsRoomNameListResponse> {
 
   const responseDefaultErrMsg = 'データ取得に失敗しました';
 
@@ -191,7 +191,7 @@ export async function getRoomSettingsRoomNameList(page: number, size:number): Pr
     
     // データの成形 ▽
     const items               = parseResponseData<RoomSettingsRoomNameListResponseItem>(res);
-    const cleanData:SubItem[] = items.map((item) => ({
+    const cleanData: ItemBase[] = items.map((item) => ({
       key:   item.roomId,
       label: item.roomName,
       href:  item.roomId,

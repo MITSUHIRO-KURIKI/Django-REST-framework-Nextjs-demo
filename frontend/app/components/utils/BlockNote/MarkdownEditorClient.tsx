@@ -51,7 +51,7 @@ export function MarkdownEditorClient({ initialMarkdown, onChange, localeCode = '
   });
 
   // Markdownを読み込んでエディタに反映
-  const loadMarkdownIntoEditor = useCallback(async (md: string) => {
+  const loadMarkdownIntoEditor = useCallback(async ({md}: {md: string}) => {
     // Markdown -> Blocks
     const blocks = await editor.tryParseMarkdownToBlocks(md);
     // エディタの内容を置き換える
@@ -71,7 +71,7 @@ export function MarkdownEditorClient({ initialMarkdown, onChange, localeCode = '
 
   // 初回マウント
   useEffect(() => {
-    void loadMarkdownIntoEditor(initialMarkdown ?? '');
+    void loadMarkdownIntoEditor({md: initialMarkdown ?? ''});
   }, [initialMarkdown, loadMarkdownIntoEditor]);
 
   return (

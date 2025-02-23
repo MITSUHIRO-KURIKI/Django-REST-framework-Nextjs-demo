@@ -62,11 +62,15 @@ export const metadataConfig: Metadata = {
     authors:   [{ name: 'K.Mitsuhiro', url: 'https://github.com/MITSUHIRO-KURIKI' },],
     // other
     other: {
-      SKYPE_TOOLBAR: ['SKYPE_TOOLBAR_PARSER_COMPATIBLE'],
+      // safari
+      'mobile-web-app-capable':                ['yes'],
+      'apple-mobile-web-app-status-bar-style': ['black-translucent'],
+      // Skype
+      'SKYPE_TOOLBAR': ['SKYPE_TOOLBAR_PARSER_COMPATIBLE'],
     },
   }; 
   export const viewportConfig: Viewport = {
-    width:        'device-width, shrink-to-fit=no',
+    width:        'device-width, shrink-to-fit=no, minimal-ui',
     initialScale: 1,
     viewportFit:  'cover',
     maximumScale: 1,

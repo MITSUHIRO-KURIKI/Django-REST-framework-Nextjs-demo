@@ -12,7 +12,7 @@ import { BackendApiClient } from '@/features/apiClients';
 import { parseResponseData } from '@/features/utils';
 // type
 import type { RoomSettingsResponseData, RoomSettingsRoomNameListResponseItem } from './type.d';
-import type { SubItem } from '@/app/components/ui/Navigation/data';
+import type { ItemBase } from '@/app/components/ui/Navigation/data';
 import type { DefaultResponse } from '@/features/api';
 
 // type
@@ -23,11 +23,11 @@ type GetRoomSettingsRoomNameResponse = DefaultResponse & {
   data?: string;
 };
 type GetRoomSettingsRoomNameListResponse = DefaultResponse & {
-  data?: SubItem[];
+  data?: ItemBase[];
 };
 
 // getRoomSettings
-export async function getRoomSettings(roomId: string): Promise<GetRoomSettingsResponse> {
+export async function getRoomSettings({roomId}: {roomId: string}): Promise<GetRoomSettingsResponse> {
 
   const responseDefaultErrMsg = 'データ取得に失敗しました';
 
@@ -96,7 +96,7 @@ export async function getRoomSettings(roomId: string): Promise<GetRoomSettingsRe
 };
 
 // getRoomSettingsRoomName
-export async function getRoomSettingsRoomName(roomId: string): Promise<GetRoomSettingsRoomNameResponse> {
+export async function getRoomSettingsRoomName({roomId}: {roomId: string}): Promise<GetRoomSettingsRoomNameResponse> {
 
   const responseDefaultErrMsg = 'データ取得に失敗しました';
 
@@ -165,7 +165,7 @@ export async function getRoomSettingsRoomName(roomId: string): Promise<GetRoomSe
 };
 
 // getRoomSettingsRoomNameList
-export async function getRoomSettingsRoomNameList(page: number, size:number): Promise<GetRoomSettingsRoomNameListResponse> {
+export async function getRoomSettingsRoomNameList({page, size}: {page: number, size:number}): Promise<GetRoomSettingsRoomNameListResponse> {
 
   const responseDefaultErrMsg = 'データ取得に失敗しました';
 
@@ -183,7 +183,7 @@ export async function getRoomSettingsRoomNameList(page: number, size:number): Pr
     
     // データの成形 ▽
     const items               = parseResponseData<RoomSettingsRoomNameListResponseItem>(res);
-    const cleanData:SubItem[] = items.map((item) => ({
+    const cleanData: ItemBase[] = items.map((item) => ({
       key:   item.roomId,
       label: item.roomName,
       href:  item.roomId,

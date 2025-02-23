@@ -76,11 +76,11 @@ export function SpeechTextAzureCoreProvider({
   const audioContextRef                           = useRef<AudioContext | null>(null);
   const sourceRef                                 = useRef<AudioBufferSourceNode | null>(null);
   // Cookie プレフィックス
-  const recognizerSetCookiePrefix  = 're-';
-  const synthesizerSetCookiePrefix = 'sy-';
+  const recognizerCookiePrefix  = 're-';
+  const synthesizerCookiePrefix = 'sy-';
 
-  const getSpeechToken = useCallback(async (setCookiePrefix: string): Promise<AzureTokenResponse> => {
-    const speechToken = getCookie(`${setCookiePrefix}speech-token`);
+  const getSpeechToken = useCallback(async ({cookiePrefix}: {cookiePrefix: string}): Promise<AzureTokenResponse> => {
+    const speechToken = getCookie(`${cookiePrefix}speech-token`);
     if (speechToken) {
       // "accessToken:region" の形
       const idx = speechToken.indexOf(':');
@@ -90,7 +90,7 @@ export function SpeechTextAzureCoreProvider({
       };
     } else {
       // API から取得
-      return await getTokenOrRefresh({ setCookiePrefix });
+      return await getTokenOrRefresh({ cookiePrefix });
     };
   }, []);
 
@@ -98,7 +98,7 @@ export function SpeechTextAzureCoreProvider({
    * STT:SpeechRecognizer セットアップ
    */
   // initRecognizer
-  const initRecognizer = useCallback((recognizer: SpeechRecognizer) => {
+  const initRecognizer = useCallback(({recognizer}: {recognizer: SpeechRecognizer}) => {
     // recognizing
     recognizer.recognizing = (_: unknown, e: SpeechRecognitionEventArgs) => {
       if (e.result.reason === ResultReason.RecognizingSpeech) {
@@ -132,13 +132,13 @@ export function SpeechTextAzureCoreProvider({
     if (recognizerRef.current) return;
 
     try {
-      const tokenObj     = await getSpeechToken(recognizerSetCookiePrefix);
+      const tokenObj = await getSpeechToken({cookiePrefix: recognizerCookiePrefix});
       // recognizer 作成 ▽
       const speechConfig                     = SpeechConfig.fromAuthorizationToken(tokenObj.accessToken, tokenObj.region);
       speechConfig.speechRecognitionLanguage = recognitionLanguage;
       const audioConfig                      = AudioConfig.fromDefaultMicrophoneInput();
       const recognizer                       = new SpeechRecognizer(speechConfig, audioConfig);
-      recognizerRef.current                  = initRecognizer(recognizer);
+      recognizerRef.current                  = initRecognizer({recognizer: recognizer});
       // recognizer 作成 △
     } catch {
       showToast('error', 'Connection error', {position: 'bottom-right', duration: 3000,});
@@ -153,7 +153,7 @@ export function SpeechTextAzureCoreProvider({
     if (synthesizerRef.current) return;
 
     try {
-      const tokenObj     = await getSpeechToken(synthesizerSetCookiePrefix);
+      const tokenObj = await getSpeechToken({cookiePrefix: synthesizerCookiePrefix});
       // synthesizer 作成 ▽
       const speechConfig                    = SpeechConfig.fromAuthorizationToken(tokenObj.accessToken, tokenObj.region);
       speechConfig.speechSynthesisVoiceName = speechVoiceName;

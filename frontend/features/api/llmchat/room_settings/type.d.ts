@@ -18,7 +18,7 @@ export type RoomSettingsResponseData = {
   presencePenalty:   number;
   frequencyPenalty:  number;
   comment:           string | null;
-  modelNameChoices:  ModelNameChoices[],
+  modelNameChoices:  ModelNameChoices[];
 };
 
 export type RoomSettingsRoomInitDataResponseItem = {

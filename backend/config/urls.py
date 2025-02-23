@@ -36,7 +36,8 @@ handler500 = 'common.custom_error_handlers.custom_server_error'
 import os
 from django.urls import re_path
 from django.views.static import serve
-urlpatterns += [ re_path(r'^static/(?P<path>.*)$', serve, {'document_root': os.path.join(settings.BASE_DIR, 'staticfiles/')}, name='staticfiles_urlpattern') ]
+urlpatterns += [ re_path(r'^static/(?P<path>.*)$', serve, {'document_root': os.path.join(settings.BASE_DIR, 'static/')}, name='static_urlpattern') ]
+# urlpatterns += [ re_path(r'^static/(?P<path>.*)$', serve, {'document_root': os.path.join(settings.BASE_DIR, 'staticfiles/')}, name='staticfiles_urlpattern') ]
 
 # DEBUG
 if settings.DEBUG:

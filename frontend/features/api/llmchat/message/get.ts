@@ -20,7 +20,7 @@ type GetMessageListResponse = DefaultResponse & {
 };
 
 // getMessageList
-export async function getMessageList(roomId: string): Promise<GetMessageListResponse> {
+export async function getMessageList({roomId}: {roomId: string}): Promise<GetMessageListResponse> {
 
   const responseDefaultErrMsg = 'データ取得に失敗しました';
 

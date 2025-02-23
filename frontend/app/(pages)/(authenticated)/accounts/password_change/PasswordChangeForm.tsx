@@ -3,7 +3,7 @@
 // next-auth
 import { signOut } from 'next-auth/react';
 // react
-import { useState, useEffect, type ReactElement } from 'react';
+import { useState, type ReactElement } from 'react';
 // paths
 import { apiPath, pagesPath } from '@/features/paths/frontend';
 // hookform
@@ -13,7 +13,7 @@ import {
   setPasswordFormSchema,
   type SetPasswordFormInputType,
 } from '@/features/api/accounts';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Form,
@@ -24,6 +24,7 @@ import {
   FormItem,
   FormMessage,
 } from '@/app/components/ui/shadcn/form';
+import { useCommonSubmit } from '@/app/hooks';
 // shadcn
 import { cn } from '@/app/components/lib/shadcn';
 import { Button } from '@/app/components/ui/shadcn/button';
@@ -33,12 +34,13 @@ import { Loader2 } from 'lucide-react';
 // features
 import { UrlToString } from '@/features/utils';
 import { FrontendWithCredentialsApiClient } from '@/features/apiClients';
+// hooks
+import { usePasswordStrength } from '@/app/hooks';
 // components
 import { PasswordInputField } from '@/app/components/ui/form';
 import { showToast, OverlaySpinner } from '@/app/components/utils';
 // lib
-import { zxcvbn } from '@zxcvbn-ts/core';
-import { setupZxcvbnOptions, getZxcvbnStrengthLabel } from '@/app/components/lib/zxcvbn-ts'
+import { setupZxcvbnOptions } from '@/app/components/lib/zxcvbn-ts'
 setupZxcvbnOptions(); // セットアップ
 
 
@@ -60,57 +62,36 @@ export function PasswordChangeForm(): ReactElement {
     },
   });
   // パスワード強度 ▽
-  const watchNewPassword                  = form.watch('new_password');
-  const [passwordScore, setPasswordScore] = useState(0);
-  const strengthLabel                     = getZxcvbnStrengthLabel(passwordScore);
-  // newPassword の変更を監視してスコア計算
-  useEffect(() => {
-    if (!watchNewPassword) {
-      setPasswordScore(0);
-      return;
-    };
-    // zxcvbnでスコア計算
-    const zxcvbnResult = zxcvbn(watchNewPassword);
-    let score          = zxcvbnResult.score;
-    // zod 必須条件を満たしていない場合、scoreを2までに抑える
-    const parsed = passwordSchema.safeParse(watchNewPassword);
-    if (!parsed.success && score > 2) {
-      score = 2;
-    };
-    setPasswordScore(score);
-  }, [watchNewPassword]);
+  const watchNewPassword         = form.watch('new_password');
+  const { score, strengthLabel } = usePasswordStrength({
+    passwordValue:     watchNewPassword,
+    passwordZodSchema: passwordSchema,
+  });
   // パスワード強度 △
-  // - onSubmit
-  const onSubmit: SubmitHandler<SetPasswordFormInputType> = async (data) => {
-
-    // 多重送信防止
-    if (isSending) return;
-    // パスワード強度確認
-    const zxcvbnResult = zxcvbn(watchNewPassword);
-    if (zxcvbnResult.score < 3) {
-      showToast('error', 'より複雑なパスワードを設定する必要があります');
-      setErrorMsg('より複雑なパスワードを設定する必要があります');
+  const preHandleSubmit = async (data: SetPasswordFormInputType) => {
+    if (score < 3) {
+      const msg = 'より複雑なパスワードを設定する必要があります'
+      showToast('error', msg);
+      setErrorMsg(msg);
       return;
     };
-
-    setIsSending(true);
-    setErrorMsg('');
-    try {
-      const result = await setPassword(data);
-      showToast(result?.toastType, result?.toastMessage, { duration: 5000 });
-      if (result.ok) {
-        //
-      } else {
-        setErrorMsg(result?.message ?? '');
-      };
-    } catch {
-      showToast('error', 'パスワード変更に失敗しました');
-      setErrorMsg('パスワード変更に失敗しました');
-    } finally {
-      // 多重送信防止
-      setIsSending(false);
-    };
+    await handleSubmit(data);
   };
+  const handleSubmit = useCommonSubmit<SetPasswordFormInputType>({
+    isSending,
+    setIsSending,
+    setErrorMsg,
+    submitFunction: async (data) => {
+      return await setPassword({
+        formData: data,
+      });
+    },
+    onSuccess: () => {
+      form.reset(); // パスワード系は成功したらフォームリセット
+    },
+    defaultExceptionToastMessage: 'パスワード変更に失敗しました',
+    defaultErrorMessage:          'パスワード変更に失敗しました',
+  });
   // ++++++++++
 
   return (
@@ -126,7 +107,7 @@ export function PasswordChangeForm(): ReactElement {
       )}
       {/* Form */}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}
+        <form onSubmit={form.handleSubmit(preHandleSubmit)}
               className='space-y-6'>
 
           {/* current_password (Input) */}
@@ -180,11 +161,11 @@ export function PasswordChangeForm(): ReactElement {
                 {/* パスワード強度表示 */}
                 <div className='mt-1 flex items-center gap-1'>
                   {[...Array(4)].map((_, idx) => {
-                    const isActive = idx < passwordScore;
+                    const isActive = idx < score;
                     let barColor = '';
-                    if (passwordScore <= 1) {
+                    if (score <= 1) {
                       barColor = 'bg-danger';
-                    } else if (passwordScore === 2) {
+                    } else if (score === 2) {
                       barColor = 'bg-warning';
                     } else {
                       barColor = 'bg-success';

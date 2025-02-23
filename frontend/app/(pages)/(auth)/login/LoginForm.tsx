@@ -11,7 +11,7 @@ import {
   loginFormSchema,
   type LoginFormInputType
 } from '@/features/api/token';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Form,
@@ -21,6 +21,7 @@ import {
   FormMessage,
   FormField,
 } from '@/app/components/ui/shadcn/form';
+import { useCommonSubmit } from '@/app/hooks';
 // shadcn
 import { cn } from '@/app/components/lib/shadcn';
 import { Input } from '@/app/components/ui/shadcn/input';
@@ -29,7 +30,7 @@ import { Button } from '@/app/components/ui/shadcn/button';
 import { Loader2 } from 'lucide-react';
 // components
 import { PasswordInputField } from '@/app/components/ui/form';
-import { showToast } from '@/app/components/utils';
+
 
 type LoginFormProps = {
   isSending:    boolean;
@@ -57,38 +58,29 @@ export function LoginForm({
       password: '',
     },
   });
-  // - onSubmit
-  const onSubmit: SubmitHandler<LoginFormInputType> = async (data): Promise<void> => {
-
-    // 多重送信防止
-    if (isSending) return;
-
-    setIsSending(true);
-    setErrorMsg('');
-    try {
-      const result = await login({
+  // - useCommonSubmit
+  const handleSubmit = useCommonSubmit<LoginFormInputType>({
+    isSending,
+    setIsSending,
+    setErrorMsg,
+    submitFunction: async (data) => {
+      return await login({
         formData:    data,
         callbackUrl: callbackUrl,
       });
-      showToast(result?.toastType, result?.toastMessage);
-      if (result?.ok) {
-        router.push(callbackUrl);
-      } else {
-        setErrorMsg(result?.message ?? '');
-      };
-    } catch {
-      showToast('error', 'ログインに失敗しました');
-      setErrorMsg('ログインに失敗しました');
-    } finally {
-      // 多重送信防止
-      setIsSending(false);
-    };
-  };
+    },
+    onSuccess: () => {
+      // 成功時 → リダイレクト
+      router.push(callbackUrl);
+    },
+    defaultExceptionToastMessage: 'ログインに失敗しました',
+    defaultErrorMessage:          'ログインに失敗しました',
+  });
   // ++++++++++
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form onSubmit={form.handleSubmit(handleSubmit)}>
         <div className='flex flex-col gap-6'>
           <div className='grid gap-2'>
             {/* email */}

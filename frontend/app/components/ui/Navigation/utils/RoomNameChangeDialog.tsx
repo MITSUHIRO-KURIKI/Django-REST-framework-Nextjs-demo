@@ -6,7 +6,8 @@ import {
   type ReactElement,
   type Dispatch,
   type SetStateAction,
-  ChangeEvent,
+  type MouseEvent,
+  type ChangeEvent,
 } from 'react';
 // shadcn
 import {
@@ -38,10 +39,12 @@ import {
 
 // type
 type RoomNameChangeDialogProps = {
-  onSubmit:                 (roomId: string, editRoomName: string) => Promise<void>;
+  onSubmit:                 ({roomId, newRoomName}
+                            :{roomId: string, newRoomName: string}
+                            ) => Promise<void>;
   isSending:                boolean;
-  setIsSending:             Dispatch<SetStateAction<boolean>>;
-  roomNameSchema:           typeof llmChatRoomSettingsRoomNameChangeSchema | typeof vrmChatRoomSettingsRoomNameChangeSchema;
+  roomNameSchema:           typeof llmChatRoomSettingsRoomNameChangeSchema
+                            | typeof vrmChatRoomSettingsRoomNameChangeSchema;
   editRoomName:             string;
   setEditRoomName:          Dispatch<SetStateAction<string>>;
   editRoomNametargetRoomId: string;
@@ -51,9 +54,8 @@ type RoomNameChangeDialogProps = {
 
 // RoomNameChangeDialog ▽
 export function RoomNameChangeDialog({
-  isSending,
   onSubmit,
-  setIsSending,
+  isSending,
   roomNameSchema,
   editRoomName,
   setEditRoomName,
@@ -63,7 +65,11 @@ export function RoomNameChangeDialog({
 
   const [errorMsg, setErrorMsg] = useState<string>('');
 
-  const handleSubmitRoomName = async (): Promise<void> => {
+  // - useCommonSubmit
+  const preHandleSubmit = async (e: MouseEvent<HTMLElement>): Promise<void> => {
+    e.preventDefault();
+    e.stopPropagation();
+
     if (!editRoomName || !editRoomNametargetRoomId) return;
 
     // valid
@@ -74,20 +80,10 @@ export function RoomNameChangeDialog({
       return;
     };
 
-    // 多重送信防止
-    if (isSending) return;
-
-    setIsSending(true);
-    try {
-      await onSubmit(editRoomNametargetRoomId, sanitizeDOMPurify(editRoomName));
-      // モーダルを閉じる
-      setModalOpen(false);
-    } catch {
-      showToast('error', 'error');
-    } finally {
-      // 多重送信防止
-      setIsSending(false);
-    };
+    await onSubmit({
+      roomId:       editRoomNametargetRoomId,
+      newRoomName:  sanitizeDOMPurify(editRoomName),
+    });
   };
 
   return (
@@ -126,7 +122,7 @@ export function RoomNameChangeDialog({
           <Button variant='outline' onClick={() => setModalOpen(false)}>
             キャンセル
           </Button>
-          <Button onClick  = {handleSubmitRoomName}
+          <Button onClick  = {(e: MouseEvent<HTMLElement>) => preHandleSubmit(e)}
                   disabled = {isSending} >
             {isSending ? (<Loader2 className='animate-spin' />) : ('変更')}
           </Button>

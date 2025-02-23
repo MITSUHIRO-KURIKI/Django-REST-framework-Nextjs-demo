@@ -15,7 +15,7 @@ import type { DefaultResponse } from '@/features/api';
 
 
 // patchUserReceptionSetting
-export async function patchUserReceptionSetting(formData: userReceptionSettingFormInputType): Promise<DefaultResponse> {
+export async function patchUserReceptionSetting({formData}: {formData: userReceptionSettingFormInputType}): Promise<DefaultResponse> {
 
   const responseDefaultErrMsg = '更新に失敗しました';
 

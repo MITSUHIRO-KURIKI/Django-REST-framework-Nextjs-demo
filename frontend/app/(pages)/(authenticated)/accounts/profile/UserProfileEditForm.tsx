@@ -1,5 +1,7 @@
 'use client';
 
+// next
+import Image from 'next/image';
 // react
 import { useState, type ReactElement } from 'react';
 // hookform
@@ -9,7 +11,7 @@ import {
   type UserProfileResponseData,
   type UserProfileFormInputType,
 } from '@/features/api/user_properties';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Form,
@@ -20,6 +22,7 @@ import {
   FormItem,
   FormMessage,
 } from '@/app/components/ui/shadcn/form';
+import { useCommonSubmit } from '@/app/hooks';
 // shadcn
 import { Button } from '@/app/components/ui/shadcn/button';
 import { Input } from '@/app/components/ui/shadcn/input';
@@ -28,7 +31,7 @@ import { Alert, AlertDescription } from '@/app/components/ui/shadcn/alert';
 // icons
 import { Loader2 } from 'lucide-react';
 // components
-import { showToast, CropperDialog, OverlaySpinner } from '@/app/components/utils';
+import { CropperDialog, OverlaySpinner } from '@/app/components/utils';
 
 
 // UserProfileEditForm
@@ -36,8 +39,8 @@ export function UserProfileEditForm({userProfileData,}: {userProfileData: UserPr
 
   // userIconUrl
   // - null の時はフロントのデフォルト画像を表示
-  const userIconUrl = userProfileData.userIcon
-                        ? (process.env.NEXT_PUBLIC_BACKEND_URL as string) + userProfileData.userIcon
+  const userIconUrl = (userProfileData.userIcon && process.env.NEXT_PUBLIC_BACKEND_MEDIA_URL)
+                        ? (new URL(process.env.NEXT_PUBLIC_BACKEND_MEDIA_URL).origin as string) + userProfileData.userIcon
                         : '/app/accounts/profile/user_icon/default/default.svg';
 
   const [isSending, setIsSending] = useState(false);
@@ -54,15 +57,12 @@ export function UserProfileEditForm({userProfileData,}: {userProfileData: UserPr
       user_icon:    null,
     },
   });
-  // - onSubmit
-  const onSubmit: SubmitHandler<UserProfileFormInputType> = async (data) => {
-
-    // 多重送信防止
-    if (isSending) return;
-
-    setIsSending(true);
-    setErrorMsg('');
-    try {
+  // - useCommonSubmit
+  const handleSubmit = useCommonSubmit<UserProfileFormInputType>({
+    isSending,
+    setIsSending,
+    setErrorMsg,
+    submitFunction: async (data) => {
       // multipart/form-data 用 ▽
       const formData = new FormData();
       formData.append('display_name', data.display_name);
@@ -70,28 +70,20 @@ export function UserProfileEditForm({userProfileData,}: {userProfileData: UserPr
         formData.append('user_icon', data.user_icon);
       };
       // multipart/form-data 用 △
-      const result = await patchUserProfile(formData);
-      showToast(result?.toastType, result?.toastMessage, { duration: 5000 });
-      if (result.ok) {
-        //
-      } else {
-        setErrorMsg(result?.message ?? '');
-      };
-    } catch {
-      showToast('error', '更新に失敗しました');
-      setErrorMsg('更新に失敗しました');
-    } finally {
-      // 多重送信防止
-      setIsSending(false);
-    };
-  };
-
-  // CropperDialog からファイル受け取り
+      return await patchUserProfile({
+        formData: formData,
+      });
+    },
+    defaultExceptionToastMessage: '更新に失敗しました',
+    defaultErrorMessage:          '更新に失敗しました',
+  });
+  // - Cropper
+  //   - CropperDialog からファイル受け取り
   const handleCropped = (croppedFile: File) => {
     form.setValue('user_icon', croppedFile);
     setUserIconPreviewUrl(URL.createObjectURL(croppedFile));
   };
-  // clear
+  //   - clear
   const handleClear = () => {
     form.setValue('user_icon', null);
     setUserIconPreviewUrl(userIconUrl);
@@ -111,7 +103,7 @@ export function UserProfileEditForm({userProfileData,}: {userProfileData: UserPr
       )}
       {/* Form */}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}
+        <form onSubmit={form.handleSubmit(handleSubmit)}
               className='space-y-6'>
 
           {/* user_icon (Preview) */}
@@ -120,9 +112,11 @@ export function UserProfileEditForm({userProfileData,}: {userProfileData: UserPr
               プロフィール画像
             </Label>
             <div className='relative mx-auto size-[200px] select-none overflow-hidden rounded-full border'>
-              <img src       = {userIconPreviewUrl}
-                   alt       = 'icon preview'
-                   className = 'size-[200px] object-cover' />
+              <Image src       = {userIconPreviewUrl}
+                     alt       = 'icon preview'
+                     width     = {200}
+                     height    = {200}
+                     className = 'object-cover' />
             </div>
           </div>
           {/* user_icon (CropperDialog) */}

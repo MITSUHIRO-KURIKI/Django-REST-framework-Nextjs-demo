@@ -17,7 +17,9 @@ type CreateRoomResponseData = {
   roomId: string;
 };
 type CreateRoomResponse = DefaultResponse & {
-  data?: string;
+  data?: {
+    roomId: string;
+  };
 };
 
 // createRoom
@@ -36,11 +38,13 @@ export async function createRoom(): Promise<CreateRoomResponse> {
       }}
     );
     //  Axios は 2xx 以外で catch に飛ぶ
-    const data:CreateRoomResponseData = res.data;
+    const data:CreateRoomResponseData  = res.data;
     const response: CreateRoomResponse = {
       ok:     true,
       status: res.status,
-      data:   data.roomId,
+      data: {
+        roomId: data.roomId,
+      },
     };
     return response;
   } catch (error) {

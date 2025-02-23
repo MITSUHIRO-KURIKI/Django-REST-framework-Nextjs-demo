@@ -1,30 +1,23 @@
 // next-auth
 import { signIn, type SignInResponse } from 'next-auth/react';
-// components
-import { ToastType } from '@/app/components/utils/showToast';
 // type
 import { type LoginFormInputType } from './schema';
-
+import type { DefaultResponse } from '@/features/api';
 
 // type
 type LoginRequest = {
   formData:     LoginFormInputType;
   callbackUrl?: string;
 };
-interface LoginResponse extends Omit<SignInResponse, 'error'> {
-  message?:      string;
-  toastType?:    ToastType;
-  toastMessage?: string;
-};
+type LoginResponse = Omit<SignInResponse, 'error'>
+                     & DefaultResponse;
 
 // login ▽
-export async function login(params: LoginRequest): Promise<LoginResponse> {
+export async function login({ formData, callbackUrl }: LoginRequest): Promise<LoginResponse> {
 
   const responseDefaultErrMsg = 'ログインに失敗しました';
 
   try{
-    const { formData, callbackUrl } = params;
-
     // NextAuthの signIn を呼ぶ (redirect:false で手動リダイレクトを制御)
     // Next Auth は signIn で CSRF検証するのでパラメータでの検証不要
     const result = await signIn('credentials', {

@@ -76,7 +76,7 @@ export function SpeechTextGcloudCoreProvider({
   // WebSocket 接続 / 再接続
   // --------------------
   // setUpWebSocketListeners: WebSocket イベントリスナー
-  const setUpWebSocketListeners = useCallback((ws: WebSocket, isReconnect?: boolean) => {
+  const setUpWebSocketListeners = useCallback(({ws, isReconnect}: {ws: WebSocket, isReconnect?: boolean}) => {
     // open
     ws.addEventListener('open', () => {
       if (isReconnect) {
@@ -103,7 +103,7 @@ export function SpeechTextGcloudCoreProvider({
   }, []);
 
   // connectWebSocket: 新規接続
-  const connectWebSocket = useCallback(async ({ isReconnect = false }:{isReconnect?: boolean} = {}): Promise<void> => {
+  const connectWebSocket = useCallback(async ({ isReconnect=false }: {isReconnect?: boolean} = {}): Promise<void> => {
     try {
       // 既存ソケットが CONNECTING or OPEN なら一旦閉じる
       if (socketRef.current) {
@@ -114,11 +114,11 @@ export function SpeechTextGcloudCoreProvider({
       };
       // 新規ソケット生成
       const wsProtocol     = window.location.protocol === 'https:' ? 'wss' : 'ws';
-      const backendDomain  = process.env.NEXT_PUBLIC_BACKEND_DOMAIN;
+      const backendDomain  = new URL(process.env.NEXT_PUBLIC_BACKEND_URL ?? '').host;
       const wsUrl          = `${wsProtocol}://${backendDomain}/${thirdPartyPath.gcloud.ws_stt_tts}`;
       const newSocket      = new WebSocket(wsUrl);
       newSocket.binaryType = 'arraybuffer'; // バイナリを扱う宣言
-      setUpWebSocketListeners(newSocket, isReconnect);
+      setUpWebSocketListeners({ws: newSocket, isReconnect: isReconnect});
       socketRef.current = newSocket;
       console.log('gcloud connectWebSocket OK');    // Debug
     } catch {
@@ -151,7 +151,7 @@ export function SpeechTextGcloudCoreProvider({
   // 送信メソッド
   // --------------------
   // sendMessage: 送信共通処理
-  const sendMessage = useCallback((cmd: string, text?: string): void => {
+  const sendMessage = useCallback(({cmd, text}: {cmd: string, text?: string}): void => {
     const ws = socketRef.current;
     if (!ws) {
       // ソケットが無ければ再接続
@@ -178,7 +178,7 @@ export function SpeechTextGcloudCoreProvider({
       void reConnectWebSocket();
     };
   }, []);
-  const sendBlob = useCallback((blobData: ArrayBuffer | Uint8Array): void => {
+  const sendBlob = useCallback(({blobData}: {blobData: ArrayBuffer | Uint8Array}): void => {
     const ws = socketRef.current;
     if (!ws) {
       // ソケットが無ければ再接続
@@ -325,7 +325,7 @@ export function SpeechTextGcloudCoreProvider({
   // --------------------
   //  - sendPing
   const sendPing = useCallback(() => {
-    sendMessage('ping');
+    sendMessage({cmd: 'ping'});
     console.log('gcloud ping'); // Debug
   }, [sendMessage]);
   //  - startPing
@@ -464,7 +464,7 @@ export function SpeechTextGcloudCoreProvider({
         // dataavailable のコールバック。ここで blob を WebSocket 送信
         if (blob.size > 0 && socketRef.current?.readyState === WebSocket.OPEN) {
           blob.arrayBuffer().then((buf) => {
-            sendBlob(buf);
+            sendBlob({blobData: buf});
           });
         };
       },
@@ -491,7 +491,7 @@ export function SpeechTextGcloudCoreProvider({
     // STT socket に終了のバイナリを注入する -> これをsocketが受け取ってレシーブしたらSTT終了とする
     const encoder = new TextEncoder();
     const data    = encoder.encode('sttend');
-    sendBlob(data);
+    sendBlob({blobData: data});
   }, [isRecognizing]);
 
   // --------------------
@@ -500,7 +500,10 @@ export function SpeechTextGcloudCoreProvider({
   // textToSpeech
   const textToSpeech = useCallback(async (SpeechText: string): Promise<void> => {
     setIsLoading(false);
-    sendMessage('tts', SpeechText);
+    sendMessage({
+      cmd:  'tts',
+      text: SpeechText,
+    })
   }, []);
   /**
    * ==========

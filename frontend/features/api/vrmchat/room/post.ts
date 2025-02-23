@@ -17,7 +17,9 @@ type CreateRoomResponseData = {
   roomId: string;
 };
 type CreateRoomResponse = DefaultResponse & {
-  data?: string;
+  data?: {
+    roomId: string;
+  };
 };
 
 // createRoom
@@ -40,7 +42,9 @@ export async function createRoom(): Promise<CreateRoomResponse> {
     const response: CreateRoomResponse = {
       ok:     true,
       status: res.status,
-      data:   data.roomId,
+      data: {
+        roomId: data.roomId,
+      },
     };
     return response;
   } catch (error) {

@@ -14,7 +14,7 @@ import type { DefaultResponse } from '@/features/api';
 
 
 // patchUserProfile
-export async function patchUserProfile(formData: FormData): Promise<DefaultResponse> {
+export async function patchUserProfile({formData}: {formData: FormData}): Promise<DefaultResponse> {
 
   const responseDefaultErrMsg = '更新に失敗しました';
 

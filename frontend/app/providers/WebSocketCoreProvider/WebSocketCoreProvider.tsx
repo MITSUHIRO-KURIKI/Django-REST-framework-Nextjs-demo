@@ -14,7 +14,7 @@
  *   const handleClickTestMessage = (e) => {
  *     e.preventDefault();
  *     e.stopPropagation();
- *     handleSendCore('helloCmd', { message: inputText });
+ *     handleSendCore({cmd: 'helloCmd', data: { message: inputText }});
  *     setInputText('');
  *   };
  *   // 受信
@@ -86,8 +86,8 @@ export type WebSocketCoreContextValue = {
   accessIdRef:                 MutableRefObject<string>;
   isWebSocketWaiting:          boolean;
   setIsWebSocketWaiting:       Dispatch<SetStateAction<boolean>>;
-  handleSendCore:              (cmd: string, messageBody: Record<string, string>) => void;
-  handleSendSystemMessageCore: (message: ClientMessage, compressLevel?: number) => void;
+  handleSendCore:              ({cmd, data}: {cmd: string, data: Record<string, string>}) => void;
+  handleSendSystemMessageCore: ({message, compressLevel}: {message: ClientMessage, compressLevel?: number}) => void;
   serverMessage:               ServerMessage | null;
 };
 
@@ -102,14 +102,14 @@ export function WebSocketCoreProvider({ WebsocketUrl, WebsocketId, children,}: W
   const pingIntervalRef  = useRef<NodeJS.Timeout | null>(null);
   const pingIntervalTime = 5000;
   // 状態管理
-  const [serverMessageState, setServerMessageState] = useState<ServerMessage | null>(null);
-  const [isWebSocketWaiting, setIsWebSocketWaiting] = useState<boolean>(false);
+  const [serverMessageState, setServerMessageState]   = useState<ServerMessage | null>(null);
+  const [isWebSocketWaiting, setIsWebSocketWaiting]   = useState<boolean>(false);
 
   // --------------------
   // WebSocket 接続 / 再接続
   // --------------------
   // setUpWebSocketListeners: WebSocket イベントリスナー
-  const setUpWebSocketListeners = useCallback((ws: WebSocket, isReconnect?: boolean) => {
+  const setUpWebSocketListeners = useCallback(({ws, isReconnect}: {ws: WebSocket, isReconnect?: boolean}) => {
     // open
     ws.addEventListener('open', () => {
       setIsWebSocketWaiting(false);
@@ -140,7 +140,7 @@ export function WebSocketCoreProvider({ WebsocketUrl, WebsocketId, children,}: W
   }, []);
 
   // connectWebSocket: 新規接続
-  const connectWebSocket = useCallback(async ({ isReconnect = false }:{isReconnect?: boolean} = {}): Promise<void> => {
+  const connectWebSocket = useCallback(async ({ isReconnect=false }: {isReconnect?: boolean} = {}): Promise<void> => {
     try {
       // 既存ソケットが CONNECTING or OPEN なら一旦閉じる
       if (socketRef.current) {
@@ -151,10 +151,10 @@ export function WebSocketCoreProvider({ WebsocketUrl, WebsocketId, children,}: W
       };
       // 新規ソケット生成
       const wsProtocol    = window.location.protocol === 'https:' ? 'wss' : 'ws';
-      const backendDomain = process.env.NEXT_PUBLIC_BACKEND_DOMAIN;
+      const backendDomain = new URL(process.env.NEXT_PUBLIC_BACKEND_URL ?? '').host;
       const wsUrl         = `${wsProtocol}://${backendDomain}/${WebsocketUrl}${WebsocketId}`;
       const newSocket     = new WebSocket(wsUrl);
-      setUpWebSocketListeners(newSocket, isReconnect);
+      setUpWebSocketListeners({ws: newSocket, isReconnect: isReconnect});
       socketRef.current = newSocket;
       console.log('connectWebSocket OK'); // Debug
     } catch {
@@ -238,26 +238,26 @@ export function WebSocketCoreProvider({ WebsocketUrl, WebsocketId, children,}: W
   // handleSendCore: UIから呼び出される送信ハンドラ
   //  呼び出し例:
   //   const handleClickSendMessage = () => {
-  //    handleSendCore('cmd', { message: inputText });
+  //    handleSendCore({cmd: 'cmd', data: { message: inputText }});
   //   };
   //   <button onClick={handleClickSendMessage} disabled={isWebSocketWaiting}>
-  const handleSendCore = useCallback((cmd: string, messageBody: Record<string, string>) => {
+  const handleSendCore = useCallback(({cmd, data}: {cmd: string, data: Record<string, string>}) => {
     // サニタイズ
-    const safeMessageBody = Object.fromEntries(
-      Object.entries(messageBody).map(([k, v]) => [
+    const safeData = Object.fromEntries(
+      Object.entries(data).map(([k, v]) => [
         sanitizeDOMPurify(k),
         sanitizeDOMPurify(v),
       ]),
     );
     const message: ClientMessage = {
-      cmd,
-      data: safeMessageBody,
+      cmd:  cmd,
+      data: safeData,
     };
     // 送信
     sendMessage(message, { compressLevel: 4 });
   }, [sendMessage]);
   // handleSendSystemMessageCore: isWebSocketWaiting=true でも send 実行
-  const handleSendSystemMessageCore = useCallback((message: ClientMessage, compressLevel?: number): void => {
+  const handleSendSystemMessageCore = useCallback(({message, compressLevel}: {message: ClientMessage, compressLevel?: number}): void => {
     sendMessage(message, { compressLevel, isWaitBlock: false });
   }, [sendMessage]);
 
@@ -265,13 +265,13 @@ export function WebSocketCoreProvider({ WebsocketUrl, WebsocketId, children,}: W
   // 受信メソッド
   // --------------------
   // decodeReceivedData: WebSocketからのメッセージを処理
-  const decodeReceivedData = useCallback( async (event: MessageEvent): Promise<ServerMessage> => {
+  const decodeReceivedData = useCallback( async (e: MessageEvent): Promise<ServerMessage> => {
     // 受信データがテキスト → 非圧縮とみなす
-    if (typeof event.data === 'string') {
-      return JSON.parse(event.data) as ServerMessage;
+    if (typeof e.data === 'string') {
+      return JSON.parse(e.data) as ServerMessage;
     };
     // 受信データがBlob(バイナリ) → Brotli 圧縮とみなす
-    if (event.data instanceof Blob) {
+    if (e.data instanceof Blob) {
       const reader = new FileReader();
       return new Promise<ServerMessage>((resolve, reject) => {
         reader.onload = () => {
@@ -289,7 +289,7 @@ export function WebSocketCoreProvider({ WebsocketUrl, WebsocketId, children,}: W
           };
         };
         reader.onerror = () => reject(new Error('parseError'));
-        reader.readAsArrayBuffer(event.data);
+        reader.readAsArrayBuffer(e.data);
       });
     };
     // 型想定外
@@ -297,9 +297,9 @@ export function WebSocketCoreProvider({ WebsocketUrl, WebsocketId, children,}: W
   }, []);
 
   // handleReceiveMessage
-  async function handleReceiveMessage(event: MessageEvent): Promise<void> {
+  async function handleReceiveMessage(e: MessageEvent): Promise<void> {
     try {
-      const serverMessage = await decodeReceivedData(event);
+      const serverMessage = await decodeReceivedData(e);
       if (!serverMessage || typeof serverMessage !== 'object') {
         throw new Error('Invalid data');
       };
@@ -342,7 +342,7 @@ export function WebSocketCoreProvider({ WebsocketUrl, WebsocketId, children,}: W
   // --------------------
   //  - sendPing
   const sendPing = useCallback(() => {
-    handleSendSystemMessageCore({ cmd: 'ping' });
+    handleSendSystemMessageCore({ message: {cmd: 'ping'} });
     console.log('ping'); // Debug
   }, [handleSendSystemMessageCore]);
   //  - startPing

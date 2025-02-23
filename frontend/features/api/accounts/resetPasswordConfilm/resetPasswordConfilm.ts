@@ -23,13 +23,11 @@ type PasswordResetConfilmRequest = {
 };
 
 // resetPasswordConfilm
-export async function resetPasswordConfilm(params: PasswordResetConfilmRequest): Promise<DefaultResponse> {
+export async function resetPasswordConfilm({ formData, uid, token, csrfToken }: PasswordResetConfilmRequest): Promise<DefaultResponse> {
 
   const responseDefaultErrMsg = 'パスワード再設定に失敗しました';
 
   try {
-    const { formData, uid, token, csrfToken } = params;
-
     // CSRFチェック ▽
     const cookieStore = await cookies();
     const allCookies  = cookieStore.getAll();

@@ -1,5 +1,7 @@
 'use client';
 
+// next
+import Image from 'next/image';
 // react
 import { memo } from 'react';
 // shadcn
@@ -14,17 +16,19 @@ import { MessageProps } from '../ClientUI';
 // HistoryMessageItem
 function HistoryMessageItem({ messageItem, userIconData, roomAiIconUrl }: MessageProps) {
 
-  const userIconUrl = userIconData
-                        ? (process.env.NEXT_PUBLIC_BACKEND_URL as string) + userIconData
+  const userIconUrl = (userIconData && process.env.NEXT_PUBLIC_BACKEND_MEDIA_URL)
+                        ? (new URL(process.env.NEXT_PUBLIC_BACKEND_MEDIA_URL).origin as string) + userIconData
                         : '/app/accounts/profile/user_icon/default/default.svg';
 
   return (
     <>
       <div className='flex items-start gap-2'>
         <div className='relative mb-4'>
-          <img src       = {userIconUrl}
-              alt       = 'User'
-              className = 'size-[40px] select-none rounded-full border' />
+          <Image src       = {userIconUrl}
+                 alt       = 'User'
+                 width     = {40}
+                 height    = {40}
+                 className = 'select-none rounded-full border' />
           <span className = {cn(
                   'absolute -bottom-[1rem] left-1/2 -translate-x-1/2',
                   'text-nowrap text-xs text-gray-500 select-none',
@@ -39,9 +43,11 @@ function HistoryMessageItem({ messageItem, userIconData, roomAiIconUrl }: Messag
       </div>
       <div className='flex items-start gap-2'>
         <div className='relative mb-4 hidden md:flex'>
-          <img src       = {roomAiIconUrl}
-               alt       = 'AI'
-               className = 'size-[40px] select-none rounded-full border' />
+          <Image src       = {roomAiIconUrl}
+                 alt       = 'AI'
+                 width     = {40}
+                 height    = {40}
+                 className = 'select-none rounded-full border' />
           <span className = {cn(
                   'absolute -bottom-[1rem] left-1/2 -translate-x-1/2',
                   'text-nowrap text-xs text-gray-500 select-none',
@@ -60,17 +66,19 @@ function HistoryMessageItem({ messageItem, userIconData, roomAiIconUrl }: Messag
 // ReceiveMessageItem
 function ReceiveMessageItem({ messageItem, userIconData, roomAiIconUrl }: MessageProps) {
 
-  const userIconUrl = userIconData
-                        ? (process.env.NEXT_PUBLIC_BACKEND_URL as string) + userIconData
+  const userIconUrl = (userIconData && process.env.NEXT_PUBLIC_BACKEND_MEDIA_URL)
+                        ? (new URL(process.env.NEXT_PUBLIC_BACKEND_MEDIA_URL).origin as string) + userIconData
                         : '/app/accounts/profile/user_icon/default/default.svg';
 
   return (
     <>
       <div className='flex items-start gap-2'>
         <div className='relative mb-4'>
-          <img src       = {userIconUrl}
-              alt       = 'User'
-              className = 'size-[40px] select-none rounded-full border' />
+          <Image src       = {userIconUrl}
+                 alt       = 'User'
+                 width     = {40}
+                 height    = {40}
+                 className = 'select-none rounded-full border' />
           <span className = {cn(
                   'absolute -bottom-[1rem] left-1/2 -translate-x-1/2',
                   'text-nowrap text-xs text-gray-500 select-none',
@@ -86,9 +94,11 @@ function ReceiveMessageItem({ messageItem, userIconData, roomAiIconUrl }: Messag
       </div>
       <div className='flex items-start gap-2'>
         <div className='relative mb-4 hidden md:flex'>
-          <img src       = {roomAiIconUrl}
-               alt       = 'AI'
-               className = 'size-[40px] select-none rounded-full border' />
+          <Image src       = {roomAiIconUrl}
+                 alt       = 'AI'
+                 width     = {40}
+                 height    = {40}
+                 className = 'select-none rounded-full border' />
           <span className = {cn(
                   'absolute -bottom-[1rem] left-1/2 -translate-x-1/2',
                   'text-nowrap text-xs text-gray-500 select-none',

@@ -18,3 +18,6 @@ runtime.txt
 ####################
 ### other
 memo.txt
+*.vrm
+*.woff
+*.woff2

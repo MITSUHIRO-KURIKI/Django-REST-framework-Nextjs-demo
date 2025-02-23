@@ -1,1 +1,2 @@
-export { SidebarBody as Sidebar } from './Sidebar';
+export { LeftSidebar as Sidebar } from './LeftSidebar';
+export { MobileMenu as MobileMenuSidever } from './MobileMenu';

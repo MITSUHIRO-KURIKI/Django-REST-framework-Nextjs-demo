@@ -1,5 +1,7 @@
 'use client';
 
+// next
+import Image from 'next/image';
 // react
 import {
   useEffect,
@@ -15,8 +17,9 @@ import {
   roomSettingsFormSchema,
   type ModelNameChoices,
   type RoomSettingsFormInputType,
+  type RoomSettingsResponseData,
 } from '@/features/api/llmchat/room_settings';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Form,
@@ -27,6 +30,7 @@ import {
   FormItem,
   FormMessage,
 } from '@/app/components/ui/shadcn/form';
+import { useCommonSubmit } from '@/app/hooks';
 // shadcn
 import { cn } from '@/app/components/lib/shadcn';
 import { Button } from '@/app/components/ui/shadcn/button';
@@ -91,11 +95,9 @@ export function RoomSettingsForm({ roomId, roomAiIconUrl, setRoomAiIconUrl, setS
   });
   // - form data
   useEffect(() => {(async () => {
-
     setIsLoading(true);
-
     try {
-      const result = await getRoomSettings(roomId)
+      const result = await getRoomSettings({roomId: roomId})
       if (result.ok) {
         const item = result.data;
         // data -> form value
@@ -124,15 +126,12 @@ export function RoomSettingsForm({ roomId, roomAiIconUrl, setRoomAiIconUrl, setS
       setIsLoading(false);
     };
   })(); }, [form, roomId]);
-  // - onSubmit
-  const onSubmit: SubmitHandler<RoomSettingsFormInputType> = async (data) => {
-
-    // 多重送信防止
-    if (isSending) return;
-
-    setIsSending(true);
-    setErrorMsg('');
-    try {
+  // - useCommonSubmit
+  const handleSubmit = useCommonSubmit<RoomSettingsFormInputType>({
+    isSending,
+    setIsSending,
+    setErrorMsg,
+    submitFunction: async (data) => {
       // multipart/form-data 用 ▽
       const formData = new FormData();
       formData.append('model_name',         data.model_name.toString());
@@ -149,36 +148,30 @@ export function RoomSettingsForm({ roomId, roomAiIconUrl, setRoomAiIconUrl, setS
         formData.append('ai_icon', data.ai_icon);
       };
       // multipart/form-data 用 △
-      const result = await patchRoomSettings({
+      return await patchRoomSettings({
         roomId:   roomId,
         formData: formData,
       });
-      showToast(result?.toastType, result?.toastMessage, {duration: 5000});
-      if (result.ok) {
-        // aiIconUrl の更新
-        const aiIconUrl = result.data?.aiIcon
-                            ? (process.env.NEXT_PUBLIC_BACKEND_URL as string) + result.data?.aiIcon
-                            : '/app/llmchat/ai_icon/default/ai.png';
-        setRoomAiIconUrl(aiIconUrl);
-      } else {
-        setErrorMsg(result?.message ?? '');
-      };
-    } catch {
-      showToast('error', '更新に失敗しました');
-      setErrorMsg('更新に失敗しました');
-    } finally {
-      // 多重送信防止
-      setIsSending(false);
+    },
+    onSuccess: (result) => {
       setSheetOpen(false);
-    };
-  };
-
-  // CropperDialog からファイル受け取り
+      // aiIconUrl の更新
+      const resultData = result.data as RoomSettingsResponseData;
+      const aiIconUrl  = (resultData?.aiIcon && process.env.NEXT_PUBLIC_BACKEND_MEDIA_URL)
+                          ? (new URL(process.env.NEXT_PUBLIC_BACKEND_MEDIA_URL).origin as string) + resultData.aiIcon
+                          : '/app/llmchat/ai_icon/default/ai.png';
+      setRoomAiIconUrl(aiIconUrl);
+    },
+    defaultExceptionToastMessage: '更新に失敗しました',
+    defaultErrorMessage:          '更新に失敗しました',
+  });
+  // - Cropper
+  //   - CropperDialog からファイル受け取り
   const handleCropped = (croppedFile: File) => {
     form.setValue('ai_icon', croppedFile);
     setAiIconPreviewUrl(URL.createObjectURL(croppedFile));
   };
-  // clear
+  //   - clear
   const handleClear = () => {
     form.setValue('ai_icon', null);
     setAiIconPreviewUrl(roomAiIconUrl);
@@ -198,7 +191,7 @@ export function RoomSettingsForm({ roomId, roomAiIconUrl, setRoomAiIconUrl, setS
       )}
       {/* Form */}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form onSubmit={form.handleSubmit(handleSubmit)}>
 
           {/* ai_icon (Preview) */}
           <div className='flex flex-col gap-2'>
@@ -206,9 +199,11 @@ export function RoomSettingsForm({ roomId, roomAiIconUrl, setRoomAiIconUrl, setS
               AIアバター画像
             </Label>
             <div className='relative mx-auto size-[200px] select-none overflow-hidden rounded-full border'>
-              <img src       = {aiIconPreviewUrl}
-                   alt       = 'icon preview'
-                   className = 'size-[200px] object-cover' />
+              <Image src       = {aiIconPreviewUrl}
+                     alt       = 'icon preview'
+                     width     = {200}
+                     height    = {200}
+                     className = 'object-cover' />
             </div>
           </div>
           {/* ai_icon (CropperDialog) */}

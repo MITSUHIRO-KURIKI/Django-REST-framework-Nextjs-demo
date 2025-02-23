@@ -37,8 +37,8 @@ export default async function LlmChatRoomPage(props: PageProps): Promise<ReactEl
   // InitData ▽
   // ルームタイトルおよび認証 (権限や未知のroomIdならここで弾く)
   const [roomResult, messageResult, userProfileResult] = await Promise.all([
-    getRoomSettingsRoomInitData(roomId),
-    getMessageList(roomId),
+    getRoomSettingsRoomInitData({roomId: roomId}),
+    getMessageList({roomId: roomId}),
     getUserProfile(),
   ]);
   if (!roomResult?.ok || !messageResult?.ok || !userProfileResult?.ok) {

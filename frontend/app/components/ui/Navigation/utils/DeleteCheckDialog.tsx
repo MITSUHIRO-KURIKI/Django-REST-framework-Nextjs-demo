@@ -7,7 +7,8 @@ import {
   type ReactElement,
   type Dispatch,
   type SetStateAction,
-  ChangeEvent,
+  type MouseEvent,
+  type ChangeEvent,
 } from 'react';
 // shadcn
 import {
@@ -31,9 +32,8 @@ import { showToast } from '@/app/components/utils';
 
 // type
 type DeleteCheckDialogDialogProps = {
-  onDelete:                (roomId: string) => Promise<void>;
+  onDelete:                ({roomId}: {roomId: string;}) => Promise<void>;
   isSending:               boolean;
-  setIsSending:            Dispatch<SetStateAction<boolean>>;
   deleteRoomTargetRoomId:  string;
   modalOpen:               boolean;
   setModalOpen:            Dispatch<SetStateAction<boolean>>;
@@ -43,7 +43,6 @@ type DeleteCheckDialogDialogProps = {
 export function DeleteCheckDialog({
   onDelete,
   isSending,
-  setIsSending,
   deleteRoomTargetRoomId,
   modalOpen,
   setModalOpen, }: DeleteCheckDialogDialogProps): ReactElement {
@@ -59,7 +58,11 @@ export function DeleteCheckDialog({
     };
   }, [modalOpen, setModalOpen])
 
-  const handleDeleteRoom = async (): Promise<void> => {
+  // - useCommonSubmit
+  const preHandleSubmit = async (e: MouseEvent<HTMLElement>): Promise<void> => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (!deleteRoomTargetRoomId) return;
 
     // SafetyCheck
@@ -68,22 +71,9 @@ export function DeleteCheckDialog({
       setErrorMsg('削除を実行するには「delete」と入力してください');
       return;
     };
-
-    // 多重送信防止
-    if (isSending) return;
-
-    setIsSending(true);
-    setErrorMsg('');
-    try {
-      await onDelete(deleteRoomTargetRoomId)
-      // モーダルを閉じる
-      setModalOpen(false);
-    } catch {
-      showToast('error', 'error');
-    } finally {
-      // 多重送信防止
-      setIsSending(false);
-    };
+    await onDelete({
+      roomId: deleteRoomTargetRoomId,
+    });
   };
 
   return (
@@ -121,7 +111,7 @@ export function DeleteCheckDialog({
           <DialogFooter className = 'flex !justify-between'>
             <Button variant   = 'destructive'
                     className = 'order-2 mt-2 sm:order-1'
-                    onClick   = {handleDeleteRoom}
+                    onClick   = {(e: MouseEvent<HTMLElement>) => preHandleSubmit(e)}
                     disabled  = {isSending} >
               {isSending ? (<Loader2 className='animate-spin' />) : ('削除する')}
             </Button>

@@ -4,11 +4,11 @@
 import { getCsrfToken } from 'next-auth/react';
 // react
 import {
-    useState,
-    useEffect,
-    type ReactElement,
-    type Dispatch,
-    type SetStateAction,
+  useEffect,
+  useRef,
+  type ReactElement,
+  type Dispatch,
+  type SetStateAction,
 } from 'react';
 // hookform
 import {
@@ -17,7 +17,7 @@ import {
   type SignupFormInputType
 } from '@/features/api/accounts/signup';
 import { passwordSchema } from '@/features/api/accounts';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Form,
@@ -28,6 +28,7 @@ import {
   FormMessage,
   FormField,
 } from '@/app/components/ui/shadcn/form';
+import { useCommonSubmit } from '@/app/hooks';
 // shadcn
 import { cn } from '@/app/components/lib/shadcn';
 import { Input } from '@/app/components/ui/shadcn/input';
@@ -35,13 +36,15 @@ import { Button } from '@/app/components/ui/shadcn/button';
 import { Alert, AlertTitle, AlertDescription } from '@/app/components/ui/shadcn/alert';
 // icons
 import { Loader2, CircleCheckBig } from 'lucide-react';
+// hooks
+import { usePasswordStrength } from '@/app/hooks';
 // components
 import { PasswordInputField } from '@/app/components/ui/form';
 import { showToast } from '@/app/components/utils';
 // lib
-import { zxcvbn } from '@zxcvbn-ts/core';
-import { setupZxcvbnOptions, getZxcvbnStrengthLabel } from '@/app/components/lib/zxcvbn-ts'
+import { setupZxcvbnOptions } from '@/app/components/lib/zxcvbn-ts'
 setupZxcvbnOptions(); // セットアップ
+
 
 // type
 type SignupFormProps = {
@@ -72,69 +75,48 @@ export function SignupForm({
     },
   });
   // - csrfToken
-  const [csrfToken, setCsrfTokenValue] = useState<string>('');
+  const csrfToken = useRef<string>('');
   useEffect(() => {
     getCsrfToken().then((token) => {
       if (token) {
-        setCsrfTokenValue(token);
+        csrfToken.current = token;
       };
     });
   }, [form]);
   // パスワード強度 ▽
-  const watchNewPassword                  = form.watch('password');
-  const [passwordScore, setPasswordScore] = useState(0);
-  const strengthLabel                     = getZxcvbnStrengthLabel(passwordScore);
-  // newPassword の変更を監視してスコア計算
-  useEffect(() => {
-    if (!watchNewPassword) {
-      setPasswordScore(0);
-      return;
-    };
-    // zxcvbnでスコア計算
-    const zxcvbnResult = zxcvbn(watchNewPassword);
-    let score          = zxcvbnResult.score;
-    // zod 必須条件を満たしていない場合、scoreを2までに抑える
-    const parsed = passwordSchema.safeParse(watchNewPassword);
-    if (!parsed.success && score > 2) {
-      score = 2;
-    };
-    setPasswordScore(score);
-  }, [watchNewPassword]);
+  const watchNewPassword         = form.watch('password');
+  const { score, strengthLabel } = usePasswordStrength({
+    passwordValue:     watchNewPassword,
+    passwordZodSchema: passwordSchema,
+  });
   // パスワード強度 △
-  // - onSubmit
-  const onSubmit: SubmitHandler<SignupFormInputType> = async (data): Promise<void> => {
-
-    // 多重送信防止
-    if (isSending) return;
-    // パスワード強度確認
-    const zxcvbnResult = zxcvbn(watchNewPassword);
-    if (zxcvbnResult.score < 3) {
-      showToast('error', 'より複雑なパスワードを設定する必要があります');
-      setErrorMsg('より複雑なパスワードを設定する必要があります');
+  // - useCommonSubmit
+  const preHandleSubmit = async (data: SignupFormInputType) => {
+    if (score < 3) {
+      const msg = 'より複雑なパスワードを設定する必要があります'
+      showToast('error', msg);
+      setErrorMsg(msg);
       return;
     };
-
-    setIsSending(true);
-    setErrorMsg('');
-    try {
-      const result = await signup({
-        formData:   data,
-        csrfToken:  csrfToken,
-      });
-      showToast(result?.toastType, result?.toastMessage, {duration: 5000});
-      if (result?.ok) {
-        setIsSuccess(true);
-      } else {
-        setErrorMsg(result?.message ?? '');
-      };
-    } catch {
-      showToast('error', 'サインアップに失敗しました');
-      setErrorMsg('サインアップに失敗しました');
-    } finally {
-      // 多重送信防止
-      setIsSending(false);
-    };
+    await handleSubmit(data);
   };
+  const handleSubmit = useCommonSubmit<SignupFormInputType>({
+    isSending,
+    setIsSending,
+    setErrorMsg,
+    submitFunction: async (data) => {
+      return await signup({
+        formData:   data,
+        csrfToken:  csrfToken.current,
+      });
+    },
+    onSuccess: () => {
+      form.reset(); // パスワード系は成功したらフォームリセット
+      setIsSuccess(true);
+    },
+    defaultExceptionToastMessage: 'サインアップに失敗しました',
+    defaultErrorMessage:          'サインアップに失敗しました',
+  });
   // ++++++++++
 
   return isSuccess ? (
@@ -150,7 +132,7 @@ export function SignupForm({
     </div>
   ) : (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form onSubmit={form.handleSubmit(preHandleSubmit)}>
         <div className='flex flex-col gap-6'>
           <div className='grid gap-2'>
             {/* email */}
@@ -190,11 +172,11 @@ export function SignupForm({
                 {/* パスワード強度表示 */}
                 <div className='mt-1 flex items-center gap-1'>
                 {[...Array(4)].map((_, idx) => {
-                  const isActive = idx < passwordScore;
+                  const isActive = idx < score;
                   let barColor = '';
-                  if (passwordScore <= 1) {
+                  if (score <= 1) {
                     barColor = 'bg-danger';
-                  } else if (passwordScore === 2) {
+                  } else if (score === 2) {
                     barColor = 'bg-warning';
                   } else {
                     barColor = 'bg-success';

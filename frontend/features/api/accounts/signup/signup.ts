@@ -21,13 +21,11 @@ type signupRequest = {
 };
 
 // signup
-export async function signup(params: signupRequest): Promise<DefaultResponse> {
+export async function signup({ formData, csrfToken }: signupRequest): Promise<DefaultResponse> {
 
   const responseDefaultErrMsg = 'サインアップに失敗しました';
 
   try {
-    const { formData, csrfToken } = params;
-
     // CSRFチェック ▽
     const cookieStore = await cookies();
     const allCookies  = cookieStore.getAll();

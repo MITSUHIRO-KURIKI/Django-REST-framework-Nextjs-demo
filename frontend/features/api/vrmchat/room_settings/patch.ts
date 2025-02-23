@@ -31,12 +31,11 @@ type PatchRoomSettingsResponse = DefaultResponse & {
 };
   
 // patchRoomSettings
-export async function patchRoomSettings(params: PatchRoomSettingsRequest): Promise<PatchRoomSettingsResponse> {
+export async function patchRoomSettings({ roomId, formData }: PatchRoomSettingsRequest): Promise<PatchRoomSettingsResponse> {
 
   const responseDefaultErrMsg = '更新に失敗しました';
 
   try {
-    const { roomId, formData }    = params;
     const session: Session | null = await getAuthSession();
 
     const res = await BackendApiClient.patch(
@@ -107,12 +106,11 @@ export async function patchRoomSettings(params: PatchRoomSettingsRequest): Promi
 };
 
 // patchRoomSettingsRoomNameChange
-export async function patchRoomSettingsRoomNameChange(params: PatchRoomSettingsRoomNameChangeRequest): Promise<PatchRoomSettingsResponse> {
+export async function patchRoomSettingsRoomNameChange({ roomId, formData }: PatchRoomSettingsRoomNameChangeRequest): Promise<PatchRoomSettingsResponse> {
 
   const responseDefaultErrMsg = '更新に失敗しました';
 
   try {
-    const { roomId, formData }    = params;
     const session: Session | null = await getAuthSession();
 
     const res = await BackendApiClient.patch(

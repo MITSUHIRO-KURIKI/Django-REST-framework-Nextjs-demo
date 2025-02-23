@@ -16,6 +16,7 @@ export {
 } from './schema';
 export type {
   ModelNameChoices,
+  RoomSettingsResponseData,
   RoomSettingsRoomInitDataResponseItem,
   RoomSettingsRoomNameListResponseData,
 } from './type.d';

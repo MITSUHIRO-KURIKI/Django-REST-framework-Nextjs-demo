@@ -6,9 +6,8 @@ import { cn } from '@/app/components/lib/shadcn';
 import { getRoomSettingsRoomNameList as getLlmChatRoomSettingsRoomNameList } from '@/features/api/llmchat';
 import { getRoomSettingsRoomNameList as getVrmChatRoomSettingsRoomNameList } from '@/features/api/vrmchat';
 // components
-import { Navbar } from '@/app/components/ui/Navigation';
+import { TopNavbar, Sidebar, SidebarContextProvider } from '@/app/components/ui/Navigation';
 // import
-import { SidebarContextProvider } from '@/app/providers';
 import { NavigationWrapperProps } from './type.d';
 
 // SidebarWrapper
@@ -19,17 +18,19 @@ export async function SidebarWrapper({ wrapName, className, children }: Navigati
 
   // InitData (サーバ取得)
   const [llmChatInitial, vrmChatInitial] = await Promise.all([
-    getLlmChatRoomSettingsRoomNameList(1, pageSize),
-    getVrmChatRoomSettingsRoomNameList(1, pageSize),
+    getLlmChatRoomSettingsRoomNameList({page: 1, size: pageSize}),
+    getVrmChatRoomSettingsRoomNameList({page: 1, size: pageSize}),
   ]);
+  const llmChatItems = llmChatInitial?.data ?? [];
+  const vrmChatItems = vrmChatInitial?.data ?? [];
 
   return (
     <>
-      <Navbar isUseSidebar   = {isUseSidebar}
-              llmChatInitial = {llmChatInitial?.data}
-              vrmChatInitial = {vrmChatInitial?.data}
-              pageSize       = {pageSize}
-              navbarBgColor  = {navbarBgColor} />
+    <SidebarContextProvider pageSize     = {pageSize}
+                            llmChatItems = {llmChatItems}
+                            vrmChatItems = {vrmChatItems}>
+      <TopNavbar isUseSidebar  = {isUseSidebar}
+                 navbarBgColor = {navbarBgColor} />
       <div id={ wrapName ?? 'navbarWrapContent'}
            className={cn(
             'origin-top',
@@ -37,12 +38,15 @@ export async function SidebarWrapper({ wrapName, className, children }: Navigati
             'transform transition-transform',
             'duration-300', "ease-[cubic-bezier(0.32,0.72,0,1)]",
             className,)}>
-        <SidebarContextProvider llmChatInitial = {llmChatInitial?.data}
-                                vrmChatInitial = {vrmChatInitial?.data}
-                                pageSize       = {pageSize}>
+        <Sidebar variant     = 'inset'
+                 collapsible = 'offcanvas'
+                 className   = {cn(
+                  'invisible-scrollbar',
+                  'hidden md:flex',)}>
           {children}
-        </SidebarContextProvider>
+        </Sidebar>
       </div>
+    </SidebarContextProvider>
     </>
   );
 };

@@ -20,6 +20,8 @@ import { Loader2, CircleAlert } from 'lucide-react';
 // features
 import { deleteAccount } from '@/features/api/accounts';
 import { FrontendWithCredentialsApiClient } from '@/features/apiClients';
+// hooks
+import { useCommonSubmit } from '@/app/hooks';
 // components
 import { showToast, OverlaySpinner } from '@/app/components/utils';
 
@@ -31,38 +33,31 @@ export function AccountDeleteForm(): ReactElement {
   const [errorMsg, setErrorMsg]                 = useState('');
   const [safetyCheckInput, setSafetyCheckInput] = useState<string>('');
 
-  const handleAccountDelete = async (): Promise<void> => {
-
+  // - useCommonSubmit
+  const preHandleSubmit = async (): Promise<void> => {
     // SafetyCheck
     if (safetyCheckInput !== 'delete') {
       showToast('error', 'error');
       setErrorMsg('削除を実行するには「delete」と入力してください');
       return;
     };
-
-    // 多重送信防止
-    if (isSending) return;
-    setErrorMsg('');
-
-    setIsSending(true);
-    try {
-      const result = await deleteAccount();
-      showToast(result?.toastType, result?.toastMessage, { duration: 5000 });
-      if (result.ok) {
-        // ログアウトしてトップに戻る
-        await FrontendWithCredentialsApiClient.post(apiPath.authPath.logout);
-        await signOut({callbackUrl: pagesPath.$url(),});
-      } else {
-        setErrorMsg(result?.message ?? '');
-      };
-    } catch {
-      showToast('error', '削除に失敗しました');
-      setErrorMsg('削除に失敗しました');
-    } finally {
-      // 多重送信防止
-      setIsSending(false);
-    };
+    await handleSubmit();
   };
+  const handleSubmit = useCommonSubmit<void>({
+    isSending,
+    setIsSending,
+    setErrorMsg,
+    submitFunction: async () => {
+      return await deleteAccount();
+    },
+    onSuccess: async () => {
+      // ログアウトしてトップに戻る
+      await FrontendWithCredentialsApiClient.post(apiPath.authPath.logout);
+      await signOut({callbackUrl: pagesPath.$url(),});
+    },
+    defaultExceptionToastMessage: '削除に失敗しました',
+    defaultErrorMessage:          '削除に失敗しました',
+  });
 
   return (
     <>
@@ -99,10 +94,10 @@ export function AccountDeleteForm(): ReactElement {
 
       <Button variant   = 'destructive'
               className = 'mt-4 w-full '
-              onClick   = {handleAccountDelete}
+              onClick   = {preHandleSubmit}
               disabled  = {isSending} >
         {isSending ? (<Loader2 className='animate-spin' />) : ('アカウントを削除する')}
       </Button>
     </>
   );
-}
+};

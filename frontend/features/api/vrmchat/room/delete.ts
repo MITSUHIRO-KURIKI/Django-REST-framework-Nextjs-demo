@@ -14,7 +14,7 @@ import type { DefaultResponse } from '@/features/api';
 
 
 // createRoom
-export async function deleteRoom(roomId: string): Promise<DefaultResponse> {
+export async function deleteRoom({roomId}: {roomId: string}): Promise<DefaultResponse> {
 
   const responseDefaultErrMsg = 'データ取得に失敗しました';
 

@@ -4,8 +4,8 @@
 import { getCsrfToken } from 'next-auth/react';
 // react
 import {
-  useState,
   useEffect,
+  useRef,
   type ReactElement,
   type Dispatch,
   type SetStateAction,
@@ -16,7 +16,7 @@ import {
   passwordResetFormSchema,
   type PasswordResetFormInputType
 } from '@/features/api/accounts/resetPassword';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Form,
@@ -26,16 +26,16 @@ import {
   FormMessage,
   FormField,
 } from '@/app/components/ui/shadcn/form';
+import { useCommonSubmit } from '@/app/hooks';
 // shadcn
 import { Input } from '@/app/components/ui/shadcn/input';
 import { Button } from '@/app/components/ui/shadcn/button';
 import { Alert, AlertTitle, AlertDescription } from '@/app/components/ui/shadcn/alert';
 // icons
 import { Loader2, CircleCheckBig } from 'lucide-react';
-// components
-import { showToast } from '@/app/components/utils';
 
 
+// type
 type PasswordResetFormProps = {
   isSuccess:    boolean;
   setIsSuccess: Dispatch<SetStateAction<boolean>>;
@@ -61,42 +61,32 @@ export function PasswordResetForm({
       email:     '',
     },
   });
-  // - form data
-  const [csrfToken, setCsrfTokenValue] = useState<string>('');
+  // - csrfToken
+  const csrfToken = useRef<string>('');
   useEffect(() => {
     getCsrfToken().then((token) => {
       if (token) {
-        setCsrfTokenValue(token);
+        csrfToken.current = token;
       };
     });
   }, [form]);
-  // - onSubmit
-  const onSubmit: SubmitHandler<PasswordResetFormInputType> = async (data): Promise<void> => {
-
-    // 多重送信防止
-    if (isSending) return;
-
-    setIsSending(true);
-    setErrorMsg('');
-    try {
-      const result = await resetPassword({
+  // - useCommonSubmit
+  const handleSubmit = useCommonSubmit<PasswordResetFormInputType>({
+    isSending,
+    setIsSending,
+    setErrorMsg,
+    submitFunction: async (data) => {
+      return await resetPassword({
         formData:  data,
-        csrfToken: csrfToken,
+        csrfToken: csrfToken.current,
       });
-      showToast(result?.toastType, result?.toastMessage, {duration: 5000});
-      if (result?.ok) {
-        setIsSuccess(true);
-      } else {
-        setErrorMsg(result?.message ?? '');
-      };
-    } catch {
-      showToast('error', 'パスワード再設定に失敗しました');
-      setErrorMsg('パスワード再設定に失敗しました');
-    } finally {
-      // 多重送信防止
-      setIsSending(false);
-    };
-  };
+    },
+    onSuccess: () => {
+      setIsSuccess(true);
+    },
+    defaultExceptionToastMessage: 'パスワード再設定に失敗しました',
+    defaultErrorMessage:          'パスワード再設定に失敗しました',
+  });
   // ++++++++++
 
   return isSuccess ? (
@@ -112,7 +102,7 @@ export function PasswordResetForm({
     </div>
   ) : (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form onSubmit={form.handleSubmit(handleSubmit)}>
         <div className='flex flex-col gap-6'>
           <div className='grid gap-2'>
             {/* email */}

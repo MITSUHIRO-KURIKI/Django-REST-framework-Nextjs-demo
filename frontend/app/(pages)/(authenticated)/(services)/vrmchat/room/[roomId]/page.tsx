@@ -31,7 +31,7 @@ export default async function VrmChatRoomPage(props: PageProps): Promise<ReactEl
   
   // ルームタイトル取得および認証 (権限や未知のroomIdならここで弾く)
   const [result] = await Promise.all([
-    getRoomSettingsRoomName(roomId),
+    getRoomSettingsRoomName({roomId: roomId}),
   ]);
   // ルームへのアクセス権限がない場合やroomIdが見つからない場合には 404
   if (!result?.ok) {

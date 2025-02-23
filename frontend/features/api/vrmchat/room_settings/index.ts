@@ -14,4 +14,8 @@ export {
   type RoomSettingsFormInputType,
   type RoomSettingsRoomNameChangeInputType,
 } from './schema';
-export type { ModelNameChoices, RoomSettingsRoomNameListResponseData } from './type.d';
+export type {
+  ModelNameChoices,
+  RoomSettingsResponseData,
+  RoomSettingsRoomNameListResponseData,
+} from './type.d';

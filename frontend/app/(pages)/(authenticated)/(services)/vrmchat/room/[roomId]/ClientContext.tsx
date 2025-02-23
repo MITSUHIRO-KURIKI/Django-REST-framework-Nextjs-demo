@@ -5,30 +5,33 @@ import {
   useState,
   useEffect,
   useContext,
-  useRef,
   type ReactElement,
 } from 'react';
+// pagesPath
+import { pagesPath } from '@/features/paths/frontend';
 // providers
 import {
   // WebSocket
   WebSocketCoreContext,
   type WebSocketCoreContextValue,
-  type ServerMessage,
   // SpeechText
   SpeechTextAzureCoreContext as SpeechTextCoreContext, // or SpeechTextGcloudCoreContext
   type SpeechTextCoreContextValue,
   // Vrm
   VrmCoreContext,
-  startLipSync,
+  useVrmLipSync,
   type VrmCoreContextValue,
-  // Sidebar
+} from '@/app/providers';
+import {
   SidebarContext,
   type SidebarContextValue,
-} from '@/app/providers';
-// customReceiveLogic
-import { customReceiveLogic } from './customReceiveLogic';
+} from '@/app/components/ui/Navigation';
+// hooks
+import { useWsMessageSender, useWsMessageReceiver } from './hooks';
+// features
+import { UrlToString } from '@/features/utils';
 // components
-import { showToast } from '@/app/components/utils';
+import { OverlaySpinner, showToast } from '@/app/components/utils';
 // import
 import { VrmChatRoomParams } from './page';
 // include
@@ -46,9 +49,13 @@ export type ClientUIProps = {
 // ClientContext ▽
 export function ClientContext({ roomId, roomTitle }: VrmChatRoomParams): ReactElement {
   // WebSocketCoreContext first ▽
-  const wsContext                                             = useContext(WebSocketCoreContext);
-  const { isWebSocketWaiting, handleSendCore, serverMessage } = wsContext as WebSocketCoreContextValue;
-  const { cmd, status, ok, message, data }                    = (serverMessage ?? {}) as ServerMessage;
+  const wsContext = useContext(WebSocketCoreContext);
+  const {
+    socketRef,
+    isWebSocketWaiting,
+    handleSendCore,
+    serverMessage,
+  } = wsContext as WebSocketCoreContextValue;
   // WebSocketCoreContext first △
   // SpeechTextCoreContext first ▽
   const stContext = useContext(SpeechTextCoreContext);
@@ -81,80 +88,75 @@ export function ClientContext({ roomId, roomTitle }: VrmChatRoomParams): ReactEl
   const {
     setSidebarInsetTitle,
     setSidebarInsetSubTitle,
-  } = sbarContext as SidebarContextValue;
+    setSidebarInsetSubTitleUrl,
+  } = sbarContext as SidebarContextValue || {};
   // SidebarContext first △
   
   // Local State
   const [receivedMessages, setReceivedMessages] = useState<string>('');
 
-  // 送信 (isStopRecognition 変化で発火)
-  useEffect(() => {
-    // isStopRecognition=true で送信
-    if (isStopRecognition) {
-      // 受信メッセージの初期化
-      setReceivedMessages('');
-      // WebSocket 送信
-      handleSendCore(
-        'SendUserMessage',
-        {
-          message: allrecognizedTextRef.current.join(''),
-        }
-      );
-    };
-  }, [isStopRecognition]);
+  // WebSocket 送信
+  useWsMessageSender({
+    isStopRecognition,
+    allrecognizedTextRef,
+    handleSendCore,
+    setReceivedMessages,
+  });
   // WebSocket 受信
-  useEffect(() => {
-    // serverMessage が来た際のみ独自ロジックで処理を行う
-    if (!wsContext || !serverMessage) return;
-    void customReceiveLogic({
-      contextValue: wsContext,
-      payload:      { cmd, status, ok, message, data },
-      setReceivedMessages,
-      setRecognizedText,
-      allrecognizedTextRef,
-      textToSpeech,
-      setSidebarInsetTitle,
-    });
-  }, [serverMessage]);
+  useWsMessageReceiver({
+    wsContext,
+    serverMessage,
+    setReceivedMessages,
+    setRecognizedText,
+    allrecognizedTextRef,
+    textToSpeech,
+    setSidebarInsetTitle,
+  });
   // VRM リップシンク
-  const stopLipSyncRef = useRef<() => void>(() => {});
-  useEffect(() => {
-    if (isSpeechStreaming && currentVrm && speechAnalyser && speechDataArray) {
-      // stopLipSyncRef.current(); // 前回のループが残っていたら念の為止める
-      stopLipSyncRef.current = startLipSync(currentVrm, speechAnalyser, speechDataArray);
-    } else {
-      stopLipSyncRef.current(); // 停止
-    };
-  }, [isSpeechStreaming, currentVrm, startLipSync]);
+  useVrmLipSync({
+    isSpeechStreaming,
+    currentVrm,
+    speechAnalyser,
+    speechDataArray,
+  });
 
   // Sidebar タイトルセット ▽
   useEffect(() => {
-    setSidebarInsetTitle(roomTitle);
-    setSidebarInsetSubTitle('VRM Chat');
-  }, [roomTitle, setSidebarInsetTitle, setSidebarInsetSubTitle]);
+    if (setSidebarInsetTitle)       setSidebarInsetTitle(roomTitle);
+    if (setSidebarInsetSubTitle)    setSidebarInsetSubTitle('VRM Chat');
+    if (setSidebarInsetSubTitleUrl) setSidebarInsetSubTitleUrl(UrlToString(pagesPath.servicesPath.vrmChat.$url()));
+  }, [
+    roomTitle,
+    setSidebarInsetTitle,
+    setSidebarInsetSubTitle,
+    setSidebarInsetSubTitleUrl,
+  ]);
   // Sidebar タイトルセット △
 
-  // WebSocketCoreContext last ▽
-  if (!wsContext || !stContext || !vrmContext) {
+  // WebSocketCoreContext VrmCoreContext SidebarContext last ▽
+  if (!wsContext || !vrmContext || !stContext ) {
     showToast('error', 'error', { position: 'bottom-right', duration: 3000 });
     return <p className='select-none text-xs font-thin text-muted-foreground'>Sorry, not available</p>;
   };
-  // WebSocketCoreContext last △
+  // WebSocketCoreContext VrmCoreContext SidebarContext last △
 
   return (
-    <ClientUI
-      roomId             = {roomId}
-      isWebSocketWaiting = {isWebSocketWaiting}
-      recognizedText     = {recognizedText}
-      recognizingText    = {recognizingText}
-      receivedMessages   = {receivedMessages}
-      isLoading          = {isLoading}
-      isRecognizing      = {isRecognizing}
-      isStopRecognition  = {isStopRecognition}
-      toggleRecognition  = {toggleRecognition}
-      width              = {width}
-      height             = {height}
-      containerRef       = {containerRef} />
+    <>
+      <OverlaySpinner isActivate={!(socketRef.current?.readyState === WebSocket.OPEN)} />
+      <ClientUI
+        roomId             = {roomId}
+        isWebSocketWaiting = {isWebSocketWaiting}
+        recognizedText     = {recognizedText}
+        recognizingText    = {recognizingText}
+        receivedMessages   = {receivedMessages}
+        isLoading          = {isLoading}
+        isRecognizing      = {isRecognizing}
+        isStopRecognition  = {isStopRecognition}
+        toggleRecognition  = {toggleRecognition}
+        width              = {width}
+        height             = {height}
+        containerRef       = {containerRef} />
+    </>
   );
 };
 // ClientContext △

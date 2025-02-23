@@ -1,17 +1,23 @@
-export type SubItem = {
-  key:   string;
-  label: string;
-  href:  string;
-  icon?: LucideIcon;
+import type { LucideIcon } from 'lucide-react';
+
+export type ItemBase = {
+  key:       'loading'
+             | 'settings'
+             | 'logout'
+             | 'signup'
+             | 'login'
+             | string;
+  label?:    string;
+  type?:     'link' | 'action';
+  href?:     string;
+  icon?:     LucideIcon;
+  onClick?:  () => void;
 };
 export type Item = {
-  key:   string;
-  label: string;
-  href?: string;
-  icon?: LucideIcon;
-  sub?:  SubItem[];
-};
+  sub?: ItemBase[];
+} & ItemBase;
+
 export type LoadItemDataProps = {
-  llmChatInitial?: SubItem[] | undefined;
-  vrmChatInitial?: SubItem[] | undefined;
+  llmChatItems?: ItemBase[] | undefined;
+  vrmChatItems?: ItemBase[] | undefined;
 };

@@ -9,6 +9,7 @@ export {
   VrmCoreProvider,
   VrmCoreContext,
   startLipSync,
+  useVrmLipSync,
   type VrmCoreContextValue,
 } from './VrmCoreProvider';
 export { 
@@ -18,10 +19,5 @@ export {
   type ServerMessage,
 } from './WebSocketCoreProvider';
 export { AuthProvider } from './AuthProvider';
-export {
-  SidebarContextProvider,
-  SidebarContext,
-  type SidebarContextValue,
-} from './SidebarContextProvider';
 export { ThemeProvider } from './ThemeProvider';
 export { ToastProvider } from './ToastProvider';

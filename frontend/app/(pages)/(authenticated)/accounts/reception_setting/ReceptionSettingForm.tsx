@@ -9,7 +9,7 @@ import {
   type userReceptionSettingFormInputType,
   type UserReceptionSettingResponseData,
 } from '@/features/api/user_properties';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Form,
@@ -19,6 +19,7 @@ import {
   FormItem,
   FormMessage,
 } from '@/app/components/ui/shadcn/form';
+import { useCommonSubmit } from '@/app/hooks';
 // shadcn
 import { Button } from '@/app/components/ui/shadcn/button';
 import { Switch } from '@/app/components/ui/shadcn/switch';
@@ -27,7 +28,7 @@ import { Alert, AlertDescription } from '@/app/components/ui/shadcn/alert';
 // icons
 import { Loader2 } from 'lucide-react';
 // components
-import { showToast, OverlaySpinner } from '@/app/components/utils';
+import { OverlaySpinner } from '@/app/components/utils';
 
 
 // ReceptionSettingForm
@@ -48,30 +49,19 @@ export function ReceptionSettingForm({ userReceptionSettingData }: {userReceptio
   });
   // - フォームの内容に応じた変更 (ボタンのどちらかをチェック状態にする)
   const { setValue } = form;
-  // - onSubmit
-  const onSubmit: SubmitHandler<userReceptionSettingFormInputType> = async (data) => {
-
-    // 多重送信防止
-    if (isSending) return;
-
-    setIsSending(true);
-    setErrorMsg('');
-    try {
-      const result = await patchUserReceptionSetting(data);
-      showToast(result?.toastType, result?.toastMessage, { duration: 5000 });
-      if (result.ok) {
-        //
-      } else {
-        setErrorMsg(result?.message ?? '');
-      };
-    } catch {
-      showToast('error', '更新に失敗しました');
-      setErrorMsg('更新に失敗しました');
-    } finally {
-      // 多重送信防止
-      setIsSending(false);
-    };
-  };
+  // - useCommonSubmit
+  const handleSubmit = useCommonSubmit<userReceptionSettingFormInputType>({
+    isSending,
+    setIsSending,
+    setErrorMsg,
+    submitFunction: async (data) => {
+      return await patchUserReceptionSetting({
+        formData: data,
+      });
+    },
+    defaultExceptionToastMessage: '更新に失敗しました',
+    defaultErrorMessage:          '更新に失敗しました',
+  });
   // ++++++++++
 
   return (
@@ -87,7 +77,7 @@ export function ReceptionSettingForm({ userReceptionSettingData }: {userReceptio
       )}
       {/* Form */}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form onSubmit={form.handleSubmit(handleSubmit)}>
 
           <Label className='mb-4 block text-lg font-bold'>お知らせの受信設定</Label>
 
