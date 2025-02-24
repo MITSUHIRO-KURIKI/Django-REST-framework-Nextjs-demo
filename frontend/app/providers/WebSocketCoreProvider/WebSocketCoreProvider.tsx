@@ -95,15 +95,15 @@ export type WebSocketCoreContextValue = {
 export function WebSocketCoreProvider({ WebsocketUrl, WebsocketId, children,}: WebSocketCoreProviderProps): ReactElement {
 
   // WebSocket
-  const socketRef        = useRef<WebSocket | null>(null);
-  const brotliRef        = useRef<BrotliWasm | null>(null);
-  const accessIdRef      = useRef<string>('');
+  const socketRef   = useRef<WebSocket | null>(null);
+  const brotliRef   = useRef<BrotliWasm | null>(null);
+  const accessIdRef = useRef<string>('');
   // ping
   const pingIntervalRef  = useRef<NodeJS.Timeout | null>(null);
   const pingIntervalTime = 5000;
   // 状態管理
-  const [serverMessageState, setServerMessageState]   = useState<ServerMessage | null>(null);
-  const [isWebSocketWaiting, setIsWebSocketWaiting]   = useState<boolean>(false);
+  const [serverMessageState, setServerMessageState] = useState<ServerMessage | null>(null);
+  const [isWebSocketWaiting, setIsWebSocketWaiting] = useState<boolean>(false);
 
   // --------------------
   // WebSocket 接続 / 再接続
@@ -305,9 +305,10 @@ export function WebSocketCoreProvider({ WebsocketUrl, WebsocketId, children,}: W
       };
       const { cmd, ok, data } = serverMessage;
       // 共通処理 ▽
-      // receiverMessage
+      // ping, pong, receiverMessage
+      if (cmd === 'ping') return;
+      if (cmd === 'pong') return;
       if (cmd === 'receiverMessage') return;
-      // setIsWebSocketWaiting=false セット
       // wsClose
       if (cmd === 'wsClose') {
         socketRef.current?.close();

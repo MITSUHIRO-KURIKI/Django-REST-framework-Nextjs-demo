@@ -39,18 +39,18 @@ export function AccountIconMenu(): ReactElement {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align='end' className='mt-2 w-64 bg-sidebar px-0 py-2'>
-        {items.map((item) => {
-          if (item.key === 'loading') {
-            return <div key={item.key}><Loader /></div>;
-          } else if (item.key === 'divided') {
-            return <div key={item.key} className={cn('my-2','h-[1px] w-full rounded-full bg-border',)} />;
+        {items.map((item, idx) => {
+          if (item.type === 'loading') {
+            return <div key={`${item.key}-${idx}`}><Loader /></div>;
+          } else if (item.type === 'divided') {
+            return <div key={`${item.key}-${idx}`} className={cn('my-2','h-[1px] w-full rounded-full bg-border',)} />;
           } else {
             return (
               <DropdownMenuItem key={item.key} asChild>
-                {item.type === 'action' && item.onClick ? (
+                {(item.key === 'settings') ? (
                   <Button variant   = 'ghost'
                           key       = {item.key}
-                          onClick   = {item.onClick}
+                          onClick   = {() => setIsAccountModalOpen(true)}
                           className = {cn(
                             'w-full h-8 px-4 justify-start rounded-none',
                             'text-xs font-light text-foreground',
@@ -60,10 +60,10 @@ export function AccountIconMenu(): ReactElement {
                             'cursor-pointer',)}>
                     {item.icon && <item.icon />}{item.label}
                   </Button>
-                ) : ( (item.key === 'settings') ? (
+                ) : ( (item.type === 'action' && item.onClick) ? (
                   <Button variant   = 'ghost'
                           key       = {item.key}
-                          onClick   = {() => setIsAccountModalOpen(true)}
+                          onClick   = {item.onClick}
                           className = {cn(
                             'w-full h-8 px-4 justify-start rounded-none',
                             'text-xs font-light text-foreground',

@@ -57,7 +57,7 @@ export function SpeechTextAzureCoreProvider({
   children }: SpeechTextAzureCoreProviderProps): ReactElement {
 
   // Recognizer/Synthesizer
-  const recognizerRef  = useRef<SpeechRecognizer | null>(null);
+  const recognizerRef  = useRef<SpeechRecognizer  | null>(null);
   const synthesizerRef = useRef<SpeechSynthesizer | null>(null);
   // STT
   const [recognizingText, setRecognizingText] = useState<string>('');
@@ -79,6 +79,7 @@ export function SpeechTextAzureCoreProvider({
   const recognizerCookiePrefix  = 're-';
   const synthesizerCookiePrefix = 'sy-';
 
+  // getSpeechToken
   const getSpeechToken = useCallback(async ({cookiePrefix}: {cookiePrefix: string}): Promise<AzureTokenResponse> => {
     const speechToken = getCookie(`${cookiePrefix}speech-token`);
     if (speechToken) {

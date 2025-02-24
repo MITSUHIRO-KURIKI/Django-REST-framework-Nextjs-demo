@@ -77,7 +77,7 @@ export function ClientContext({ roomId, roomTitle }: VrmChatRoomParams): ReactEl
   // VrmCoreContext first ▽
   const vrmContext = useContext(VrmCoreContext);
   const {
-    currentVrm,
+    vrmRef,
     width,
     height,
     containerRef,
@@ -114,10 +114,10 @@ export function ClientContext({ roomId, roomTitle }: VrmChatRoomParams): ReactEl
   });
   // VRM リップシンク
   useVrmLipSync({
-    isSpeechStreaming,
-    currentVrm,
-    speechAnalyser,
-    speechDataArray,
+    isSpeechStreaming: isSpeechStreaming,
+    vrm:               vrmRef.current,
+    speechAnalyser:    speechAnalyser,
+    speechDataArray:   speechDataArray,
   });
 
   // Sidebar タイトルセット ▽

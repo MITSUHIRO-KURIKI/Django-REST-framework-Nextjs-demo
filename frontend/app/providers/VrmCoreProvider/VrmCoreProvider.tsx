@@ -24,7 +24,6 @@
 // react
 import {
   createContext,
-  useState,
   useEffect,
   useRef,
   useCallback,
@@ -68,7 +67,7 @@ type VrmCoreProviderProps = {
   options?: VrmCoreProviderOptions;
 };
 export type VrmCoreContextValue = {
-  currentVrm:   VRM | null;
+  vrmRef:       MutableRefObject<VRM | null>;
   width:        number;
   height:       number;
   maxRatio:     number;
@@ -100,11 +99,11 @@ export function VrmCoreProvider({url, children, options,}: VrmCoreProviderProps)
     lightCastShadow = false,
   } = options || {};
 
-  const containerRef                = useRef<HTMLDivElement>(null);
-  const [currentVrm, setCurrentVrm] = useState<VRM | null>(null);
-  const rendererRef                 = useRef<WebGLRenderer | null>(null);
-  const sceneRef                    = useRef<Scene | null>(null);
-  const cameraRef                   = useRef<PerspectiveCamera | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const vrmRef       = useRef<VRM | null>(null);
+  const rendererRef  = useRef<WebGLRenderer | null>(null);
+  const sceneRef     = useRef<Scene | null>(null);
+  const cameraRef    = useRef<PerspectiveCamera | null>(null);
 
   // フレームレート制限
   const interval = 1000 / fps;
@@ -112,22 +111,25 @@ export function VrmCoreProvider({url, children, options,}: VrmCoreProviderProps)
 
   // シーン・カメラ・レンダラー初期化
   const initScene = useCallback(() => {
+
+    if (vrmRef.current) {
+      if (vrmRef.current.scene) {
+        VRMUtils.deepDispose(vrmRef.current.scene);
+      };
+      vrmRef.current = null;
+    };
+    if (rendererRef.current) {
+      rendererRef.current.dispose();
+      rendererRef.current = null;
+    };
+    if (sceneRef.current) {
+      sceneRef.current.clear();
+      sceneRef.current = null;
+    };
+    if (cameraRef.current) {
+      cameraRef.current = null;
+    };
     if (containerRef.current) {
-      if (currentVrm) {
-        VRMUtils.deepDispose(currentVrm.scene);
-      };
-      if (rendererRef.current) {
-        rendererRef.current.dispose();
-        rendererRef.current = null;
-      };
-      if (sceneRef.current) {
-        sceneRef.current.clear();
-        sceneRef.current = null;
-      };
-      if (cameraRef.current) {
-        cameraRef.current = null;
-      };
-      setCurrentVrm(null);
       // DOMコンテナに残っている要素を除去
       while (containerRef.current.firstChild) {
         containerRef.current.removeChild(containerRef.current.firstChild);
@@ -158,7 +160,7 @@ export function VrmCoreProvider({url, children, options,}: VrmCoreProviderProps)
     light.castShadow = lightCastShadow;                         // 影の計算を無効化
     scene.add(light);
   }, [
-    currentVrm,
+    vrmRef,
     width,
     height,
     cameraFov,
@@ -177,40 +179,41 @@ export function VrmCoreProvider({url, children, options,}: VrmCoreProviderProps)
 
   // VRMを読み込み、シーンに追加
   const loadVRMModel = useCallback(async () => {
+    
+    await initScene();
+
     if (!sceneRef.current) return;
 
     try {
-      const vrm = await vrmLoader(url)
+      vrmRef.current = await vrmLoader(url)
 
       // シーンへ追加
-      sceneRef.current.add(vrm.scene);
+      sceneRef.current.add(vrmRef.current.scene);
 
       // 不要な頂点／ジョイントを削除（パフォーマンス向上）
-      VRMUtils.removeUnnecessaryVertices(vrm.scene);
-      VRMUtils.combineSkeletons(vrm.scene);
+      VRMUtils.removeUnnecessaryVertices(vrmRef.current.scene);
+      VRMUtils.combineSkeletons(vrmRef.current.scene);
 
       // A字ポーズに変更
-      vrm.humanoid?.getNormalizedBoneNode('leftUpperArm')?.rotation.set(0, 0, 1.5);
-      vrm.humanoid?.getNormalizedBoneNode('rightUpperArm')?.rotation.set(0, 0, -1.5);
-      vrm.humanoid?.update();
+      vrmRef.current.humanoid?.getNormalizedBoneNode('leftUpperArm')?.rotation.set(0, 0, 1.5);
+      vrmRef.current.humanoid?.getNormalizedBoneNode('rightUpperArm')?.rotation.set(0, 0, -1.5);
+      vrmRef.current.humanoid?.update();
       // デフォルト表情
-      vrm.expressionManager?.setValue('relaxed', 0.2);
-      vrm.expressionManager?.update();
+      vrmRef.current.expressionManager?.setValue('relaxed', 0.2);
+      vrmRef.current.expressionManager?.update();
 
       // 瞬き,呼吸,左右動き,よそ見 アニメーションを開始
-      startBlinking(vrm);
-      startBreathing(vrm);
-      startSwaying(vrm);
-      startRandomEyeMovementWithDice(vrm);
+      startBlinking(vrmRef.current);
+      startBreathing(vrmRef.current);
+      startSwaying(vrmRef.current);
+      startRandomEyeMovementWithDice(vrmRef.current);
 
-      // セット
-      setCurrentVrm(vrm);
       // DEBUG ▽
-      // console.log('VRM loaded', vrm);
+      // console.log('VRM loaded', vrmRef.current);
       // expressionManagerの確認
-      if (vrm.expressionManager) {
+      if (vrmRef.current.expressionManager) {
           // すべての表情をコンソールに出力
-          const em = vrm.expressionManager as unknown as VrmExpressionManagerLike;
+          const em = vrmRef.current.expressionManager as unknown as VrmExpressionManagerLike;
           if (em._expressionMap && typeof em._expressionMap === 'object') {
             // console.log('Expression Manager Keys:');
             // console.log(Object.keys(em._expressionMap));
@@ -231,6 +234,7 @@ export function VrmCoreProvider({url, children, options,}: VrmCoreProviderProps)
 
   // animate
   const animate = useCallback(() => {
+
     const renderer = rendererRef.current;
     const scene    = sceneRef.current;
     const camera   = cameraRef.current;
@@ -242,25 +246,30 @@ export function VrmCoreProvider({url, children, options,}: VrmCoreProviderProps)
       if (time - lastFrameTime >= interval) {
         lastFrameTime = time;
         const delta = clock.getDelta();
-        if (currentVrm) {
-          currentVrm.update(delta);
+        if (vrmRef.current) {
+          vrmRef.current.update(delta);
         }
         renderer.render(scene, camera);
       };
     };
     requestAnimationFrame(renderLoop);
-  }, [clock, currentVrm, interval]);
+  }, [clock, vrmRef, interval]);
 
   // マウント時の初期処理
   useEffect(() => {
-    initScene();
+    let isMounted = true;
+    if (!isMounted) return;
     loadVRMModel().then(() => {
       animate(); // VRMのロード後にアニメーション開始
     });
     // Cleanup(アンマウント時)
     return () => {
-      if (currentVrm) {
-        VRMUtils.deepDispose(currentVrm.scene);
+      isMounted = false;
+      if (vrmRef.current) {
+        if (vrmRef.current.scene) {
+          VRMUtils.deepDispose(vrmRef.current.scene);
+        };
+        vrmRef.current = null;
       };
       if (rendererRef.current) {
         rendererRef.current.dispose();
@@ -270,14 +279,22 @@ export function VrmCoreProvider({url, children, options,}: VrmCoreProviderProps)
         sceneRef.current.clear();
         sceneRef.current = null;
       };
-      cameraRef.current = null;
-      setCurrentVrm(null);
+      if (cameraRef.current) {
+        cameraRef.current = null;
+      };
+      if (containerRef.current) {
+        // DOMコンテナに残っている要素を除去
+        while (containerRef.current.firstChild) {
+          containerRef.current.removeChild(containerRef.current.firstChild);
+        };
+      };
     };
   }, [url, loadVRMModel]);
 
   // 画面リサイズ時の拡大縮小
   useEffect(() => {
     function onResize() {
+
       if (!rendererRef.current || !cameraRef.current || !containerRef.current) return;
 
       let newWidth    = width;
@@ -313,12 +330,12 @@ export function VrmCoreProvider({url, children, options,}: VrmCoreProviderProps)
   }, [url, width, height, maxRatio]);
 
   const contextValue: VrmCoreContextValue = useMemo(() => ({
-    currentVrm,
+    vrmRef,
     width,
     height,
     maxRatio,
     containerRef,
-  }), [currentVrm, width, height, maxRatio]);
+  }), [vrmRef, width, height, maxRatio]);
 
   return (
     <VrmCoreContext.Provider value={contextValue}>

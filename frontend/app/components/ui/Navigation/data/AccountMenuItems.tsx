@@ -23,7 +23,8 @@ export function AccountMenuItems(): ItemBase[] {
   switch (status) {
     case 'loading':
       return [{
-        key: 'loading',
+        key:  'loading',
+        type: 'loading',
       },];
     case 'authenticated':
       return [{

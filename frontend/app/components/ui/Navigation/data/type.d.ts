@@ -1,14 +1,13 @@
 import type { LucideIcon } from 'lucide-react';
 
 export type ItemBase = {
-  key:       'loading'
-             | 'settings'
+  key:       'settings'
              | 'logout'
              | 'signup'
              | 'login'
              | string;
   label?:    string;
-  type?:     'link' | 'action';
+  type?:     'link' | 'action' | 'loading' | 'divided';
   href?:     string;
   icon?:     LucideIcon;
   onClick?:  () => void;

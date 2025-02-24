@@ -118,19 +118,17 @@ export function MobileMenu({ setIsTopNavBarVisible }: MobileMenuProps): ReactEle
 
             {/* accountMenuItems */}
             <div className='w-full space-y-2 pr-8'>
-              {accountMenuItems.map((item) => {
-                if (item.key === 'loading') {
-                  return <div key={item.key}><Loader /></div>;
-                };
-                if (item.type === 'action' && item.onClick) {
+              {accountMenuItems.map((item, idx) => {
+                if (item.type === 'loading') {
+                  return <div key={`${item.key}-${idx}`}><Loader /></div>;
+                } else if (item.type === 'divided') {
+                  return <div key={`${item.key}-${idx}`} className={cn('my-2','h-[1px] w-full rounded-full bg-border',)} />;
+                } else if (item.key === 'settings') {
                   return (
                     <Button variant   = 'link'
                             size      = 'fit'
                             key       = {item.key}
-                            onClick   = {()=>{
-                              setOverlayActive(true);
-                              item.onClick?.();
-                            }}
+                            onClick   = {handleOpenAccountModal}
                             className = {cn(
                               'w-full h-8 justify-start rounded',
                               'text-sm font-normal text-foreground',
@@ -139,13 +137,15 @@ export function MobileMenu({ setIsTopNavBarVisible }: MobileMenuProps): ReactEle
                       {item.icon && <item.icon />}{item.label}
                     </Button>
                   );
-                };
-                if (item.key === 'settings') {
+                } else if (item.type === 'action' && item.onClick) {
                   return (
                     <Button variant   = 'link'
                             size      = 'fit'
                             key       = {item.key}
-                            onClick   = {handleOpenAccountModal}
+                            onClick   = {()=>{
+                              setOverlayActive(true);
+                              item.onClick?.();
+                            }}
                             className = {cn(
                               'w-full h-8 justify-start rounded',
                               'text-sm font-normal text-foreground',

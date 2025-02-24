@@ -59,13 +59,13 @@ export function SpeechTextGcloudCoreProvider({
   const [speechDataArray, setSpeechDataArray]     = useState<Uint8Array | null>(null);
   const [speechAnalyser, setSpeechAnalyser]       = useState<AnalyserNode | null>(null);
   // ステータス管理
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading]                 = useState<boolean>(false);
   const [isRecognizing, setIsRecognizing]         = useState<boolean>(false);
   const [isStopRecognition, setIsStopRecognition] = useState<boolean>(false);
-  const isSpacePressedRef         = useRef<boolean>(false);
-  const mediaRecorderRef          = useRef<RecordRTC | null>(null);
-  const audioContextRef           = useRef<AudioContext | null>(null);
-  const sourceRef                 = useRef<AudioBufferSourceNode | null>(null);
+  const isSpacePressedRef                         = useRef<boolean>(false);
+  const mediaRecorderRef                          = useRef<RecordRTC | null>(null);
+  const audioContextRef                           = useRef<AudioContext | null>(null);
+  const sourceRef                                 = useRef<AudioBufferSourceNode | null>(null);
 
   /**
    * ==========
@@ -210,7 +210,9 @@ export function SpeechTextGcloudCoreProvider({
         const dataStr = event.data;
         const data    = JSON.parse(dataStr);
         if (data.cmd) {
-          // receiverMessage
+          // ping, pong, receiverMessage
+          if (data.cmd === 'ping') return;
+          if (data.cmd === 'pong') return;
           if (data.cmd === 'receiverMessage') return;
           // --------------------
           // Text-to-Speech
@@ -454,11 +456,11 @@ export function SpeechTextGcloudCoreProvider({
     };
     const stream        = await navigator.mediaDevices.getUserMedia({ audio: true });
     const mediaRecorder = new RecordRTC(stream, {
-      type:            'audio',
-      mimeType:        'audio/wav',                                                                                                                                                           
-      recorderType:    RecordRTC.StereoAudioRecorder,
-      desiredSampRate: 16000,
-      timeSlice:       sendSTTIntervalTime,
+      type:                  'audio',
+      mimeType:              'audio/wav',                                                                                                                                                           
+      recorderType:          RecordRTC.StereoAudioRecorder,
+      desiredSampRate:       16000,
+      timeSlice:             sendSTTIntervalTime,
       numberOfAudioChannels: 1,
       ondataavailable: function (blob) {
         // dataavailable のコールバック。ここで blob を WebSocket 送信

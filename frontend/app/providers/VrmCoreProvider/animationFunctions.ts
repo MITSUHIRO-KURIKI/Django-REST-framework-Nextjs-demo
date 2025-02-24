@@ -5,24 +5,30 @@ import type { VRM } from '@pixiv/three-vrm';
 // 音量を解析してVRMのリップシンクを制御
 // 返り値でストップ用の関数を渡す
 // Ref. https://qiita.com/daifukusan/items/de74f272e71dd87f853c
-export function startLipSync(vrm: VRM, analyser: AnalyserNode, dataArray: Uint8Array,): () => void {
+type StartLipSyncProps = {
+  vrm:       VRM,
+  analyser:  AnalyserNode,
+  dataArray: Uint8Array,
+};
+export function startLipSync({vrm, analyser, dataArray}: StartLipSyncProps): () => void {
 
-  const { expressionManager } = vrm;
+  const { expressionManager }  = vrm;
   let requestId: number | null = null;
-  let isLipSyncActive = true;
+  let isLipSyncActive: boolean = true;
+
   if (!expressionManager) return () => {};
 
-  let consecutiveZeroCount = 0;
+  let consecutiveZeroCount: number = 0;
 
   function updateLipSync(): void {
     if (!isLipSyncActive) return;
     analyser.getByteFrequencyData(dataArray);
-    let sum = 0;
+    let sum: number = 0;
     for (let i = 0; i < dataArray.length; i += 1) {
       sum += dataArray[i];
     };
-    const average = sum / dataArray.length;
-    const volume  = Math.floor(average);
+    const average: number = sum / dataArray.length;
+    const volume: number  = Math.floor(average);
     // 300フレーム(約5sec)連続で0ならループ終了
     if (volume === 0) consecutiveZeroCount++;
     else consecutiveZeroCount = 0;
@@ -33,10 +39,10 @@ export function startLipSync(vrm: VRM, analyser: AnalyserNode, dataArray: Uint8A
     // 音量に応じて表情を設定
     const { expressionManager } = vrm;
     if (expressionManager) {
-      const aa    = Math.pow(Math.min(80,    volume                    ), 2) / 3200.0;
-      const oh    = Math.pow(Math.max(40.0 - Math.abs(volume - 40.0), 0), 2) / 1600.0;
-      const ih    = Math.pow(Math.max(20.0 - Math.abs(volume - 20.0), 0), 2) / 400.0;
-      const happy = (aa + oh + ih) / 6.0; // 'happy' は3つの値の平均を用いる
+      const aa: number    = Math.pow(Math.min(80,    volume                    ), 2) / 3200.0;
+      const oh: number    = Math.pow(Math.max(40.0 - Math.abs(volume - 40.0), 0), 2) / 1600.0;
+      const ih: number    = Math.pow(Math.max(20.0 - Math.abs(volume - 20.0), 0), 2) / 400.0;
+      const happy: number = (aa + oh + ih) / 6.0; // 'happy' は3つの値の平均を用いる
       if (volume < 10) {
         expressionManager.setValue('aa',    0.0);
         expressionManager.setValue('oh',    0.0);
@@ -137,7 +143,7 @@ export function startSwaying(
   { swaySpeed   = 0.01,    // 動きのスピード. 値が大きいと早く揺れる.
     maxRotation = 0.00015, // 最大回転角度 (ラジアン)
   }: StartSwayingOptions={},): void {
-  let swayTime = 0;
+  let swayTime: number = 0;
   const swayLoop = () => {
     const rotationZ = maxRotation * Math.sin(swayTime);
     vrm.scene.rotation.z = rotationZ;
@@ -154,7 +160,7 @@ export type StartRandomEyeMovementOptions = {
   eyeMovementDuration?:    number;
   eyeMovementProbability?: number;
   angleVal?:               number;
-}
+};
 export function startRandomEyeMovementWithDice(
   vrm: VRM,
   { eyeMovementInterval    = 10000, // 次の瞬き動作を開始するまでのベースインターバル(ms)
@@ -167,7 +173,7 @@ export function startRandomEyeMovementWithDice(
     const rightEye = vrm.humanoid?.getNormalizedBoneNode('rightEye');
     if (!leftEye || !rightEye) return;
 
-    const angle = (((Math.random() - 0.5)/5)*10) * angleVal;
+    const angle: number = (((Math.random() - 0.5)/5)*10) * angleVal;
     leftEye.rotation.y  = angle;
     rightEye.rotation.y = angle;
     vrm.humanoid?.update();

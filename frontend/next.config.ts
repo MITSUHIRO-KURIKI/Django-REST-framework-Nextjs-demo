@@ -34,7 +34,7 @@ const nextConfig = {
   devIndicators: {
     appIsrStatus: false,  // Static Route インジケーター(非表示は非推奨)
   },
-  reactStrictMode: false, // true: 冪等性を確認. 2回 Effect が動く(本番は自動で False )
+  reactStrictMode: false, // true: 冪等性を確認. 2回 Effect が動く(本番は自動で false )
   trailingSlash:   false,
 };
 
