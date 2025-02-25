@@ -1,4 +1,4 @@
-# DjangoREST_NextJS_Demo
+# Django-REST-framework-Nextjs-demo  
 * 年末年始を利用してこれまでGitHubで作成していたDjangoをDjango REST frameworkとNextJSに勉強かねて書き換え。（一部途中）
   
 ## What is this?
