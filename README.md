@@ -7,7 +7,10 @@
 
 
 ## イメージ <sub><sup>`demo`</sup></sub>  
-執筆前
+<img width="720px" src="https://github.com/MITSUHIRO-KURIKI/DjangoOpenAIVRMChat/blob/main/frontend/public/base/img_fps10.gif" />  
+
+<sup>上記サンプルイメージでは、[フリー素材キャラクター「つくよみちゃん」](https://tyc.rei-yumesaki.net/ "フリー素材キャラクター「つくよみちゃん」") （© Rei Yumesaki）を使用しています。</sup>  
+  
 
 
 
